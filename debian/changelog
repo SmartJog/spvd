@@ -1,0 +1,5 @@
+spvd (0.1.0~dev-1) unstable; urgency=low
+
+  * Initial release. (Closes: #1848)
+
+ -- Gilles Dartiguelongue <gdartigu@smartjog.com>  Fri, 10 Apr 2009 16:39:32 +0200

@@ -1,0 +1,14 @@
+Source: spvd
+Section: misc
+Priority: optional
+Maintainer: Gilles Dartiguelongue <gdartigu@smartjog.com>
+Build-Depends: debhelper (>= 5.0.38), cdbs, python-central (>=0.5.6)
+XS-Python-Version: current
+Standards-Version: 3.8.0
+
+Package: spvd
+Architecture: all
+Depends: ${python:Depends}, importer, webengine, webengine-spv
+XB-Python-Version: ${python:Versions}
+Description: SmartJog core supervision.
+ Provides the daemon for SmartJog's core supervision.

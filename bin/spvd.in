@@ -1,0 +1,180 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+""" Body of the supervision daemon code. """
+
+import os
+import sys
+import optparse
+import resource
+
+import signal
+import ConfigParser
+
+import sjutils
+
+
+VERSION = "@PACKAGE_VERSION@"
+
+# Default daemon parameters.
+# File mode creation mask of the daemon.
+UMASK = 0
+
+# Default working directory for the daemon.
+WORKDIR = "/"
+
+# Default maximum for the number of available file descriptors.
+MAXFD = 1024
+
+DFLT_PIDFILE = "@localstatedir@/run/spvd/spvd.pid"
+DFLT_LOGFILE = "@localstatedir@/log/spvd/spvd.log"
+DFLT_CONFFILE = "@sysconfdir@/spvd.conf"
+
+
+sys.path.insert(1, '@pkgdatadir@/')
+sys.path.insert(1, '@pkgdatadir@/plugins/')
+sys.path.insert(1, '@datadir@/webengine/app/webengine/')
+
+# The standard I/O file descriptors are redirected to /dev/null by default.
+if (hasattr(os, "devnull")):
+    REDIRECT_TO = os.devnull
+else:
+    REDIRECT_TO = "/dev/null"
+
+class Monitor:
+    """ Dummy class holding basic functions of the daemon. """
+
+    def __init__(self, monitor_options):
+        """ Init method. """
+
+        self.plugins = {}
+        self.plugins_instances = {}
+        self.daemon = not monitor_options.nodaemon
+        self.log = sjutils.Logger2(monitor_options.logfile)
+        if self.daemon:
+            self.log.redirect_stdout_stderr()
+        self.parse_config(monitor_options.conffile)
+
+        signal.signal(signal.SIGTERM, self.shutdown)
+        signal.signal(signal.SIGINT,  self.shutdown)
+
+    def parse_config(self, configfile):
+        """ Parse spvd configuration file. """
+
+        config = ConfigParser.RawConfigParser()
+        config.read(configfile)
+
+        for section in config.sections():
+            options = dict(config.items(section))
+            if section == 'spvd':
+                self.plugins = dict([(plugin, plugin) for plugin in options['plugins'].split(', ') if plugin])
+
+        if not len(self.plugins):
+            self.log.write("*** there is no plugin configured ***")
+            self.shutdown()
+
+    def shutdown(self, signum=0, frame=None):
+        """ Shutdown spvd on SIGTERM and SIGINT. """
+
+        if frame:
+            del frame
+
+        #
+        for plugin_instance in self.plugins_instances.itervalues():
+            plugin_instance.stop = True
+
+        self.log.write("*** spvd version %s, terminated by signal" % VERSION, signum)
+        self.log.close()
+        if self.daemon:
+            os.remove(options.pidfile)
+        sys.exit(os.EX_OK)
+
+    def run(self):
+        """ Main function. """
+
+        self.log.write("*** spvd version %s, started ***" % VERSION)
+
+        for plugin in self.plugins:
+            try:
+                exec 'import %s' % plugin
+            except ImportError:
+                self.log.write('failed to load %s plugin' % plugin)
+
+            self.plugins_instances[plugin] = eval(self.plugins[plugin]).Plugin(self.log)
+
+        # Signals do not interrupt the join method in python 2.4
+        # signal.pause() is the Python equivalent to the pause(3) POSIX syscall
+        signal.pause()
+
+        # Wait for all threads
+        for plugin_instance in self.plugins_instances.itervalues():
+            plugin_instance.join()
+
+        self.shutdown()
+
+def daemonize(options):
+    """ Detach process from the controlling terminal and run it as a daemon. """
+
+    if os.path.isfile(options.pidfile):
+        fd = open(options.pidfile)
+        old_pid = int(fd.read())
+        fd.close()
+        if os.path.isfile("/proc/%d/cmdline" % old_pid):
+            print "There is already a running instance"
+            os._exit(os.EX_OK)
+
+    try:
+        pid = os.fork()
+    except OSError, e:
+        raise Exception, "%s [%d]" % (e.strerror, e.errno)
+
+    if pid == 0:
+        # The first child.
+        os.setsid()
+        f = open(options.pidfile, 'w')
+        f.write("%d" % os.getpid())
+        f.close()
+        Monitor(options).run()
+
+    else:
+        os._exit(os.EX_OK)
+
+    # Resource usage information.
+    maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+    if (maxfd == resource.RLIM_INFINITY):
+        maxfd = MAXFD
+
+    # Iterate through and close all file descriptors.
+    for fd in range(0, maxfd):
+        try:
+            os.close(fd)
+        except OSError:	# ERROR, fd wasn't open to begin with (ignored)
+            pass
+
+    os.open(REDIRECT_TO, os.O_RDWR)	# standard input (0)
+
+    # Duplicate standard input to standard output and standard error.
+    os.dup2(0, 1)			# standard output (1)
+    os.dup2(0, 2)			# standard error (2)
+
+    return os.EX_OK
+
+if __name__ == "__main__":
+
+    parser = optparse.OptionParser(
+        version="%prog " + VERSION, option_list=[
+        optparse.Option("-f", "--conf",       dest="conffile", help="Define spvd conf file", metavar="FILE", default=DFLT_CONFFILE),
+        optparse.Option("-l", "--log",        dest="logfile",  help="Define spvd log file",  metavar="FILE", default=DFLT_LOGFILE),
+        optparse.Option("-p", "--pid",        dest="pidfile",  help="Define spvd pid file",  metavar="FILE", default=DFLT_PIDFILE),
+        optparse.Option("-n", "--no-daemon",  dest="nodaemon", help="Define spvd log file",  action="store_true",  default=False)]
+        )
+
+    (options, args) = parser.parse_args()
+
+    if not options.nodaemon:
+        retCode = daemonize(options)
+    else:
+        Monitor(options).run()
+
+    sys.exit(retCode)
+

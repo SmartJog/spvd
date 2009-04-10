@@ -1,0 +1,19 @@
+AC_PREREQ(2.61)
+
+AC_INIT([spvd],[0.1.0~dev])
+
+AM_INIT_AUTOMAKE([foreign])
+
+AM_PATH_PYTHON
+
+AC_SUBST([pluginspkgdatadir], [\$\(pkgdatadir\)/plugins])
+
+AC_CONFIG_FILES([
+	Makefile
+	bin/Makefile
+	etc/Makefile
+	share/Makefile
+	share/plugins/Makefile
+])
+
+AC_OUTPUT

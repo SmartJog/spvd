@@ -13,8 +13,8 @@ class Job(BaseJob):
 
 class Plugin(BasePlugin):
 
-    def __init__(self, log):
-        BasePlugin.__init__(self, PLUGIN_NAME, log)
+    def __init__(self, log, url=None):
+        BasePlugin.__init__(self, PLUGIN_NAME, log, url)
         pass
 
     def createNewJob(self, job):

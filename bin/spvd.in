@@ -68,6 +68,7 @@ class Monitor:
             options = dict(config.items(section))
             if section == 'spvd':
                 self.plugins = dict([(plugin, plugin) for plugin in options['plugins'].split(', ') if plugin])
+                self.distant_url = options['distant_url'].strip()
 
         if not len(self.plugins):
             self.log.write("*** there is no plugin configured ***")

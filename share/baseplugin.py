@@ -4,19 +4,22 @@ import sys
 import time
 import threading
 import traceback
-from importer import Importer
+from importer import Importer, ImporterError
 
 def print_traceback(log):
     traceback.print_exc(file=log._file)
     #traceback.print_exc(file=sys.stdout)
 
+class BasePluginError(Exception):
+    """ Raised by BasePlugin. """
+
+    def __init__(self, error):
+        """ Init method. """
+        Exception.__init__(self, error)
+
 class BasePlugin(threading.Thread):
     """ Base class for job implementation in spvd. """
 
-    class InitError(Exception):
-        def __init__(self, error):
-            """ Init method. """
-            Exception.__init__(self, error)
 
     def __init__(self, name, logger, url=None):
         """ Init method.
@@ -70,8 +73,8 @@ class BasePlugin(threading.Thread):
                     self.log('status_id=%s New check found' % (check['status_id']))
                     try:
                         # Add the check to the list of jobs
-                        self.jobs[check['status_id']] = self.createNewJob(check)
-                    except BasePlugin.InitError, error:
+                        self.jobs[check['status_id']] = self.create_new_job(check)
+                    except BasePluginError, error:
                         self.log('Error while creating job: ' + traceback.format_exc())
                         update = self.__prepare_status_update(check, 'ERROR', str(error))
                         self.importer.call('spv', 'set_checks_status', update)
@@ -120,4 +123,9 @@ class BasePlugin(threading.Thread):
         except Exception:
             self.log('Fatal error: plugin stopped')
             print_traceback(self.logger)
+
+    def create_new_job(self, job):
+        """ Dummy method. To be overridden in plugins. """
+
+        raise BasePluginError('Plugin %s does not implement <create_new_job>' % self.name)
 

@@ -4,39 +4,22 @@ import sys
 import threading
 import traceback
 
-from baseplugin import BasePlugin
 
 def print_traceback(log):
     traceback.print_exc(file=log._file)
     traceback.print_exc(file=sys.stdout)
 
-class DefaultDict(dict):
-    """ Dictionary with a default value for a missing key.
 
-    Trivial DefaultDict implementation. Basically returns the default valuei
-    for missing keys.
+class BaseJobRuntimeError(Exception):
+    """ BaseJob Exceptions. """
 
-    TODO: Python2.5 has __missing__ for dict subclasses, we should use
-    this (or collections.defaultdict) instead when switching to 2.5"""
-
-    def __init__(self, default = None, *args, **kw):
+    def __init__(self, error):
         """ Init method. """
-
-        dict.__init__(self, *args, **kw)
-        self.default = default
-
-    def __getitem__(self, key):
-        """ Get an item of the dictionary. """
-
-        return self.get(key, self.default)
+        Exception.__init__(self, error)
 
 
 class BaseJob(threading.Thread):
     """ Base class for job implementation in spvd. """
-
-    class RuntimeError(Exception):
-        def __init__(self, error):
-            Exception.__init__(self, error)
 
     def __init__(self, logger, infos):
         """ Init method. """
@@ -57,10 +40,10 @@ class BaseJob(threading.Thread):
             self.log("Job started")
             try:
                 self.go()
-            except Exception, e:
-                self.log("Job returned an error: %s " % (str(e)))
+            except Exception, error:
+                self.log("Job returned an error: %s " % (str(error)))
                 print_traceback(self.logger)
-                self.infos['description'] = str(e)
+                self.infos['description'] = str(error)
                 self.infos['status'] = 'ERROR'
                 return
 
@@ -79,10 +62,16 @@ class BaseJob(threading.Thread):
             self.finished = False
             self.error = True
         else:
-            raise BaseJob.RuntimeError("Job finished with an unknown status: %s" % status)
+            raise BaseJobRuntimeError("Job finished with an unknown status: %s" % status)
 
     def log(self, message):
         """ Custom logging method. """
 
         self.logger.write(self.ident + message)
+
+    def go(self):
+        """ Dummy method. To be overridden in jobs. """
+
+        self.log('Job does not implement <go> method')
+        raise BaseJobRuntimeError('Job does not implement <go> method')
 

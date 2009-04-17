@@ -8,7 +8,7 @@ from importer import Importer
 
 def print_traceback(log):
     traceback.print_exc(file=log._file)
-    traceback.print_exc(file=sys.stdout)
+    #traceback.print_exc(file=sys.stdout)
 
 class BasePlugin(threading.Thread):
     """ Base class for job implementation in spvd. """
@@ -18,14 +18,19 @@ class BasePlugin(threading.Thread):
             """ Init method. """
             Exception.__init__(self, error)
 
-    def __init__(self, name, logger):
-        """ Init method. """
+    def __init__(self, name, logger, url=None):
+        """ Init method.
+
+        @url: url pass to Importer.
+        """
+
         threading.Thread.__init__(self)
         self.name       = name
         self.logger     = logger
 
-        # FIXME: what about distant_url ???
         self.importer   = Importer()
+        if url:
+            self.importer['distant_url'] = url
 
         self.jobs       = {}
         self.running    = {}
@@ -54,7 +59,7 @@ class BasePlugin(threading.Thread):
     def run(self):
         """ Run method. """
         try:
-            self.log("%s thread started" % self.name)
+            self.log("thread started")
 
             while not self.stop:
                 # Get an arbitrary number of checks for the current plugin
@@ -106,7 +111,11 @@ class BasePlugin(threading.Thread):
                 time.sleep(1)
 
             # Loop stopped
-            self.log("%s thread stopped" % self.name)
+            self.log("thread stopped")
+
+        except ImporterError, error:
+            self.log('Fatal error: plugin stopped')
+            self.log('Remote module error <' + str(error) + '>')
 
         except Exception:
             self.log('Fatal error: plugin stopped')

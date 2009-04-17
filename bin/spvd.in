@@ -73,6 +73,7 @@ class Monitor:
             if section == 'spvd':
                 self.plugins = dict([(plugin, plugin) for plugin in options['plugins'].split(', ') if plugin])
                 self.distant_url = options['distant_url'].strip()
+                self.log.write('Using %s' % self.distant_url)
 
         if not len(self.plugins):
             self.log.write("*** there is no plugin configured ***")
@@ -106,7 +107,7 @@ class Monitor:
             except ImportError:
                 self.log.write('failed to load %s plugin' % plugin)
 
-            self.plugins_instances[plugin] = eval(self.plugins[plugin]).Plugin(self.log)
+            self.plugins_instances[plugin] = eval(self.plugins[plugin]).Plugin(self.log, self.distant_url)
 
         # Signals do not interrupt the join method in python 2.4
         # signal.pause() is the Python equivalent to the pause(3) POSIX syscall

@@ -67,10 +67,10 @@ class BasePlugin(threading.Thread):
             while not self.stop:
                 # Get an arbitrary number of checks for the current plugin
                 # FIXME: make limit configurable
-                checks = self.importer.call('spv', 'get_checks', limit=10, plugin=[self.name])
+                checks = self.importer.call('spv', 'get_checks', limit=10, plugins=[self.name])
 
-                for check in checks:
-                    self.log('status_id=%s New check found' % (check['status_id']))
+                for status_id, check in checks.iteritems():
+                    self.log('status_id=%d New check found' % status_id)
                     try:
                         # Add the check to the list of jobs
                         self.jobs[check['status_id']] = self.create_new_job(check)

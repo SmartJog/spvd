@@ -17,6 +17,6 @@ class Plugin(BasePlugin):
         BasePlugin.__init__(self, PLUGIN_NAME, log, url)
         pass
 
-    def createNewJob(self, job):
-        return  Job(self.logger, job)
+    def create_new_job(self, job):
+        return Job(self.logger, job)
 

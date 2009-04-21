@@ -20,7 +20,6 @@ class BasePluginError(Exception):
 class BasePlugin(threading.Thread):
     """ Base class for job implementation in spvd. """
 
-
     def __init__(self, name, logger, url=None):
         """ Init method.
 
@@ -48,16 +47,26 @@ class BasePlugin(threading.Thread):
         self.logger.write("%s %s" % (self.name, message))
 
     @staticmethod
-    def __prepare_status_update(check, status, message):
+    def __prepare_status_update(check):
         """ Prepare a structure for status update. """
         status = {'status_id': check['status_id'],
             'sequence_id': check['seq_id'],
-            'status': status,
-            'message': message,
+            'status': check['status'],
+            'message': check['message'],
         }
 
         return status
 
+    def __debug_scheduling(self):
+        """ Helper function to print scheduling informations. """
+
+        if self.debug:
+            return
+
+        print "running:", len(self.running), "pending:", len(self.pending), "queued:", len(self.jobs)
+        print "running keys:", self.running.keys()
+        print "pending keys:", self.pending.keys()
+        print "jobs keys   :", self.jobs.keys()
 
     def run(self):
         """ Run method. """
@@ -65,52 +74,87 @@ class BasePlugin(threading.Thread):
             self.log("thread started")
 
             while not self.stop:
+                self.__debug_scheduling()
+
                 # Get an arbitrary number of checks for the current plugin
                 # FIXME: make limit configurable
-                checks = self.importer.call('spv', 'get_checks', limit=10, plugins=[self.name])
+                if len(self.jobs) < 3:
+                    checks = self.importer.call('spv', 'get_checks', limit=4, plugins=[self.name])
 
+                # Push jobs to the job queue
                 for status_id, check in checks.iteritems():
+                    check['plugin'] = self.name
                     self.log('status_id=%d New check found' % status_id)
+
                     try:
                         # Add the check to the list of jobs
+
+                        # Not useful since not syncing status to the DB
+                        #check['status'] = 'PENDING'
+                        #check['message'] = 'Check queued'
+
+                        # Skip this job, it is already running
+                        if check['status_id'] in self.running.keys():
+                            self.running[check['status_id']].infos['status'] = 'TIME_SLOT_EXPIRED'
+                            print "This job %s is already running" % check['status_id']
+                            continue
+
                         self.jobs[check['status_id']] = self.create_new_job(check)
+
                     except BasePluginError, error:
                         self.log('Error while creating job: ' + traceback.format_exc())
-                        update = self.__prepare_status_update(check, 'ERROR', str(error))
-                        self.importer.call('spv', 'set_checks_status', update)
+                        check['status'] = 'ERROR'
+                        check['message'] = str(error)
+                        update = self.__prepare_status_update(check)
+                        self.importer.call('spv', 'set_checks_status', [update])
                         continue
+
+                    # Adding the check to the pending queue
+                    self.pending[check['status_id']] = self.jobs[check['status_id']]
 
                 # Verify status of currently running check jobs
                 for running in self.running.keys():
 
                     if self.running[running].finished:
+                        self.log('status_id=%d check finished' % running)
+                        self.__debug_scheduling()
+
                         self.running.pop(running)
                         job = self.jobs.pop(running)
-                        job.infos['status'] = 'FINISHED'
-                        update = self.__prepare_status_update(job.infos, 'GOOD', 'Finished')
-                        self.importer.call('spv', 'set_checks_status', update)
+                        if not 'status' in job.infos:
+                            job.infos['status'] = 'FINISHED'
+                        job.infos['message'] = 'Check finished'
+                        update = self.__prepare_status_update(job.infos)
+                        self.importer.call('spv', 'set_checks_status', [update])
+
+                        self.__debug_scheduling()
 
                     elif self.running[running].error:
+                        self.log('status_id=%d check in error' % running)
+
                         self.running.pop(running)
                         job = self.jobs.pop(running)
                         job.infos['status'] = 'ERROR'
-                        update = self.__prepare_status_update(job.infos, 'ERROR', 'Error')
-                        self.importer.call('spv', 'set_checks_status', update)
+                        if job.infos['message'] is None:
+                            job.infos['message'] = 'Check reported an error but no message'
+                        update = self.__prepare_status_update(job.infos)
+                        self.importer.call('spv', 'set_checks_status', [update])
 
-                # No more jobs running but some pending
-                if not len(self.running) and len(self.pending):
+                # Not enough jobs running but some pending
+                while len(self.running) < 3 and len(self.pending) > 0:
                     job_ids = self.pending.keys()
                     job_ids.sort()
                     to_run = job_ids[0]
-                    self.jobs[to_run].infos['status'] = 'RUNNING'
-                    self.jobs[to_run].infos['description'] = 'Job started'
+                    self.log('status_id=%d Popped from the pending queue' % to_run)
+
+                    # Not useful since not syncing status to the DB
+                    #self.jobs[to_run].infos['status'] = 'RUNNING'
+                    #self.jobs[to_run].infos['message'] = 'Job started'
                     self.jobs[to_run].start()
                     self.pending.pop(to_run)
                     self.running[to_run] = self.jobs[to_run]
 
-                #for job in self.jobs:
-                #    sjtools.update_job(self.jobs[job].infos, self.jobs[job].infos['settings'])
-
+                # FIXME: make this configurable to avoid storming the DB
                 time.sleep(1)
 
             # Loop stopped

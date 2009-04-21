@@ -36,7 +36,8 @@ class BasePlugin(threading.Thread):
         self.name       = name
         self.logger     = logger
 
-        self.params     = { 'max_parallel_checks': 3,
+        self.params     = { 'importer_retry_timeout': 10,
+                            'max_parallel_checks': 3,
                             'max_checks_queue': 9,
                             'debug': False,
                         }
@@ -84,14 +85,19 @@ class BasePlugin(threading.Thread):
     def run(self):
         """ Run method. """
         try:
+            checks = {}
             self.log("thread started")
 
             while not self.stop:
                 self.__debug_scheduling()
 
                 # Get an arbitrary number of checks for the current plugin
-                if len(self.jobs) < self.params['max_checks_queue'] + 1:
-                    checks = self.importer.call('spv', 'get_checks', limit=self.params['max_checks_queue'], plugins=[self.name])
+                try:
+                    if len(self.jobs) < self.params['max_checks_queue'] + 1:
+                        checks = self.importer.call('spv', 'get_checks', limit=self.params['max_checks_queue'], plugins=[self.name])
+                except ImporterError, error:
+                    self.log('Remote module error <' + str(error) + '>')
+                    time.sleep(self.params['importer_retry_timeout'])
 
                 # Push jobs to the job queue
                 for status_id, check in checks.iteritems():
@@ -118,7 +124,13 @@ class BasePlugin(threading.Thread):
                         check['status'] = 'ERROR'
                         check['message'] = str(error)
                         update = self.__prepare_status_update(check)
-                        self.importer.call('spv', 'set_checks_status', [update])
+
+                        try:
+                            self.importer.call('spv', 'set_checks_status', [update])
+                        except ImporterError, error:
+                            self.log('Remote module error <' + str(error) + '>')
+                            time.sleep(self.params['importer_retry_timeout'])
+
                         continue
 
                     # Adding the check to the pending queue
@@ -137,7 +149,12 @@ class BasePlugin(threading.Thread):
                             job.infos['status'] = 'FINISHED'
                         job.infos['message'] = 'Check finished'
                         update = self.__prepare_status_update(job.infos)
-                        self.importer.call('spv', 'set_checks_status', [update])
+
+                        try:
+                            self.importer.call('spv', 'set_checks_status', [update])
+                        except ImporterError, error:
+                            self.log('Remote module error <' + str(error) + '>')
+                            time.sleep(self.params['importer_retry_timeout'])
 
                         self.__debug_scheduling()
 
@@ -150,7 +167,12 @@ class BasePlugin(threading.Thread):
                         if job.infos['message'] is None:
                             job.infos['message'] = 'Check reported an error but no message'
                         update = self.__prepare_status_update(job.infos)
-                        self.importer.call('spv', 'set_checks_status', [update])
+
+                        try:
+                            self.importer.call('spv', 'set_checks_status', [update])
+                        except ImporterError, error:
+                            self.log('Remote module error <' + str(error) + '>')
+                            time.sleep(self.params['importer_retry_timeout'])
 
                 # Not enough jobs running but some pending
                 while len(self.running) < self.params['max_parallel_checks'] and len(self.pending) > 0:
@@ -171,10 +193,6 @@ class BasePlugin(threading.Thread):
 
             # Loop stopped
             self.log("thread stopped")
-
-        except ImporterError, error:
-            self.log('Fatal error: plugin stopped')
-            self.log('Remote module error <' + str(error) + '>')
 
         except Exception:
             self.log('Fatal error: plugin stopped')

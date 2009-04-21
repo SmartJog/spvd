@@ -1,5 +1,6 @@
 from baseplugin import BasePlugin
 from basejob import BaseJob
+import time
 
 PLUGIN_NAME = "sample"
 
@@ -10,6 +11,8 @@ class Job(BaseJob):
 
     def go(self):
         self.log('Sample plugin online !')
+        time.sleep(4)
+        self.finished = True;
 
 class Plugin(BasePlugin):
 

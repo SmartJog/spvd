@@ -30,7 +30,7 @@ class BaseJob(threading.Thread):
         self.finished = False
         self.error = False
         self.setDaemon(True)
-        self.ident = "%s job_id=%s " % (self.infos['plugin'], self.infos['job_id'])
+        self.ident = "%s job_id=%s " % (self.infos['plugin'], self.infos['status_id'])
         self.log("Job created")
 
     def run(self):

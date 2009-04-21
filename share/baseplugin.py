@@ -20,15 +20,28 @@ class BasePluginError(Exception):
 class BasePlugin(threading.Thread):
     """ Base class for job implementation in spvd. """
 
-    def __init__(self, name, logger, url=None):
+    def __init__(self, name, logger, url=None, params=None):
         """ Init method.
 
         @url: url pass to Importer.
+
+        @params is a dictionnary of optional parameters among:
+        max_parallel_checks: maximum number of threads for this plugin
+        max_checks_queue:    maximum number of checks to get from
+                             the DB and queue for execution
+        debug:               enable debugging information
         """
 
         threading.Thread.__init__(self)
         self.name       = name
         self.logger     = logger
+
+        self.params     = { 'max_parallel_checks': 3,
+                            'max_checks_queue': 9,
+                            'debug': False,
+                        }
+        if params:
+            self.params.update(params)
 
         self.importer   = Importer()
         if url:
@@ -60,7 +73,7 @@ class BasePlugin(threading.Thread):
     def __debug_scheduling(self):
         """ Helper function to print scheduling informations. """
 
-        if self.debug:
+        if not self.params['debug']:
             return
 
         print "running:", len(self.running), "pending:", len(self.pending), "queued:", len(self.jobs)
@@ -77,9 +90,8 @@ class BasePlugin(threading.Thread):
                 self.__debug_scheduling()
 
                 # Get an arbitrary number of checks for the current plugin
-                # FIXME: make limit configurable
-                if len(self.jobs) < 3:
-                    checks = self.importer.call('spv', 'get_checks', limit=4, plugins=[self.name])
+                if len(self.jobs) < self.params['max_checks_queue'] + 1:
+                    checks = self.importer.call('spv', 'get_checks', limit=self.params['max_checks_queue'], plugins=[self.name])
 
                 # Push jobs to the job queue
                 for status_id, check in checks.iteritems():
@@ -141,7 +153,7 @@ class BasePlugin(threading.Thread):
                         self.importer.call('spv', 'set_checks_status', [update])
 
                 # Not enough jobs running but some pending
-                while len(self.running) < 3 and len(self.pending) > 0:
+                while len(self.running) < self.params['max_parallel_checks'] and len(self.pending) > 0:
                     job_ids = self.pending.keys()
                     job_ids.sort()
                     to_run = job_ids[0]

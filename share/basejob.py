@@ -70,8 +70,17 @@ class BaseJob(threading.Thread):
         self.logger.write(self.ident + message)
 
     def go(self):
-        """ Dummy method. To be overridden in jobs. """
+        """ Calls specific check in BaseJob class of the plugin. """
 
-        self.log('Job does not implement <go> method')
-        raise BaseJobRuntimeError('Job does not implement <go> method')
+        if hasattr(self, self.infos['plugin_check']):
+            exec ('self.' + self.infos['plugin_check'] + '()')
+        else:
+            message = 'Job does not implement <%s> method' % self.infos['plugin_check']
+
+            self.infos['message'] = message
+            self.infos['status'] = 'ERROR'
+            self.set_status('error')
+
+            self.log(message)
+            raise BaseJobRuntimeError(message)
 

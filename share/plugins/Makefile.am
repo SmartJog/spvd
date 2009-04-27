@@ -1,1 +1,1 @@
-dist_pluginspkgdata_DATA = sample.py
+dist_pluginspkgdata_DATA = sample.py events.py

@@ -9,10 +9,14 @@ class Job(BaseJob):
     def __init__(self, logger, infos):
         BaseJob.__init__(self, logger, infos)
 
-    def go(self):
-        self.log('Sample plugin online !')
+    def nothing(self):
+        self.log('This check is doing nothing.')
         time.sleep(4)
-        self.finished = True;
+        self.set_status('finished')
+
+    def pierrot(self):
+        self.log('Au clair de la lune.')
+        self.set_status('finished')
 
 class Plugin(BasePlugin):
 

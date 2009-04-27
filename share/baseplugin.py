@@ -147,7 +147,8 @@ class BasePlugin(threading.Thread):
                         job = self.jobs.pop(running)
                         if not 'status' in job.infos:
                             job.infos['status'] = 'FINISHED'
-                        job.infos['message'] = 'Check finished'
+                        if not 'message' in job.infos:
+                            job.infos['message'] = 'Check finished'
                         update = self.__prepare_status_update(job.infos)
 
                         try:
@@ -164,7 +165,7 @@ class BasePlugin(threading.Thread):
                         self.running.pop(running)
                         job = self.jobs.pop(running)
                         job.infos['status'] = 'ERROR'
-                        if job.infos['message'] is None:
+                        if not 'message' in job.infos:
                             job.infos['message'] = 'Check reported an error but no message'
                         update = self.__prepare_status_update(job.infos)
 

@@ -48,6 +48,7 @@ class Monitor:
         """ Init method. """
 
         self.plugins = {}
+        self.plugins_params = {}
         self.plugins_instances = {}
         self.daemon = not monitor_options.nodaemon
         if self.daemon:
@@ -74,6 +75,19 @@ class Monitor:
                 self.plugins = dict([(plugin, plugin) for plugin in options['plugins'].split(', ') if plugin])
                 self.distant_url = options['distant_url'].strip()
                 self.log.write('Using %s' % self.distant_url)
+            elif section.startswith('spvd:'):
+                plugin_name = section[5:]
+                if not plugin_name in self.plugins_params:
+                    self.plugins_params[plugin_name] = {}
+
+                plugin_options = {}
+                for key, value in options.iteritems():
+                    if key in ['importer_retry_timeout', 'max_parallel_checks', 'max_checks_queue', 'check_poll']:
+                        plugin_options[key] = float(value)
+                    elif key == 'debug':
+                        plugin_options[key] = value == 'True' and True or False
+
+                self.plugins_params[plugin_name].update(plugin_options)
 
         if not len(self.plugins):
             self.log.write("*** there is no plugin configured ***")
@@ -107,7 +121,10 @@ class Monitor:
             except ImportError:
                 self.log.write('failed to load %s plugin' % plugin)
 
-            self.plugins_instances[plugin] = eval(self.plugins[plugin]).Plugin(self.log, self.distant_url)
+            if plugin in self.plugins_params:
+                self.plugins_instances[plugin] = eval(self.plugins[plugin]).Plugin(self.log, self.distant_url, params=self.plugins_params[plugin])
+            else:
+                self.plugins_instances[plugin] = eval(self.plugins[plugin]).Plugin(self.log, self.distant_url)
 
         # Signals do not interrupt the join method in python 2.4
         # signal.pause() is the Python equivalent to the pause(3) POSIX syscall

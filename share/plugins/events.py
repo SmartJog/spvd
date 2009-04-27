@@ -28,14 +28,14 @@ class Job(BaseJob):
 
             self.log('Got %d events in error.' % len(events))
             self.set_status('finished')
-        except:
-            self.infos['message'] = 'Importer error'
+        except Exception, error:
+            self.infos['message'] = 'Importer error <' + str(error) + '>'
             self.set_status('error')
 
 class Plugin(BasePlugin):
 
-    def __init__(self, log, url=None):
-        BasePlugin.__init__(self, PLUGIN_NAME, log, url)
+    def __init__(self, log, url=None, params=None):
+        BasePlugin.__init__(self, PLUGIN_NAME, log, url, params)
         pass
 
     def create_new_job(self, job):

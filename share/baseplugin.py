@@ -20,16 +20,20 @@ class BasePluginError(Exception):
 class BasePlugin(threading.Thread):
     """ Base class for job implementation in spvd. """
 
+
     def __init__(self, name, logger, url=None, params=None):
         """ Init method.
 
         @url: url pass to Importer.
 
         @params is a dictionnary of optional parameters among:
-        max_parallel_checks: maximum number of threads for this plugin
-        max_checks_queue:    maximum number of checks to get from
-                             the DB and queue for execution
-        debug:               enable debugging information
+        importer_retry_timeout: interval between successive importer calls if
+                                importer failed.
+        max_parallel_checks:    maximum number of threads for this plugin.
+        max_checks_queue:       maximum number of checks to get from
+                                the DB and queue for execution.
+        check_poll:             interval between two get_checks call.
+        debug:                  enable debugging information.
         """
 
         threading.Thread.__init__(self)
@@ -39,8 +43,10 @@ class BasePlugin(threading.Thread):
         self.params     = { 'importer_retry_timeout': 10,
                             'max_parallel_checks': 3,
                             'max_checks_queue': 9,
+                            'check_poll': 1,
                             'debug': False,
                         }
+
         if params:
             self.params.update(params)
 
@@ -189,8 +195,7 @@ class BasePlugin(threading.Thread):
                     self.pending.pop(to_run)
                     self.running[to_run] = self.jobs[to_run]
 
-                # FIXME: make this configurable to avoid storming the DB
-                time.sleep(1)
+                time.sleep(self.params['check_poll'])
 
             # Loop stopped
             self.log("thread stopped")

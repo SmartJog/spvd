@@ -8,7 +8,6 @@ edit = sed \
 	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g' \
 	-e 's|@datadir[@]|$(datadir)|g' \
 	-e 's|@sysconfdir[@]|$(sysconfdir)|g' \
-	-e 's|@datadir[@]|$(pkgdatadir)|g' \
 	-e 's|@exec_prefix[@]|$(exec_prefix)|g' \
 	-e 's|@prefix[@]|$(prefix)|g'
 

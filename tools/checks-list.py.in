@@ -1,0 +1,58 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+""" Helper script to list checks available in SPV plugins. """
+
+import os
+import sys
+import tempfile
+import threading
+
+sys.path.insert(1, '@pkgdatadir@/')
+sys.path.insert(1, '@pkgdatadir@/plugins/')
+sys.path.insert(1, '@datadir@/webengine/app/webengine/')
+
+import basejob
+
+def main():
+    thread_methods = dir(threading.Thread)
+    basejob_methods = dir(basejob.BaseJob)
+
+    fd, fname = tempfile.mkstemp(text=True)
+    tmp = os.fdopen(fd,'w')
+    for root, dirs, files in os.walk('@pkgdatadir@/plugins/'):
+
+        for module in files:
+            if not module.endswith('.py'):
+                continue
+
+            plugin = module[:-3]
+            try:
+                print "Trying to import [%s]" % plugin
+                exec 'import ' + plugin
+            except ImportError:
+                print "Failed to import %s plugin" % plugin
+                continue
+
+            methods = [method for method in dir(eval(plugin + '.Job'))
+                if not method.startswith('_')
+                and not method in thread_methods
+                and not method in basejob_methods]
+
+            for method in methods:
+                print plugin + '.Job.' + method
+
+                try:
+                    doc = eval(plugin + '.Job.' + method).__doc__
+                    doc = doc.split('\n')[0].strip()
+                except:
+                    doc = "No description for %s.%s" % (plugin, method)
+
+                tmp.write("INSERT INTO checks (plugin, plugin_check, name, repeat) VALUES ('%s', '%s', '%s', 900);\n" \
+                    % (plugin, method, doc))
+
+    tmp.close()
+    print 'Please review SQL statements in:', fname
+
+if __name__ == '__main__':
+    main()

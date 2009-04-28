@@ -14,6 +14,7 @@ AC_CONFIG_FILES([
 	etc/Makefile
 	share/Makefile
 	share/plugins/Makefile
+	tools/Makefile
 ])
 
 AC_OUTPUT

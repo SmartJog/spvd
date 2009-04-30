@@ -1,0 +1,48 @@
+spvd
+spvd
+%%mtime
+
+%!target : man
+%!encoding : utf-8
+%!postproc(man): "^(\.TH.*) 1 "  "\1 8 "
+
+= NAME =
+
+spvd - Supervision daemon
+
+= SYNOPSIS =
+
+**spvd** ""[""OPTIONS""]""...
+
+= DESCRIPTION =
+
+spvd is a highly threaded and modular supervision daemon.
+
+= OPTIONS =
+
+: **-f** //configfile//
+Use //configfile// instead of the default.
+
+: **-l** //logfile//
+Use //logfile// instead of the default.
+
+: **-p** //pidfile//
+Use //pidfile// instead of the default.
+
+: **-n**, **--no-daemon**
+Specify whether to run in the foreground or the background.
+
+: **-h**, **--help**
+Print out usage.
+
+
+= AUTHOR =
+
+The spvd daemon and this manual page have been written by the **SmartJog** company.
+
+
+= SEE ALSO =
+
+**spvd.conf**(5)
+
+

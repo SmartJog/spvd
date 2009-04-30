@@ -1,0 +1,59 @@
+spvd.conf
+spvd.conf
+%%mtime
+
+%!target : man
+%!encoding : utf-8
+%!postproc(man): "^(\.TH.*) 1 "  "\1 5 "
+
+= NAME =
+
+/etc/spvd.conf - a configure file for **spvd**(8)
+
+= DESCRIPTION =
+
+**/etc/spvd.conf** is a text file in INI format. It is composed of a **[spvd]**
+section and of an optional **[spvd:plugin]** section to pass specific options to
+a plugin.
+
+
+The **[spvd]** section must contain the following options:
+
+: **distant_url** = //URL//
+URL of the supervision webservice to ask for configured checks.
+
+: **plugins** = //plugin1//, //...//
+Comma separated list of plugin names. This list will be used to determine which
+plugins to load and ask work for.
+
+
+The **[spvd:plugin]** type of sections can accept specific options per plugin.
+Current options supported by plugins provided with **spvd**(8) are:
+
+: **importer_retry_timeout** = //10//
+Interval in seconds between attempts to contact supervision webservice when a
+call to the webservice failed.
+
+: **max_parallel_checks** = //3//
+Maximum number of checks to run in parallel for this plugin.
+
+: **max_checks_queue** = //9//
+Maximum number of checks to keep in queue for this plugin.
+
+: **check_poll** = //3//
+Interval in seconds between contacts of the supervision to retrieve new checks.
+
+: **debug** = //True|False//
+Activate/Desactivate debugging of the plugin. Currently this is used to debug
+scheduling issues.
+
+
+= AUTHOR =
+
+The spvd daemon and this manual page have been written by the **SmartJog** company.
+
+
+= SEE ALSO =
+
+**spvd**(8)
+

@@ -1,1 +1,1 @@
-SUBDIRS = bin etc share tools
+SUBDIRS = bin doc etc share tools

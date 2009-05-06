@@ -1,7 +1,9 @@
 
 toolsdir = $(pkgdatadir)/tools
 tools_DATA = \
-	checks-list.py
+	checks-list.py \
+	gis2spv.py \
+	spv-inject.sh
 
 edit = sed \
 	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g' \
@@ -10,7 +12,7 @@ edit = sed \
 	-e 's|@prefix[@]|$(prefix)|g'
 
 $(tools_DATA): $(tools_DATA:=.in) Makefile
-	$(edit) $@.in > $@
+	$(edit) $(top_srcdir)/tools/$@.in > $(top_builddir)/tools/$@
 
 CLEANFILES = $(tools_DATA)
 

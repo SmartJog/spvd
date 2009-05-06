@@ -2,6 +2,7 @@ from baseplugin import BasePlugin
 from basejob import BaseJob
 import time
 import urllib2
+from lxml.etree import ElementTree
 
 PLUGIN_NAME = "streams"
 
@@ -9,14 +10,27 @@ class Job(BaseJob):
 
     def __init__(self, logger, infos):
         BaseJob.__init__(self, logger, infos)
-        self.url = 'http://' + self.infos['address'] + '/exporter/'
+        self.url = self.infos['address']
 
     def get_stream(self):
         """ Check that a stream is reachable. """
 
         try:
             stream = urllib2.urlopen(self.url)
-            data = stream.read(100)
+            tree = ElementTree()
+
+            tree = ElementTree.parse(stream)
+            for outline in tree.findall("//outline"):
+              print outline.get('xmlUrl') 
+
+            if pl[0]
+            if stream.readline() = '<asx version="3.0">':
+                for atom in stream.readlines():
+                    if atom.strip().startswith('<ref href'):
+                        url = 
+                        urls.append()
+
+            for url in urls:
 
             if len(data) == 100:
                 self.infos['message'] = 'Stream OK'

@@ -1,0 +1,112 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+""" Helper script to list checks available in SPV plugins. """
+
+import os
+import sys
+import tempfile
+import threading
+
+from psycopg2.pool import ThreadedConnectionPool
+import MySQLdb
+
+sys.path.insert(1, '@pkgdatadir@/')
+sys.path.insert(1, '@pkgdatadir@/plugins/')
+sys.path.insert(1, '@datadir@/webengine/app/webengine/')
+
+import basejob
+
+def manage_db(func):
+    """ Helper for connection to databases """
+
+    def __manage_psycopg2(*args, **kw):
+        conn = conn_pool.getconn()
+        # Try to get a new valid connection if the one we got is
+        # already closed, since getconn() does not necessarily return
+        # a valid connection
+        if conn.closed is 1:
+            old_conn = conn
+            conn = conn_pool.getconn()
+            conn_pool.putconn(old_conn)
+        try:
+            try:
+                return func(conn, *args, **kw)
+            finally:
+                conn_pool.putconn(conn)
+        except:
+            if conn.closed != 1:
+                conn.rollback()
+            raise
+
+    # Keep the original function's docstring/name/properties
+    __manage_db.__doc__ = func.__doc__
+    __manage_db.__name__ = func.__name__
+    __manage_db.__module__ = func.__module__
+    __manage_db.__dict__.update(func.__dict__)
+    return __manage_db
+
+
+def main():
+    pg_pool = ThreadedConnectionPool(1, 200, "host=localhost port=5432 user=postgres password=postgres dbname=spv")
+    pg_conn = pg_pool.getconn()
+
+    cursor = pg_conn.cursor()
+    cursor.execute("""SELECT * FROM objects
+        JOIN objects_group ON objects.obj_id = objects_group.obj_id
+        JOIN groups ON groups.grp_id = objects_group.grp_id
+        AND groups.name = 'Streams'""")
+    pg_conn.commit()
+    current_objects = cursor.fetchall()
+    print "Number of rows returned: %d" % cursor.rowcount
+    cursor.close()
+
+    try:
+        my_conn = MySQLdb.connect(host='devgis.lab', user='root', passwd='toto', db='gis_v3')
+    except MySQLdb.Error, e:
+        print "Error %d: %s" % (e.args[0], e.args[1])
+        sys.exit (1)
+
+    # Let the module do some work for us
+    cursor = my_conn.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""SELECT stream.ID, meta.url, programme.nom_dossier AS dossier, stream.url AS station, programme.nom AS programme FROM stream, meta, programme WHERE
+    meta.ID_stream = stream.ID AND
+    stream.ID_etat = 1 AND
+    stream.ID_type = 1 AND
+    stream.ID_programme = programme.ID AND
+    stream.ID_machine <> 0
+    """)
+    streams = cursor.fetchall()
+    #print streams
+
+    print "Number of rows returned: %d" % cursor.rowcount
+    cursor.close()
+
+    objects = [object[1] for object in current_objects]
+    for stream in streams:
+        url = 'http://www.tv-radio.com/station/' + stream['dossier'] + '/' + stream['station']
+
+        if url not in objects:
+            print 'Adding %s to objects' % url
+            cursor = pg_conn.cursor()
+            query = 'INSERT INTO objects (address) VALUES (%(url)s)'
+            cursor.execute(query, {'url': url})
+            cursor.close()
+
+            cursor = pg_conn.cursor()
+            query = 'SELECT obj_id FROM objects WHERE address = %(url)s'
+            cursor.execute(query, {'url': url})
+            # Due to uniqueness constraint there can be only one result
+            obj_id = cursor.fetchone()[0]
+            cursor.close()
+
+            cursor = pg_conn.cursor()
+            query = 'INSERT INTO objects_group (obj_id, grp_id) VALUES (%d,%d)' % (obj_id, 3)
+            cursor.execute(query)
+            cursor.close()
+
+    pg_conn.commit()
+    pg_pool.putconn(pg_conn)
+
+if __name__ == '__main__':
+    main()

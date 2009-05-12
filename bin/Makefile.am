@@ -12,7 +12,7 @@ edit = sed \
 	-e 's|@prefix[@]|$(prefix)|g'
 
 $(bin_SCRIPTS): $(bin_SCRIPTS:=.in) Makefile
-	$(edit) $@.in > $@
+	$(edit) $(top_srcdir)/bin/$@.in > $(top_builddir)/bin/$@
 
 CLEANFILES = $(bin_SCRIPTS)
 

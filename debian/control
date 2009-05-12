@@ -10,10 +10,11 @@ Package: spvd
 Architecture: all
 Depends: ${python:Depends}, importer, webengine, webengine-spv, python-lxml
 XB-Python-Version: ${python:Versions}
-Description: SmartJog core supervision.
+Description: SmartJog core supervision
  Provides the daemon for SmartJog's core supervision.
 
 Package: spv-data
 Architecture: all
 Suggests: postgresql
-Description: SmartJog schema for supervision.
+Description: SmartJog schema for supervision
+ Provides SQL schemas and tools to load them into a postgres database.

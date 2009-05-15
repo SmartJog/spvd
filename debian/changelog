@@ -1,3 +1,10 @@
+spvd (0.1.1~dev-1) unstable; urgency=low
+
+  * New upstream release.
+  * Distribute plugins.
+
+ -- Gilles Dartiguelongue <gdartigu@smartjog.com>  Fri, 15 May 2009 16:15:31 +0200
+
 spvd (0.1.0-1) unstable; urgency=low
 
   * Initial release. (Closes: #1848)

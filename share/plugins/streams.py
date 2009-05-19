@@ -1,7 +1,6 @@
 from baseplugin import BasePlugin
 from basejob import BaseJob
 import urllib2
-from lxml.etree import ElementTree
 
 PLUGIN_NAME = "streams"
 
@@ -9,41 +8,40 @@ class Job(BaseJob):
 
     def __init__(self, logger, infos):
         BaseJob.__init__(self, logger, infos)
+
         self.url = self.infos['address']
+        if self.url.startswith('mms://') or self.url.endswith('wmv') or self.url.endswith('wma'):
+            self.kind = 'Windows'
+        else:
+            self.kind = 'Regular'
+
+        if self.url.startswith('mms://'):
+            self.url = 'http://' + self.url[6:]
 
     def get_stream(self):
         """ Check that a stream is reachable. """
 
-        # All stream have a corresponding asx playlist
-        if not self.url.endswith('asx'):
-            self.url = self.url[0:-3] + 'asx'
-
         try:
-            urls = []
-            playlist = urllib2.urlopen(self.url)
-            tree = ElementTree()
-            parser = tree.parse(playlist)
+            if self.kind == 'Windows':
+                # Mimic mplayer behavior to some extent
+                headers = {'Accept': '*/*',
+                    'User-Agent': 'NSPlayer/4.1.0.3856',
+                    'Pragma': 'xClientGUID={c77e7400-738a-11d2-9add-0020af0a3278}',
+                    'Pragma': 'no-cache,rate=1.000000,stream-time=0,stream-offset=0:0,request-context=2,max-duration=0',
+                    'Pragma': 'xPlayStrm=1',
+                }
+                request = urllib2.Request(self.url, None, headers)
+                stream = urllib2.urlopen(request)
+            else:
+                stream = urllib2.urlopen(self.url)
 
-            # Extract all urls from playlist
-            for ref in parser.xpath('//ref'):
-                url = ref.get('href')
+            data = stream.read(100)
+            print "DATA [", data, "]"
 
-                if url.startswith('mms://'):
-                    url = 'http://' + url[6:]
-
-                if url not in urls:
-                    urls.append(url)
-
-            # Check connectivity of each stream
-            for url in urls:
-                stream = urllib2.urlopen(url)
-                data = stream.read(100)
-
-                if len(data) < 100:
-                    self.infos['message'] = 'Could not get enough data, stream <%s> might be down' % url
-                    self.infos['status'] = 'ERROR'
-                    self.set_status('error')
-                    break
+            if len(data) < 100:
+                self.infos['message'] = 'Could not get enough data, stream <%s> might be down' % self.url
+                self.infos['status'] = 'ERROR'
+                self.set_status('error')
             else:
                 self.infos['message'] = 'Stream OK'
                 self.infos['status'] = 'FINISHED'

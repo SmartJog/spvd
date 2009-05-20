@@ -59,6 +59,7 @@ def main():
         AND meta.ID_etat = 1
         AND stream.nom <> "On Demand"
         AND stream.aka = 0
+        AND stream.supervision = 1
         ORDER BY programme.nom_dossier ASC
         """ % ",".join(['3', '4', '8', '9']))
     streams = cursor.fetchall()

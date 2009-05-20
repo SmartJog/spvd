@@ -6,9 +6,10 @@ PLUGIN_NAME = "streams"
 
 class Job(BaseJob):
 
-    def __init__(self, logger, infos):
+    def __init__(self, logger, infos, min_fetch=1024):
         BaseJob.__init__(self, logger, infos)
 
+        self.min_fetch = int(min_fetch)
         self.url = self.infos['address']
         if self.url.startswith('mms://') or self.url.endswith('wmv') or self.url.endswith('wma'):
             self.kind = 'Windows'
@@ -35,10 +36,9 @@ class Job(BaseJob):
             else:
                 stream = urllib2.urlopen(self.url)
 
-            data = stream.read(100)
-            print "DATA [", data, "]"
+            data = stream.read(self.min_fetch)
 
-            if len(data) < 100:
+            if len(data) < self.min_fetch:
                 self.infos['message'] = 'Could not get enough data, stream <%s> might be down' % self.url
                 self.infos['status'] = 'ERROR'
                 self.set_status('error')
@@ -56,8 +56,19 @@ class Job(BaseJob):
 class Plugin(BasePlugin):
 
     def __init__(self, log, url=None, params=None):
-        BasePlugin.__init__(self, PLUGIN_NAME, log, url, params)
+        """ Init method of the streams plugin.
+
+        @params is a dictionnary of optional parameters among:
+        streams_min_fetch: minimum data to fetch to check if the sream is alive
+
+        @see BasePlugin documentation
+        """
+
+        streams_params = { 'streams_min_fetch': 1024 }
+        streams_params.update(params)
+
+        BasePlugin.__init__(self, PLUGIN_NAME, log, url, streams_params)
 
     def create_new_job(self, job):
-        return Job(self.logger, job)
+        return Job(self.logger, job, self.params['streams_min_fetch'])
 

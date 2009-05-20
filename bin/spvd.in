@@ -82,7 +82,7 @@ class Monitor:
 
                 plugin_options = {}
                 for key, value in options.iteritems():
-                    if key in ['importer_retry_timeout', 'max_parallel_checks', 'max_checks_queue', 'check_poll']:
+                    if key in ['importer_retry_timeout', 'max_parallel_checks', 'max_checks_queue', 'check_poll', 'streams_min_fetch']:
                         plugin_options[key] = float(value)
                     elif key == 'debug':
                         plugin_options[key] = value == 'True' and True or False

@@ -1,4 +1,4 @@
-Version 0.1.1~dev
+Version 0.1.1 Released on 2009/05/25
 
 	* Fix streams plugin to actually work.
 	* Make streams plugin more configurable.

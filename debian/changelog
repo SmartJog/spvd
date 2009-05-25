@@ -1,4 +1,4 @@
-spvd (0.1.1~dev-1) unstable; urgency=low
+spvd (0.1.1-1) unstable; urgency=low
 
   * New upstream release.
   * Distribute plugins.

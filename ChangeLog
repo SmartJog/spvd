@@ -1,6 +1,10 @@
 Version 0.1.1~dev
 
 	* Fix streams plugin to actually work.
+	* Make streams plugin more configurable.
+	* Rework stream plugin to work directly with streams.
+	* Filter by actual streams to monitor (gis2spv).
+	* Use Lisardo's request to load spv (gis2spv).
 
 Version 0.1.0 Released on 2009/05/12
 

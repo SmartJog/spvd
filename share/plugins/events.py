@@ -2,7 +2,6 @@
 
 from baseplugin import BasePlugin
 from basejob import BaseJob
-import time
 from importer import Importer
 
 PLUGIN_NAME = "events"
@@ -27,16 +26,14 @@ class Job(BaseJob):
                 self.infos['status'] = 'OK'
 
             self.log('Got %d events in error.' % len(events))
-            self.set_status('finished')
         except Exception, error:
             self.infos['message'] = 'Importer error <' + str(error) + '>'
-            self.set_status('error')
+            self.infos['status'] = 'ERROR'
 
 class Plugin(BasePlugin):
 
-    def __init__(self, log, url=None, params=None):
-        BasePlugin.__init__(self, PLUGIN_NAME, log, url, params)
-        pass
+    def __init__(self, log, event, url=None, params=None):
+        BasePlugin.__init__(self, PLUGIN_NAME, log, event, url, params)
 
     def create_new_job(self, job):
         return Job(self.logger, job)

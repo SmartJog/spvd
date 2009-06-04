@@ -12,7 +12,7 @@ import signal
 import ConfigParser
 
 import sjutils
-
+import threading
 
 VERSION = "@PACKAGE_VERSION@"
 
@@ -47,21 +47,23 @@ class Monitor:
     def __init__(self, monitor_options):
         """ Init method. """
 
+        self.pool = None
         self.plugins = {}
         self.plugins_params = {}
-        self.plugins_instances = {}
-        self.daemon = not monitor_options.nodaemon
-        if self.daemon:
-            self.log = sjutils.Logger2(monitor_options.logfile)
+        self.dismiss = threading.Event()
+        self.options = monitor_options
+
+        if not self.options.nodaemon:
+            self.log = sjutils.Logger2(self.options.logfile)
             self.log.redirect_stdout_stderr()
         else:
             # This is not portable but who cares ?
             self.log = sjutils.Logger2('/dev/stdout')
 
-        self.parse_config(monitor_options.conffile)
+        self.parse_config(self.options.conffile)
 
-        signal.signal(signal.SIGTERM, self.shutdown)
-        signal.signal(signal.SIGINT,  self.shutdown)
+        signal.signal(signal.SIGTERM, self.handle_signal)
+        signal.signal(signal.SIGINT,  self.handle_signal)
 
     def parse_config(self, configfile):
         """ Parse spvd configuration file. """
@@ -93,46 +95,83 @@ class Monitor:
             self.log.write("*** there is no plugin configured ***")
             self.shutdown()
 
-    def shutdown(self, signum=0, frame=None):
-        """ Shutdown spvd on SIGTERM and SIGINT. """
+    def handle_signal(self, signum=0, frame=None):
+        """ Handle signals telling all threads to exit. """
+
+        self.log.write('*** received Signal %d ***' % signum)
 
         if frame:
             del frame
 
-        # Tell threads we are trying to stop
-        for plugin_instance in self.plugins_instances.itervalues():
-            plugin_instance.stop = True
+        self.dismiss.set()
+        self.log.write('dismiss event sent')
 
-        self.log.write("*** spvd version %s, terminated by signal" % VERSION, signum)
+    def shutdown(self):
+        """ Shutdown spvd cleanly. """
+
+        self.log.write('threads alive: %d' % threading.activeCount())
+        self.pool.dismiss_workers(len(self.plugins))
+        self.log.write('workers dismissed')
+        self.pool.join_all_dismissed_workers()
+        self.log.write('workers joined')
+
+        self.log.write("*** spvd version %s, terminated ***" % VERSION)
         # Shows a warning when daemonized while it should not
         #self.log.close()
-        if self.daemon:
-            os.remove(options.pidfile)
+        if not self.options.nodaemon:
+            os.remove(self.options.pidfile)
         sys.exit(os.EX_OK)
+
+    def plugin_instance_start(self, plugin):
+        """ Starts a supervision plugin. """
+
+        try:
+            exec 'import %s' % plugin
+        except ImportError:
+            self.log.write('failed to load %s plugin' % plugin)
+            self.pool.dismiss_workers(1)
+
+        if plugin in self.plugins_params:
+            inst = eval(self.plugins[plugin]).Plugin(self.log, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
+        else:
+            inst = eval(self.plugins[plugin]).Plugin(self.log, self.dismiss, self.distant_url)
+            self.pool.dismiss_workers(1)
+
+        # Wait for plugin thread to join
+        inst.join()
+
+        self.log.write('plugin %s joined' % plugin)
+        return True
+
+    def plugin_instance_stop(self, request, result):
+        """ Stops a supervision plugin. """
+
+        self.log.write("request %s finished" % request.request_id)
 
     def run(self):
         """ Main function. """
 
         self.log.write("*** spvd version %s, started ***" % VERSION)
+        self.pool = sjutils.threadpool.ThreadPool(len(self.plugins))
 
         for plugin in self.plugins:
-            try:
-                exec 'import %s' % plugin
-            except ImportError:
-                self.log.write('failed to load %s plugin' % plugin)
+            req = sjutils.threadpool.WorkRequest(
+                self.plugin_instance_start,
+                [plugin],
+                None,
+                request_id=plugin,
+                callback=self.plugin_instance_stop
+            )
 
-            if plugin in self.plugins_params:
-                self.plugins_instances[plugin] = eval(self.plugins[plugin]).Plugin(self.log, self.distant_url, params=self.plugins_params[plugin])
-            else:
-                self.plugins_instances[plugin] = eval(self.plugins[plugin]).Plugin(self.log, self.distant_url)
+            self.pool.queue_request(req)
+            self.log.write("plugin %s/id:%s queued" % (plugin, req.request_id))
 
-        # Signals do not interrupt the join method in python 2.4
-        # signal.pause() is the Python equivalent to the pause(3) POSIX syscall
-        signal.pause()
-
-        # Wait for all threads
-        for plugin_instance in self.plugins_instances.itervalues():
-            plugin_instance.join()
+        while not self.dismiss.isSet():
+            for thread in threading.enumerate():
+                if hasattr(thread, 'daemon') and thread.daemon:
+                    self.log.write('no daemon thread [%s] is alive' % thread.getName())
+            self.pool.poll()
+            self.dismiss.wait(10)
 
         self.shutdown()
 
@@ -149,15 +188,15 @@ def daemonize(options):
 
     try:
         pid = os.fork()
-    except OSError, e:
-        raise Exception, "%s [%d]" % (e.strerror, e.errno)
+    except OSError, error:
+        raise Exception, "%s [%d]" % (error.strerror, error.errno)
 
     if pid == 0:
         # The first child.
         os.setsid()
-        f = open(options.pidfile, 'w')
-        f.write("%d" % os.getpid())
-        f.close()
+        pidfile = open(options.pidfile, 'w')
+        pidfile.write("%d" % os.getpid())
+        pidfile.close()
         Monitor(options).run()
 
     else:
@@ -193,12 +232,12 @@ if __name__ == "__main__":
         optparse.Option("-n", "--no-daemon",  dest="nodaemon", help="Define spvd log file",  action="store_true",  default=False)]
         )
 
-    (options, args) = parser.parse_args()
+    (parsed_options, args) = parser.parse_args()
 
-    if not options.nodaemon:
-        retCode = daemonize(options)
+    if not parsed_options.nodaemon:
+        retCode = daemonize(parsed_options)
     else:
-        Monitor(options).run()
+        Monitor(parsed_options).run()
 
     sys.exit(retCode)
 

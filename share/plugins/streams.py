@@ -1,3 +1,5 @@
+""" Plugin to check internet radio streams. """
+
 from baseplugin import BasePlugin
 from basejob import BaseJob
 import urllib2
@@ -41,21 +43,18 @@ class Job(BaseJob):
             if len(data) < self.min_fetch:
                 self.infos['message'] = 'Could not get enough data, stream <%s> might be down' % self.url
                 self.infos['status'] = 'ERROR'
-                self.set_status('error')
             else:
                 self.infos['message'] = 'Stream OK'
                 self.infos['status'] = 'FINISHED'
-                self.set_status('finished')
 
         except urllib2.URLError, error:
             self.infos['message'] = 'URLError: <' + str(error) + '>'
             self.infos['status'] = 'ERROR'
-            self.set_status('error')
 
 
 class Plugin(BasePlugin):
 
-    def __init__(self, log, url=None, params=None):
+    def __init__(self, log, event, url=None, params=None):
         """ Init method of the streams plugin.
 
         @params is a dictionnary of optional parameters among:
@@ -67,7 +66,7 @@ class Plugin(BasePlugin):
         streams_params = { 'streams_min_fetch': 1024 }
         streams_params.update(params)
 
-        BasePlugin.__init__(self, PLUGIN_NAME, log, url, streams_params)
+        BasePlugin.__init__(self, PLUGIN_NAME, log, event, url, streams_params)
 
     def create_new_job(self, job):
         return Job(self.logger, job, self.params['streams_min_fetch'])

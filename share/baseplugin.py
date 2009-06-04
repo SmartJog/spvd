@@ -1,14 +1,10 @@
 """ BasePlugin definitions. """
 
-import sys
-import time
 import threading
 import traceback
+import Queue
 from importer import Importer, ImporterError
-
-def print_traceback(log):
-    traceback.print_exc(file=log._file)
-    #traceback.print_exc(file=sys.stdout)
+from sjutils import threadpool
 
 class BasePluginError(Exception):
     """ Raised by BasePlugin. """
@@ -21,7 +17,7 @@ class BasePlugin(threading.Thread):
     """ Base class for job implementation in spvd. """
 
 
-    def __init__(self, name, logger, url=None, params=None):
+    def __init__(self, name, logger, event, url=None, params=None):
         """ Init method.
 
         @url: url pass to Importer.
@@ -37,8 +33,10 @@ class BasePlugin(threading.Thread):
         """
 
         threading.Thread.__init__(self)
+        self.setDaemon(True)
         self.name       = name
         self.logger     = logger
+        self.dismiss    = event
 
         self.params     = { 'importer_retry_timeout': 10,
                             'max_parallel_checks': 3,
@@ -54,11 +52,8 @@ class BasePlugin(threading.Thread):
         if url:
             self.importer['distant_url'] = url
 
-        self.jobs       = {}
-        self.running    = {}
-        self.pending    = {}
+        self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))
 
-        self.stop = False
         self.start()
         self.log("init complete")
 
@@ -77,132 +72,106 @@ class BasePlugin(threading.Thread):
 
         return status
 
-    def __debug_scheduling(self):
-        """ Helper function to print scheduling informations. """
+    def job_start(self, check):
+        """ Starts a job. """
 
-        if not self.params['debug']:
-            return
+        check['plugin'] = self.name
+        job = self.create_new_job(check)
 
-        print "running:", len(self.running), "pending:", len(self.pending), "queued:", len(self.jobs)
-        print "running keys:", self.running.keys()
-        print "pending keys:", self.pending.keys()
-        print "jobs keys   :", self.jobs.keys()
+        return job.run()
+
+    def job_stop(self, request, result):
+        """ Stops a job. """
+
+        self.log('*** Result from request #%s: %s' % (request.request_id, result['check_message']))
+
+        if 'message' not in result:
+            result['message'] = 'No message'
+
+        saved = False
+        update = self.__prepare_status_update(result)
+
+        while not saved and not self.dismiss.isSet():
+            try:
+                self.importer.call('spv', 'set_checks_status', [update])
+                self.log('*** Result from request #%s: saved' % request.request_id)
+                saved = True
+            except ImporterError, error:
+                self.log('remote module error <' + str(error) + '>')
+                self.dismiss.wait(self.params['importer_retry_timeout'])
+
+    def handle_exception(self, request, exc_info):
+        """ Handle exception in a job. """
+
+        if not isinstance(exc_info, tuple):
+            # Something is seriously wrong...
+            self.log('*** Worker thread raised an exception ***')
+            self.log(request)
+            self.log(exc_info)
+            raise SystemExit
+
+        self.log("*** Exception occured in request #%s: %s" % \
+            (request.request_id, exc_info))
 
     def run(self):
         """ Run method. """
+
         try:
-            checks = {}
-            self.log("thread started")
+            self.log("plugin started")
 
-            while not self.stop:
-                self.__debug_scheduling()
+            while not self.dismiss.isSet():
+                self.dismiss.wait(self.params['check_poll'])
 
-                # Get an arbitrary number of checks for the current plugin
+                self.log('number of threads alive %d' % threading.activeCount())
+                self.log('approximate number of jobs in queue %d' % self.job_pool._requests_queue.full())
+
                 try:
-                    if len(self.jobs) < self.params['max_checks_queue'] + 1:
-                        checks = self.importer.call('spv', 'get_checks', limit=self.params['max_checks_queue'], plugins=[self.name])
+                    self.job_pool.poll()
+                except threadpool.NoResultsPending:
+                    self.log('there was no result to poll')
+
+                if self.job_pool._requests_queue.full():
+                    self.log('queue estimated full')
+                    continue
+
+                # Get checks for the current plugin
+                checks = {}
+
+                try:
+                    checks = self.importer.call('spv', 'get_checks',
+                        limit=(self.params['max_checks_queue'] - self.job_pool._requests_queue.qsize()),
+                        plugins=[self.name])
                 except ImporterError, error:
-                    self.log('Remote module error <' + str(error) + '>')
-                    time.sleep(self.params['importer_retry_timeout'])
+                    self.log('remote module error <' + str(error) + '>')
+                    self.dismiss.wait(self.params['importer_retry_timeout'])
 
-                # Push jobs to the job queue
-                for status_id, check in checks.iteritems():
-                    check['plugin'] = self.name
-                    self.log('status_id=%d New check found' % status_id)
+                self.log('got %s checks' % len(checks))
 
-                    try:
-                        # Add the check to the list of jobs
-
-                        # Not useful since not syncing status to the DB
-                        #check['status'] = 'PENDING'
-                        #check['message'] = 'Check queued'
-
-                        # Skip this job, it is already running
-                        if check['status_id'] in self.running.keys():
-                            self.running[check['status_id']].infos['status'] = 'TIME_SLOT_EXPIRED'
-                            print "This job %s is already running" % check['status_id']
-                            continue
-
-                        self.jobs[check['status_id']] = self.create_new_job(check)
-
-                    except BasePluginError, error:
-                        self.log('Error while creating job: ' + traceback.format_exc())
-                        check['status'] = 'ERROR'
-                        check['message'] = str(error)
-                        update = self.__prepare_status_update(check)
-
-                        try:
-                            self.importer.call('spv', 'set_checks_status', [update])
-                        except ImporterError, error:
-                            self.log('Remote module error <' + str(error) + '>')
-                            time.sleep(self.params['importer_retry_timeout'])
-
-                        continue
-
-                    # Adding the check to the pending queue
-                    self.pending[check['status_id']] = self.jobs[check['status_id']]
-
-                # Verify status of currently running check jobs
-                for running in self.running.keys():
-
-                    if self.running[running].finished:
-                        self.log('status_id=%d check finished' % running)
-                        self.__debug_scheduling()
-
-                        self.running.pop(running)
-                        job = self.jobs.pop(running)
-                        if not 'status' in job.infos:
-                            job.infos['status'] = 'FINISHED'
-                        if not 'message' in job.infos:
-                            job.infos['message'] = 'Check finished'
-                        update = self.__prepare_status_update(job.infos)
-
-                        try:
-                            self.importer.call('spv', 'set_checks_status', [update])
-                        except ImporterError, error:
-                            self.log('Remote module error <' + str(error) + '>')
-                            time.sleep(self.params['importer_retry_timeout'])
-
-                        self.__debug_scheduling()
-
-                    elif self.running[running].error:
-                        self.log('status_id=%d check in error' % running)
-
-                        self.running.pop(running)
-                        job = self.jobs.pop(running)
-                        job.infos['status'] = 'ERROR'
-                        if not 'message' in job.infos:
-                            job.infos['message'] = 'Check reported an error but no message'
-                        update = self.__prepare_status_update(job.infos)
-
-                        try:
-                            self.importer.call('spv', 'set_checks_status', [update])
-                        except ImporterError, error:
-                            self.log('Remote module error <' + str(error) + '>')
-                            time.sleep(self.params['importer_retry_timeout'])
-
-                # Not enough jobs running but some pending
-                while len(self.running) < self.params['max_parallel_checks'] and len(self.pending) > 0:
-                    job_ids = self.pending.keys()
-                    job_ids.sort()
-                    to_run = job_ids[0]
-                    self.log('status_id=%d Popped from the pending queue' % to_run)
-
-                    # Not useful since not syncing status to the DB
-                    #self.jobs[to_run].infos['status'] = 'RUNNING'
-                    #self.jobs[to_run].infos['message'] = 'Job started'
-                    self.jobs[to_run].start()
-                    self.pending.pop(to_run)
-                    self.running[to_run] = self.jobs[to_run]
-
-                time.sleep(self.params['check_poll'])
-
-            # Loop stopped
-            self.log("thread stopped")
+                try:
+                    for status_id, check in checks.iteritems():
+                        req = threadpool.WorkRequest(
+                            self.job_start,
+                            [check],
+                            None,
+                            request_id='check ' + str(status_id),
+                            callback=self.job_stop,
+                            exc_callback=self.handle_exception
+                        )
+                        self.job_pool.queue_request(req, self.params['check_poll'])
+                        self.log('Work request #%s added.' % req.request_id)
+                except Queue.Full:
+                    self.log("queue is full")
+                    continue
 
         except Exception:
-            self.log('Fatal error: plugin stopped')
-            print_traceback(self.logger)
+            self.log('fatal error: plugin stopped')
+            self.log(traceback.print_exc())
+
+        self.log('dismissing workers')
+        self.job_pool.dismiss_workers(int(self.params['max_parallel_checks']))
+
+        # Do not join, takes time and results will not be written to database anyway
+        self.log("plugin stopped")
 
     def create_new_job(self, job):
         """ Dummy method. To be overridden in plugins. """

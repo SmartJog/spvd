@@ -12,17 +12,16 @@ class Job(BaseJob):
     def nothing(self):
         self.log('This check is doing nothing.')
         time.sleep(4)
-        self.set_status('finished')
+        self.infos['status'] = 'FINISHED'
 
     def pierrot(self):
         self.log('Au clair de la lune.')
-        self.set_status('finished')
+        self.infos['status'] = 'FINISHED'
 
 class Plugin(BasePlugin):
 
-    def __init__(self, log, url=None, params=None):
-        BasePlugin.__init__(self, PLUGIN_NAME, log, url, params)
-        pass
+    def __init__(self, log, event, url=None, params=None):
+        BasePlugin.__init__(self, PLUGIN_NAME, log, event, url, params)
 
     def create_new_job(self, job):
         return Job(self.logger, job)

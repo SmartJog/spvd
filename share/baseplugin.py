@@ -78,12 +78,14 @@ class BasePlugin(threading.Thread):
         check['plugin'] = self.name
         job = self.create_new_job(check)
 
+        self.log('check %s started' % check['status_id'])
         return job.run()
 
     def job_stop(self, request, result):
         """ Stops a job. """
 
-        self.log('*** Result from request #%s: %s' % (request.request_id, result['check_message']))
+        if self.params['debug']:
+            self.log('request #%s: check result is %s' % (request.request_id, result['check_message']))
 
         if 'message' not in result:
             result['message'] = 'No message'

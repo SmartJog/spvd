@@ -112,6 +112,8 @@ class BasePlugin(threading.Thread):
 
         self.log("*** Exception occured in request #%s: %s" % \
             (request.request_id, exc_info))
+        for line in traceback.format_exception(exc_info[0], exc_info[1], exc_info[2]):
+            self.log(line)
 
     def run(self):
         """ Run method. """

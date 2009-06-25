@@ -24,6 +24,8 @@ class Job(BaseJob):
     def get_stream(self):
         """ Check that a stream is reachable. """
 
+        streams = None
+
         try:
             if self.kind == 'Windows':
                 # Mimic mplayer behavior to some extent
@@ -40,6 +42,11 @@ class Job(BaseJob):
 
             data = stream.read(self.min_fetch)
 
+            # We have to set recv to None, otherwise circular dependencies leads to
+            # memory leaks, see http://bugs.python.org/issue1208304.
+            stream.fp._sock.recv = None
+            stream.close()
+
             if len(data) < self.min_fetch:
                 self.infos['message'] = 'Could not get enough data, stream <%s> might be down' % self.url
                 self.infos['status'] = 'ERROR'
@@ -51,6 +58,12 @@ class Job(BaseJob):
             self.infos['message'] = 'URLError: <' + str(error) + '>'
             self.infos['status'] = 'ERROR'
 
+            if hasattr(error, 'fp'):
+                # We have to set recv to None, otherwise circular dependencies leads to
+                # memory leaks, see http://bugs.python.org/issue1208304.
+                error.fp.fp._sock.recv = None
+                error.fp.fp.close()
+                error.fp.close()
 
 class Plugin(BasePlugin):
 

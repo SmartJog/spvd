@@ -7,6 +7,7 @@ Version 0.2.0~dev
 	* Use qsize to show work queue lenght.
 	* Do not kill plugin thread when a check fails to save its status.
 	* Make sure qsize crazy output cannot be passed to get_checks.
+	* Fix fd and memory leak due to urllib2, closes: #2052.
 
 Version 0.1.1 Released on 2009/05/25
 

@@ -4,6 +4,7 @@ Version 0.2.0~dev
 	* Use check id directly for WorkRequest since it already is unique.
 	* Return False if there is an exception during plugin startup.
 	* Be more verbose when a check raises an exception.
+	* Use qsize to show work queue lenght.
 
 Version 0.1.1 Released on 2009/05/25
 

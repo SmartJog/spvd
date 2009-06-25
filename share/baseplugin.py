@@ -125,7 +125,7 @@ class BasePlugin(threading.Thread):
                 self.dismiss.wait(self.params['check_poll'])
 
                 self.log('number of threads alive %d' % threading.activeCount())
-                self.log('approximate number of jobs in queue %d' % self.job_pool._requests_queue.full())
+                self.log('approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
 
                 try:
                     self.job_pool.poll()

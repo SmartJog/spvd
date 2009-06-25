@@ -88,17 +88,23 @@ class BasePlugin(threading.Thread):
         if 'message' not in result:
             result['message'] = 'No message'
 
-        saved = False
+        loop = True
         update = self.__prepare_status_update(result)
 
-        while not saved and not self.dismiss.isSet():
+        while loop and not self.dismiss.isSet():
             try:
                 self.importer.call('spv', 'set_checks_status', [update])
-                self.log('*** Result from request #%s: saved' % request.request_id)
-                saved = True
+                if self.params['debug']:
+                    self.log('request #%s: check result saved' % request.request_id)
+                loop = False
             except ImporterError, error:
                 self.log('remote module error <' + str(error) + '>')
                 self.dismiss.wait(self.params['importer_retry_timeout'])
+            except Exception:
+                self.log('Fatal error during check result saving')
+                loop = False
+
+        self.log('request #%s: check terminated' % request.request_id)
 
     def handle_exception(self, request, exc_info):
         """ Handle exception in a job. """

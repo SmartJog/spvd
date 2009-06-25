@@ -6,6 +6,7 @@ Version 0.2.0~dev
 	* Be more verbose when a check raises an exception.
 	* Use qsize to show work queue lenght.
 	* Do not kill plugin thread when a check fails to save its status.
+	* Make sure qsize crazy output cannot be passed to get_checks.
 
 Version 0.1.1 Released on 2009/05/25
 

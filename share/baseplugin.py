@@ -140,16 +140,25 @@ class BasePlugin(threading.Thread):
                 except threadpool.NoResultsPending:
                     self.log('there was no result to poll')
 
-                if self.job_pool._requests_queue.full():
+                # Queue.qsize is unreliable, try to mitigate its weirdness
+                limit_fetch = self.params['max_checks_queue'] - self.job_pool._requests_queue.qsize()
+                limit_fetch = min(abs(limit_fetch), self.params['max_checks_queue'])
+
+                if self.job_pool._requests_queue.full() \
+                    or limit_fetch > self.params['max_checks_queue'] \
+                    or limit_fetch == 0:
+                    # Non sensical value or no check to fetch
                     self.log('queue estimated full')
                     continue
 
                 # Get checks for the current plugin
                 checks = {}
+                self.log('*** fetching %s more checks' % limit_fetch)
 
                 try:
+
                     checks = self.importer.call('spv', 'get_checks',
-                        limit=(self.params['max_checks_queue'] - self.job_pool._requests_queue.qsize()),
+                        limit=limit_fetch,
                         plugins=[self.name])
                 except ImporterError, error:
                     self.log('remote module error <' + str(error) + '>')

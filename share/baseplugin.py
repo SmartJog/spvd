@@ -153,7 +153,7 @@ class BasePlugin(threading.Thread):
                             self.job_start,
                             [check],
                             None,
-                            request_id='check ' + str(status_id),
+                            request_id=status_id,
                             callback=self.job_stop,
                             exc_callback=self.handle_exception
                         )

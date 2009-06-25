@@ -1,6 +1,7 @@
 Version 0.2.0~dev
 
 	* Use ThreadPool from sjutils and replace custom task managment, closes: #1992.
+	* Use check id directly for WorkRequest since it already is unique.
 
 Version 0.1.1 Released on 2009/05/25
 

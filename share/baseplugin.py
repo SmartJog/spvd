@@ -75,7 +75,6 @@ class BasePlugin(threading.Thread):
             (self.params['ssl_cert'] and self.params['ssl_key']) and \
             "on" or "off", self.importer['distant_url'] or "localhost")
 
-
     def log(self, message):
         """ Custom logging method. """
         self.logger.write("%s %s" % (self.name, message))
@@ -97,7 +96,9 @@ class BasePlugin(threading.Thread):
         check['plugin'] = self.name
         job = self.create_new_job(check)
 
-        self.log('check %s started' % check['status_id'])
+        if self.params['debug']:
+            self.log('check %s started' % check['status_id'])
+
         return job.run()
 
     def job_stop(self, request, result):
@@ -175,15 +176,14 @@ class BasePlugin(threading.Thread):
 
                 # Get checks for the current plugin
                 checks = {}
-                self.log('*** fetching %s more checks' % limit_fetch)
+                self.log('*** fetching %s checks' % limit_fetch)
 
                 try:
-
                     checks = self.importer.call('spv', 'get_checks',
                         limit=limit_fetch,
                         plugins=[self.name])
                 except ImporterError, error:
-                    self.log('remote module error <' + str(error) + '>')
+                    self.log('remote module error while retrieving checks <' + str(error) + '>')
                     self.dismiss.wait(self.params['importer_retry_timeout'])
 
                 self.log('got %s checks' % len(checks))
@@ -199,7 +199,8 @@ class BasePlugin(threading.Thread):
                             exc_callback=self.handle_exception
                         )
                         self.job_pool.queue_request(req, self.params['check_poll'])
-                        self.log('Work request #%s added.' % req.request_id)
+                        if self.params['debug']:
+                            self.log('Work request #%s added.' % req.request_id)
                 except Queue.Full:
                     self.log("queue is full")
                     continue

@@ -20,12 +20,10 @@ class BaseJob:
         self.infos = infos
         self.logger = logger
         self.ident = "%s job_id=%s " % (self.infos['plugin'], self.infos['status_id'])
-        self.log("Job created")
 
     def run(self):
         """ Starts the job implemented by this plugin. """
 
-        self.log("Job started")
         try:
             self.go()
 
@@ -35,7 +33,6 @@ class BaseJob:
             self.infos['description'] = str(error)
             self.infos['status'] = 'ERROR'
 
-        self.log("Job finished")
         return self.infos
 
     def log(self, message):

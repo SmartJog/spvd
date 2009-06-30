@@ -53,6 +53,10 @@ Full path to the certificate to present when contacting distant webservice.
 : **ssl_key** = //path_to_secret_key_file//
 Full path to the secret key to use when contacting distant webservice.
 
+: **result_threshold** = //5//
+Maximum number of result that are queue before forcing commiting the results to
+the webservice.
+
 = AUTHOR =
 
 The spvd daemon and this manual page have been written by the **SmartJog** company.

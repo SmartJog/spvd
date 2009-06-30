@@ -32,6 +32,8 @@ class BasePlugin(threading.Thread):
         debug:                  enable debugging information.
         ssl_cert:               client X.509 public key.
         ssl_key:                client X.509 secret key.
+        result_threshold:       number of results waiting for a commit that
+                                will trigger a main-loop wake up.
         """
 
         threading.Thread.__init__(self)
@@ -39,6 +41,8 @@ class BasePlugin(threading.Thread):
         self.name       = name
         self.logger     = logger
         self.dismiss    = event
+        self.resqueue   = {}
+        self.rescommit  = threading.Event()
 
         self.params     = { 'importer_retry_timeout': 10,
                             'max_parallel_checks': 3,
@@ -47,6 +51,7 @@ class BasePlugin(threading.Thread):
                             'debug': False,
                             'ssl_cert': None,
                             'ssl_key': None,
+                            'result_threshold': 5,
                         }
 
         if params:
@@ -104,23 +109,14 @@ class BasePlugin(threading.Thread):
         if 'message' not in result:
             result['message'] = 'No message'
 
-        loop = True
         update = self.__prepare_status_update(result)
+        self.resqueue.update({result['status_id']: update})
 
-        while loop and not self.dismiss.isSet():
-            try:
-                self.importer.call('spv', 'set_checks_status', [update])
-                if self.params['debug']:
-                    self.log('request #%s: check result saved' % request.request_id)
-                loop = False
-            except ImporterError, error:
-                self.log('remote module error <' + str(error) + '>')
-                self.dismiss.wait(self.params['importer_retry_timeout'])
-            except Exception:
-                self.log('Fatal error during check result saving')
-                loop = False
+        if self.params['debug']:
+            self.log('request #%s: check terminated' % request.request_id)
 
-        self.log('request #%s: check terminated' % request.request_id)
+        if len(self.resqueue) > self.params['result_threshold']:
+            self.rescommit.set()
 
     def handle_exception(self, request, exc_info):
         """ Handle exception in a job. """
@@ -144,7 +140,8 @@ class BasePlugin(threading.Thread):
             self.log("plugin started")
 
             while not self.dismiss.isSet():
-                self.dismiss.wait(self.params['check_poll'])
+
+                self.rescommit.wait(self.params['check_poll'])
 
                 self.log('number of threads alive %d' % threading.activeCount())
                 self.log('approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
@@ -164,6 +161,17 @@ class BasePlugin(threading.Thread):
                     # Non sensical value or no check to fetch
                     self.log('queue estimated full')
                     continue
+
+                if self.resqueue:
+                    self.log('%d results to commit' % len(self.resqueue))
+
+                    # Try to commit results in queue
+                    try:
+                        self.importer.call('spv', 'set_checks_status', self.resqueue.values())
+                        self.resqueue = {}
+                        self.rescommit.clear()
+                    except ImporterError, error:
+                        self.log('remote module error while commiting updates <' + str(error) + '>')
 
                 # Get checks for the current plugin
                 checks = {}

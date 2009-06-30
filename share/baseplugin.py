@@ -63,7 +63,13 @@ class BasePlugin(threading.Thread):
         self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))
 
         self.start()
-        self.log("init complete")
+        self.log(self)
+
+    def __str__(self):
+        return "<BasePlugin name=%s ssl=%s url=%s>" % (self.name, \
+            (self.params['ssl_cert'] and self.params['ssl_key']) and \
+            "on" or "off", self.importer['distant_url'] or "localhost")
+
 
     def log(self, message):
         """ Custom logging method. """

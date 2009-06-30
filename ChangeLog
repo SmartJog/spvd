@@ -1,6 +1,7 @@
 Version 0.2.1~dev
 
 	* Add support for SSL certificates, closes: #2051.
+	* Add a __str__ method to BasePlugin.
 
 Version 0.2.0 Released on 2009/06/25
 

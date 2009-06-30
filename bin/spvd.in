@@ -88,6 +88,8 @@ class Monitor:
                         plugin_options[key] = float(value)
                     elif key == 'debug':
                         plugin_options[key] = value == 'True' and True or False
+                    elif key in ['ssl_cert', 'ssl_key']:
+                        plugin_options[key] = value
 
                 self.plugins_params[plugin_name].update(plugin_options)
 

@@ -1,3 +1,9 @@
+spvd (0.2.1~dev-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Gilles Dartiguelongue <gdartigu@smartjog.com>  Tue, 30 Jun 2009 12:21:54 +0200
+
 spvd (0.2.0-1) unstable; urgency=low
 
   * New upstream release.

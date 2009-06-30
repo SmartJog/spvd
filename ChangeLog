@@ -1,3 +1,7 @@
+Version 0.2.1~dev
+
+	* Add support for SSL certificates, closes: #2051.
+
 Version 0.2.0 Released on 2009/06/25
 
 	* Use ThreadPool from sjutils and replace custom task managment, closes: #1992.

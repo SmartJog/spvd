@@ -30,6 +30,8 @@ class BasePlugin(threading.Thread):
                                 the DB and queue for execution.
         check_poll:             interval between two get_checks call.
         debug:                  enable debugging information.
+        ssl_cert:               client X.509 public key.
+        ssl_key:                client X.509 secret key.
         """
 
         threading.Thread.__init__(self)
@@ -43,6 +45,8 @@ class BasePlugin(threading.Thread):
                             'max_checks_queue': 9,
                             'check_poll': 1,
                             'debug': False,
+                            'ssl_cert': None,
+                            'ssl_key': None,
                         }
 
         if params:
@@ -51,6 +55,10 @@ class BasePlugin(threading.Thread):
         self.importer   = Importer()
         if url:
             self.importer['distant_url'] = url
+
+        if self.params['ssl_cert'] and self.params['ssl_key']:
+            self.importer['ssl_cert'] = self.params['ssl_cert']
+            self.importer['ssl_key'] = self.params['ssl_key']
 
         self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))
 

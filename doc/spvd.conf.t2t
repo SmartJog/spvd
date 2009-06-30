@@ -47,6 +47,11 @@ Interval in seconds between contacts of the supervision to retrieve new checks.
 Activate/Desactivate debugging of the plugin. Currently this is used to debug
 scheduling issues.
 
+: **ssl_cert** = //path_to_public_key_file//
+Full path to the certificate to present when contacting distant webservice.
+
+: **ssl_key** = //path_to_secret_key_file//
+Full path to the secret key to use when contacting distant webservice.
 
 = AUTHOR =
 

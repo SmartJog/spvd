@@ -2,19 +2,21 @@ Source: spvd
 Section: misc
 Priority: optional
 Maintainer: Gilles Dartiguelongue <gdartigu@smartjog.com>
+Uploaders: Nicolas Noirbent <nicolas.noirbent@smartjog.com>
 Build-Depends: debhelper (>= 5.0.38), cdbs, python-central (>=0.5.6)
 XS-Python-Version: current
 Standards-Version: 3.8.0
 
 Package: spvd
 Architecture: all
-Depends: ${python:Depends}, importer (>=0.2.0), webengine, webengine-spv, python-sjutils (>=1.10.1)
+Depends: ${misc:Depends}, ${python:Depends}, importer (>=0.2.0), webengine, webengine-spv, python-sjutils (>=1.10.1)
 XB-Python-Version: ${python:Versions}
 Description: SmartJog core supervision
  Provides the daemon for SmartJog's core supervision.
 
 Package: spv-data
 Architecture: all
+Depends: ${misc:Depends}
 Suggests: postgresql
 Description: SmartJog schema for supervision
  Provides SQL schemas and tools to load them into a postgres database.

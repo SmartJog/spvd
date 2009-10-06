@@ -1,14 +1,16 @@
-spvd (0.2.1-2~dev) unstable; urgency=low
+spvd (0.3.0~dev-1) unstable; urgency=low
 
   [ Nicolas Noirbent ]
   * Added missing {misc:Depends} stanzas to dependencies.
   * Added myself to Uploaders.
 
   [ Guillaume Camera ]
+  * New upstream release.
   * Removed dependencies on webengine and webengine-spv.
   * Added myself to Uploaders.
+  * Added python-psycopg2 as dependency.
 
- -- Guillaume Camera <guillaume.camera@smartjog.com>  Tue, 06 Oct 2009 16:17:06 +0200
+ -- Guillaume Camera <guillaume.camera@smartjog.com>  Tue, 06 Oct 2009 19:16:29 +0200
 
 spvd (0.2.1-1) unstable; urgency=low
 

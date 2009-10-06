@@ -53,7 +53,7 @@ class Job(BaseJob):
             dic = {"det_id" : entry["DET_ID"]}
             self.cursor.execute("SAVEPOINT save_no_resend_%(DET_ID)s" % (entry))
             try:
-                if  isinstance (entry["success"], Exception) or not (entry["success"]):
+                if  entry["status"] == "KO" or entry["status"] == "Warning":
                     raise Exception(entry["DET_ID"])
 
                 set = ("det_transfer_status='Complete'", )

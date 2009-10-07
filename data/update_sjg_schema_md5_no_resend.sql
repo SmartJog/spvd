@@ -9,5 +9,7 @@ ALTER TABLE sjg_uplink_use ADD CONSTRAINT UPU_PRIVATE_UNIQ UNIQUE (upu_private_i
 --      - Processing : file not found on target server, the delivery has to be restarted
 ALTER TABLE sjg_delivery_transfer ADD COLUMN det_transfer_status varchar(16);
 
+ALTER TABLE sjg_delivery_transfer ALTER COLUMN det_transfer_status SET DEFAULT 'Processing';
+
 -- Index define to increase the time average for select file on Waiting status
 CREATE INDEX sjg_delivery_det_transfer_status_idx ON sjg_delivery_transfer (det_transfer_status);

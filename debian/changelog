@@ -11,6 +11,7 @@ spvd (0.3.0~dev-1) unstable; urgency=low
   * Added python-psycopg2 as dependency.
   * Set the default daemonuser at root, ref: #2443.
   * Removed all references of sjuser, closes: #2443.
+  * Added a minimum version for the psycopg2-python package dependency.
 
  -- Guillaume Camera <guillaume.camera@smartjog.com>  Tue, 06 Oct 2009 19:16:29 +0200
 

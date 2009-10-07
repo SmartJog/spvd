@@ -9,7 +9,7 @@ Standards-Version: 3.8.0
 
 Package: spvd
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, importer (>=0.2.0), python-sjutils (>=1.10.1), python-psycopg2
+Depends: ${misc:Depends}, ${python:Depends}, importer (>=0.2.0), python-sjutils (>=1.10.1), python-psycopg2 (>=2.0.7)
 XB-Python-Version: ${python:Versions}
 Description: SmartJog core supervision
  Provides the daemon for SmartJog's core supervision.

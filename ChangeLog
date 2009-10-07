@@ -1,6 +1,8 @@
 Version 0.3.0~dev
 
 	* Added delivery plugin sets metadata for delivery selected, closes: #2436.
+	* Set the default daemonuser at root, ref: #2443.
+	* Removed all references of sjuser, closes: #2443.
 
 Version 0.2.1 Released on 2009/07/02
 

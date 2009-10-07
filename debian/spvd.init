@@ -43,7 +43,7 @@ DIETIME=10              # Time to wait for the server to die, in seconds
                         # when it actually did)
 
 LOGFILE=$LOGDIR/$NAME.log  # Server logfile
-DAEMONUSER=sjuser       # Users to run the daemons as. If this value
+DAEMONUSER=root         # Users to run the daemons as. If this value
                         # is set start-stop-daemon will chuid the server
 
 CONFFILE=/etc/spvd.conf

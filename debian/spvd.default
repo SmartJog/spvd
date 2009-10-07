@@ -1,5 +1,5 @@
 # Define user spvd will run as
-#USER=sjuser
+#DAEMONUSER=sjuser
 #PIDFILE=/var/run/spvd/spvd.pid
 #LOGFILE=/var/log/spvd/spvd.log
 #CONFFILE=/etc/spvd.conf

@@ -1,6 +1,7 @@
 Version 0.3.0~dev
 
 	* Added delivery plugin sets metadata for delivery selected, closes: #2436.
+	* Use __import__ and getattr() to load and run plugins, closes: #2427.
 
 Version 0.2.1 Released on 2009/07/02
 

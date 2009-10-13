@@ -44,7 +44,7 @@ class BaseJob:
         """ Calls specific check in BaseJob class of the plugin. """
 
         if hasattr(self, self.infos['plugin_check']):
-            exec ('self.' + self.infos['plugin_check'] + '()')
+            getattr(self, self.infos['plugin_check'])()
         else:
             message = 'Job does not implement <%s> method' % self.infos['plugin_check']
 

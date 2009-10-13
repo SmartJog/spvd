@@ -128,16 +128,16 @@ class Monitor:
         """ Starts a supervision plugin. """
 
         try:
-            exec 'import %s' % plugin
+            plugin_classes = __import__(plugin)
         except ImportError:
             self.log.write('failed to load %s plugin' % plugin)
             self.pool.dismiss_workers(1)
             return False
 
         if plugin in self.plugins_params:
-            inst = eval(self.plugins[plugin]).Plugin(self.log, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
+            inst = plugin_classes.Plugin(self.log, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
         else:
-            inst = eval(self.plugins[plugin]).Plugin(self.log, self.dismiss, self.distant_url)
+            inst = plugin_classes.Plugin(self.log, self.dismiss, self.distant_url)
             self.pool.dismiss_workers(1)
 
         # Wait for plugin thread to join

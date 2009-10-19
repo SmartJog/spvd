@@ -29,12 +29,12 @@ def main():
             plugin = module[:-3]
             try:
                 print "Trying to import [%s]" % plugin
-                exec 'import ' + plugin
+                plugin_classes = __import__(plugin)
             except ImportError:
                 print "Failed to import %s plugin" % plugin
                 continue
 
-            methods = [method for method in dir(eval(plugin + '.Job'))
+            methods = [method for method in dir(plugin_classes.Job)
                 if not method.startswith('_')
                 and not method in thread_methods
                 and not method in basejob_methods]
@@ -43,7 +43,7 @@ def main():
                 print plugin + '.Job.' + method
 
                 try:
-                    doc = eval(plugin + '.Job.' + method).__doc__
+                    doc = plugin_classes.Job.getattr(method).__doc__
                     doc = doc.split('\n')[0].strip()
                 except:
                     doc = "No description for %s.%s" % (plugin, method)

@@ -1,4 +1,4 @@
-spvd (0.3.0~dev-1) unstable; urgency=low
+spvd (0.3.0-1) unstable; urgency=low
 
   [ Nicolas Noirbent ]
   * Added missing {misc:Depends} stanzas to dependencies.
@@ -13,7 +13,7 @@ spvd (0.3.0~dev-1) unstable; urgency=low
   * Removed all references of sjuser, closes: #2443.
   * Added a minimum version for the psycopg2-python package dependency.
 
- -- Guillaume Camera <guillaume.camera@smartjog.com>  Tue, 06 Oct 2009 19:16:29 +0200
+ -- Guillaume Camera <guillaume.camera@smartjog.com>  Tue, 27 Oct 2009 11:26:01 +0100
 
 spvd (0.2.1-1) unstable; urgency=low
 

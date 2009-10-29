@@ -45,7 +45,7 @@ class Job(BaseJob):
         """
         Set metadata for a set of files for an receiver given.
         """
-        entries = self.importer.call('webengine.delivery.metadata', 'deliver_files', entries)
+        entries = self.importer.call('webengine.delivery', 'deliver_files', entries)
         error_messages = ()
         ret_status = "OK"
         for entry in entries:

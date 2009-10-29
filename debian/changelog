@@ -1,9 +1,9 @@
-spvd (0.3.1~dev-1) unstable; urgency=low
+spvd (0.3.1-1) unstable; urgency=low
 
   * New upstream release.
   * Bumped Standards Version to 3.8.3
 
- -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Thu, 29 Oct 2009 11:38:37 +0100
+ -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Thu, 29 Oct 2009 11:48:33 +0100
 
 spvd (0.3.0-1) unstable; urgency=low
 

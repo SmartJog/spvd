@@ -41,6 +41,37 @@ if (hasattr(os, "devnull")):
 else:
     REDIRECT_TO = "/dev/null"
 
+class SpvdPluginLogger:
+    """ Logger facility for spvd plugins """
+
+    def __init__(self, plugin_name, log_dir, log_ext = '.log'):
+        """ Init method. """
+
+        self.log_dir = log_dir + '/' + plugin_name + '/'
+        self.name = plugin_name
+        self.files = { }
+        self.log_ext = log_ext
+
+        if os.path.exists(self.log_dir) is False:
+            os.mkdir(self.log_dir)
+        log_file = self.log_dir + self.name + self.log_ext
+        if os.path.exists(log_file) is False:
+            f = open(log_file, 'w')
+            f.close()
+        # '%BASIC%' is a special target file refering to 'plugin_name.log'
+        self.files['%BASIC%'] = sjutils.Logger2(log_file)
+
+    def log(self, target, msg):
+        """ Log message in target file """
+
+        if self.files.get(target) is None:
+            log_file = self.log_dir + self.name + '-' + target + self.log_ext
+            if os.path.exists(log_file) is False:
+                f = open(log_file, 'w')
+                f.close()
+            self.files[target] = sjutils.Logger2(log_file)
+        self.files[target].write(msg)
+
 class Monitor:
     """ Dummy class holding basic functions of the daemon. """
 
@@ -136,10 +167,16 @@ class Monitor:
             self.pool.dismiss_workers(1)
             return False
 
-        if plugin in self.plugins_params:
-            inst = plugin_classes.Plugin(self.log, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
+        if self.options.logfile.find('/') == -1:
+            logger = SpvdPluginLogger(plugin_classes.PLUGIN_NAME, '')
+        elif self.options.logfile[0] == '/' and self.options.logfile.find('/', 1) == -1:
+            logger = SpvdPluginLogger(plugin_classes.PLUGIN_NAME, '/')
         else:
-            inst = plugin_classes.Plugin(self.log, self.dismiss, self.distant_url)
+            logger = SpvdPluginLogger(plugin_classes.PLUGIN_NAME, self.options.logfile.rsplit('/', 1)[0])
+        if plugin in self.plugins_params:
+            inst = plugin_classes.Plugin(logger, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
+        else:
+            inst = plugin_classes.Plugin(logger, self.dismiss, self.distant_url)
             self.pool.dismiss_workers(1)
 
         # Wait for plugin thread to join

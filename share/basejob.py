@@ -28,17 +28,17 @@ class BaseJob:
             self.go()
 
         except Exception, error:
-            self.log('Fatal error: job stopped')
-            self.log(traceback.format_exc())
+            self.log('%BASIC%', 'Fatal error: job stopped')
+            self.log('%BASIC%', traceback.format_exc())
             self.infos['description'] = str(error)
             self.infos['status'] = 'ERROR'
 
         return self.infos
 
-    def log(self, message):
+    def log(self, target, message):
         """ Custom logging method. """
 
-        self.logger.write(self.ident + message)
+        self.logger.log(target, self.ident + message)
 
     def go(self):
         """ Calls specific check in BaseJob class of the plugin. """
@@ -51,6 +51,6 @@ class BaseJob:
             self.infos['message'] = message
             self.infos['status'] = 'ERROR'
 
-            self.log(message)
+            self.log('%BASIC%', message)
             raise BaseJobRuntimeError(message)
 

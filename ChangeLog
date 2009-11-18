@@ -1,5 +1,6 @@
 Version 0.3.3~dev
 
+	* Added one log file for each check for each plugin, closes: #2643.
 	* Added sub-name support in configuration fields (like "[svpd:streams:volume]"), refs: #2645.
 	* Removed most of the hardcoded fields, replace them with a simple type checking, closes: #2645.
 

@@ -14,7 +14,7 @@ class Job(BaseJob):
         self.importer['distant_url'] = 'https://' + self.infos['address'] + '/exporter/'
 
     def get_last_errors(self):
-        self.log('write last errors')
+        self.log('get_last_errors', 'write last errors')
         try:
             events = self.importer.call('sjevents', 'get_events', status='ERROR')
 
@@ -25,7 +25,7 @@ class Job(BaseJob):
                 self.infos['message'] = 'No ERROR events'
                 self.infos['status'] = 'OK'
 
-            self.log('Got %d events in error.' % len(events))
+            self.log('get_last_errors', 'Got %d events in error.' % len(events))
         except Exception, error:
             self.infos['message'] = 'Importer error <' + str(error) + '>'
             self.infos['status'] = 'ERROR'

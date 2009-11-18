@@ -1,5 +1,8 @@
 spvd (0.3.3~dev-1) unstable; urgency=low
 
+  [ Thomas Souvignet ]
+  * Added new log files to logrotate
+
   [ Victor Goya ]
   * Added myself to 'Uploaders'
 

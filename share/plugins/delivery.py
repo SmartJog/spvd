@@ -68,10 +68,10 @@ class Job(BaseJob):
                 entry['HOSTNAME'] = self.server_address
                 self.cursor.execute("ROLLBACK TO SAVEPOINT save_no_resend_%(DET_ID)s" % entry)
                 if entry["STATUS"] == "Processing":
-                    self.log('Failed to process NO-RESEND for delivery (DET_ID=%(DET_ID)s of file %(MD5)s (%(FILENAME)s) sent to %(HOSTNAME)s. Putting delivery transfer status back to "Processing"' % (entry))
+                    self.log('get_files_to_set_metadata', 'Failed to process NO-RESEND for delivery (DET_ID=%(DET_ID)s of file %(MD5)s (%(FILENAME)s) sent to %(HOSTNAME)s. Putting delivery transfer status back to "Processing"' % (entry))
                     self.cursor.execute("UPDATE sjg_delivery_transfer SET det_transfer_status='Processing' WHERE det_id = %(DET_ID)s" % (entry))
                 else:
-                    self.log('Failed to set metadata for delivery (DET_ID=%(DET_ID)s of file %(MD5)s (%(FILENAME)s) sent to %(HOSTNAME)s. Will retry later' % (entry))
+                    self.log('get_files_to_set_metadata', 'Failed to set metadata for delivery (DET_ID=%(DET_ID)s of file %(MD5)s (%(FILENAME)s) sent to %(HOSTNAME)s. Will retry later' % (entry))
         return ret_status, error_messages
 
     def get_files_to_set_metadata(self):
@@ -79,7 +79,7 @@ class Job(BaseJob):
         Select and set metadata for files are in waiting status for a
         specific receiver
         """
-        self.log('Get the check with waiting status')
+        self.log('get_files_to_set_metadata', 'Get the check with waiting status')
         self.connect()
         fields = ("DET_ID", "STATUS", "MD5", "FILENAME", "CPY_ID", "CPY_NAME", "STREAM_ID")
         query = "SELECT det.det_id, det.det_status, det.det_md5, det.det_target_filename, cpy.cpy_id, cpy.cpy_name, upu.upu_private_id " \
@@ -92,7 +92,7 @@ class Job(BaseJob):
         # If some files are in waiting status
         entries = reduce(lambda infos, row: infos + [dict(zip(fields, row))], files, [])
         if (len(entries)):
-            self.log('entries found on server : ' + self.server_address)
+            self.log('get_files_to_set_metadata','entries found on server : ' + self.server_address)
             status, error_messages =  self.set_metadata(entries)
             self.conn.commit()
             if (len(error_messages)):

@@ -10,12 +10,12 @@ class Job(BaseJob):
         BaseJob.__init__(self, logger, infos)
 
     def nothing(self):
-        self.log('This check is doing nothing.')
+        self.log('nothing', 'This check is doing nothing.')
         time.sleep(4)
         self.infos['status'] = 'FINISHED'
 
     def pierrot(self):
-        self.log('Au clair de la lune.')
+        self.log('pierrot', 'Au clair de la lune.')
         self.infos['status'] = 'FINISHED'
 
 class Plugin(BasePlugin):

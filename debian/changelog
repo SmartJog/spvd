@@ -1,4 +1,11 @@
-spvd (0.3.2~dev-1) unstable; urgency=low
+spvd (0.3.3~dev-1) unstable; urgency=low
+
+  [ Victor Goya ]
+  * Added myself to 'Uploaders'
+
+ --  Victor Goya <victor.goya@smartjog.com>  Wed, 18 Nov 2009 12:10:54 +0100
+
+spvd (0.3.2-1) unstable; urgency=low
 
   [ Thomas Souvignet ]
   * New upstream release

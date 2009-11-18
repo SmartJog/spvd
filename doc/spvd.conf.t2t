@@ -14,7 +14,8 @@ spvd.conf
 
 **/etc/spvd.conf** is a text file in INI format. It is composed of a **[spvd]**
 section and of an optional **[spvd:plugin]** section to pass specific options to
-a plugin.
+a plugin. An extra subsection name (i.e. [spvd:plugin:subname]) is allowed for
+readability purpose.
 
 
 The **[spvd]** section must contain the following options:

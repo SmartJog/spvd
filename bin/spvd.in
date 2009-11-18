@@ -7,6 +7,7 @@ import os
 import sys
 import optparse
 import resource
+import re
 
 import signal
 import ConfigParser
@@ -77,17 +78,19 @@ class Monitor:
                 self.distant_url = options['distant_url'].strip()
                 self.log.write('Using %s' % self.distant_url)
             elif section.startswith('spvd:'):
-                plugin_name = section[5:]
+                plugin_name = re.search("spvd:([^:]+).*$", section).group(1)
                 if not plugin_name in self.plugins_params:
                     self.plugins_params[plugin_name] = {}
 
                 plugin_options = {}
                 for key, value in options.iteritems():
-                    if key in ['importer_retry_timeout', 'max_parallel_checks', 'max_checks_queue', 'check_poll', 'streams_min_fetch', 'result_threshold']:
-                        plugin_options[key] = float(value)
-                    elif key == 'debug':
+                    if key == 'debug':
                         plugin_options[key] = value == 'True' and True or False
                     elif key in ['ssl_cert', 'ssl_key']:
+                        plugin_options[key] = value
+                    elif re.match('\d+(\.\d+)?', value):
+                        plugin_options[key] = float(value)
+                    else:
                         plugin_options[key] = value
 
                 self.plugins_params[plugin_name].update(plugin_options)

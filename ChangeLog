@@ -1,4 +1,9 @@
-Version 0.3.2~dev
+Version 0.3.3~dev
+
+	* Added sub-name support in configuration fields (like "[svpd:streams:volume]"), refs: #2645.
+	* Removed most of the hardcoded fields, replace them with a simple type checking, closes: #2645.
+
+Version 0.3.2 Released on 2009/11/18
 
 	* Fix conflict between webengine-delivery and spvd-delivery, closes: #2613.
 

@@ -137,10 +137,11 @@ class BasePlugin(threading.Thread):
     def run(self):
         """ Run method. """
 
-        try:
-            self.log('%BASIC%', "plugin started")
+        self.log('%BASIC%', "plugin started")
 
-            while not self.dismiss.isSet():
+        while not self.dismiss.isSet():
+
+            try:
 
                 self.rescommit.wait(self.params['check_poll'])
 
@@ -204,9 +205,10 @@ class BasePlugin(threading.Thread):
                     self.log('%BASIC%', "queue is full")
                     continue
 
-        except Exception:
-            self.log('%BASIC%', 'fatal error: plugin stopped')
-            self.log('%BASIC%', traceback.print_exc())
+            except Exception:
+                self.log('%BASIC%', 'caught unknown exception :')
+                self.log('%BASIC%', traceback.print_exc())
+                continue
 
         self.log('%BASIC%', 'dismissing workers')
         self.job_pool.dismiss_workers(int(self.params['max_parallel_checks']))

@@ -101,6 +101,11 @@ class Monitor:
         config = ConfigParser.RawConfigParser()
         config.read(configfile)
 
+        plugins_require = {}
+        plugins_provided = {}
+
+        plugins_optional = {}
+
         for section in config.sections():
             options = dict(config.items(section))
             if section == 'spvd':
@@ -108,22 +113,42 @@ class Monitor:
                 self.distant_url = options['distant_url'].strip()
                 self.log.write('Using %s' % self.distant_url)
             elif section.startswith('spvd:'):
-                plugin_name = re.search("spvd:([^:]+).*$", section).group(1)
+                plugin_name = section.split(':')[1]
                 if not plugin_name in self.plugins_params:
                     self.plugins_params[plugin_name] = {}
+
+                plugin_attrs = __import__(plugin_name)
+
+                if not plugin_name in plugins_require:
+                    plugins_require[plugin_name] = plugin_attrs.Plugin.require
+                if not plugin_name in plugins_optional:
+                    plugins_optional[plugin_name] = plugin_attrs.Plugin.optional
 
                 plugin_options = {}
                 for key, value in options.iteritems():
                     if key == 'debug':
                         plugin_options[key] = value == 'True' and True or False
-                    elif key in ['ssl_cert', 'ssl_key']:
-                        plugin_options[key] = value
-                    elif re.match('\d+(\.\d+)?', value):
-                        plugin_options[key] = float(value)
-                    else:
-                        plugin_options[key] = value
+                    elif key in plugins_require[plugin_name] or key in plugins_optional[plugin_name]:
+                        try:
+                            if key in plugins_require[plugin_name]:
+                                option_type = plugins_require[plugin_name][key]
+                                if not plugin_name in plugins_provided:
+                                    plugins_provided[plugin_name] = []
+                                plugins_provided[plugin_name].append(key)
+                            else:
+                                option_type = plugins_optional[plugin_name][key]
+                            plugin_options[key] = option_type(value)
+                        except:
+                            self.log.write("Wrong format (should be %s): %s in [spvd:%s]" % (option_type.__name__, key, plugin_name))
+                            self.shutdown()
 
                 self.plugins_params[plugin_name].update(plugin_options)
+
+        for plugin_name, requirement in plugins_require.iteritems():
+            for key in requirement:
+                if not key in plugins_provided[plugin_name]:
+                    self.log.write("Need option: %s in [spvd:%s]" % (key, plugin_name))
+                    self.shutdown()
 
         if not len(self.plugins):
             self.log.write("*** there is no plugin configured ***")

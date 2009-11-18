@@ -109,6 +109,20 @@ class Job(BaseJob):
 
 class Plugin(BasePlugin):
 
+    require = {
+        'distant_url' : str,
+        'ssl_cert' : str,
+        'ssl_key' : str,
+     }
+
+    optional = {
+        'host' : str,
+        'port' : int,
+        'user' : str,
+        'password' : str,
+        'database' : str
+       }
+
     def __init__(self, log, event, url=None, params=None):
         """ Init method of the streams plugin.
 
@@ -128,3 +142,4 @@ class Plugin(BasePlugin):
 
     def create_new_job(self, job):
         return Job(self.logger, job, self.params)
+

@@ -20,6 +20,9 @@ class Job(BaseJob):
 
 class Plugin(BasePlugin):
 
+    require = { }
+    optional = { }
+
     def __init__(self, log, event, url=None, params=None):
         BasePlugin.__init__(self, PLUGIN_NAME, log, event, url, params)
 

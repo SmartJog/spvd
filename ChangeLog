@@ -1,12 +1,9 @@
-Version 0.3.3~dev
+Version 0.4.0~dev
 
 	* Added one log file for each check for each plugin, closes: #2643.
 	* Removed python dependencies on webengine, closes: #2644.
 	* Added sub-name support in configuration fields (like "[svpd:streams:volume]"), refs: #2645.
-	* Removed most of the hardcoded fields, replace them with a simple type checking, closes: #2645.
-
-Version 0.3.2 Released on 2009/11/18
-
+	* Added a way for plugins to provide their conf requirements, closes: #2645.
 	* Fix conflict between webengine-delivery and spvd-delivery, closes: #2613.
 
 Version 0.3.1 Released on 2009/10/29

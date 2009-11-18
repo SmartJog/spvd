@@ -31,7 +31,6 @@ DFLT_PIDFILE = "@localstatedir@/run/spvd/spvd.pid"
 DFLT_LOGFILE = "@localstatedir@/log/spvd/spvd.log"
 DFLT_CONFFILE = "@sysconfdir@/spvd.conf"
 
-sys.path.insert(1, '@datadir@/webengine/app/webengine/')
 sys.path.insert(1, '@pkgdatadir@/plugins/')
 sys.path.insert(1, '@pkgdatadir@/')
 

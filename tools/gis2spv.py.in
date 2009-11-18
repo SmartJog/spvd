@@ -13,7 +13,6 @@ import MySQLdb
 
 sys.path.insert(1, '@pkgdatadir@/')
 sys.path.insert(1, '@pkgdatadir@/plugins/')
-sys.path.insert(1, '@datadir@/webengine/app/webengine/')
 
 import basejob
 

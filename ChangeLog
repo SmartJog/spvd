@@ -1,5 +1,6 @@
 Version 0.4.0~dev
 
+	* Moved streams plugin to his own debian package, refs: #2313.
 	* Added one log file for each check for each plugin, closes: #2643.
 	* Removed python dependencies on webengine, closes: #2644.
 	* Added sub-name support in configuration fields (like "[svpd:streams:volume]"), refs: #2645.

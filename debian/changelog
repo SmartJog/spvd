@@ -2,14 +2,13 @@ spvd (0.4.0~dev-1) unstable; urgency=low
 
   [ Thomas Souvignet ]
   * New upstream release
-
-  [ Thomas Souvignet ]
   * Added new log files to logrotate
 
   [ Victor Goya ]
   * Added myself to 'Uploaders'
+  * Moved 'streams' plugin to /spvd-plugins/streams/
 
- --  Victor Goya <victor.goya@smartjog.com>  Wed, 18 Nov 2009 12:10:54 +0100
+ --  Victor Goya <victor.goya@smartjog.com>  Wed, 18 Nov 2009 16:32:23 +0100
 
 spvd (0.3.1-1) unstable; urgency=low
 

@@ -95,17 +95,13 @@ class BasePlugin(threading.Thread):
 
         check['plugin'] = self.name
         job = self.create_new_job(check)
-
-        if self.params['debug']:
-            self.log(check['plugin_check'], 'check %s started' % check['status_id'])
-
+        self.log(check['plugin_check'], 'check %s started' % check['status_id'])
         return job.run()
 
     def job_stop(self, request, result):
         """ Stops a job. """
 
-        if self.params['debug']:
-            self.log(result['plugin_check'], 'request #%s: check result is %s' % (request.request_id, result['check_message']))
+        self.log(result['plugin_check'], 'request #%s: check result is %s' % (request.request_id, result['check_message']))
 
         if 'message' not in result:
             result['message'] = 'No message'
@@ -113,8 +109,7 @@ class BasePlugin(threading.Thread):
         update = self.__prepare_status_update(result)
         self.resqueue.update({result['status_id']: update})
 
-        if self.params['debug']:
-            self.log(result['plugin_check'], 'request #%s: check terminated' % request.request_id)
+        self.log(result['plugin_check'], 'request #%s: check terminated' % request.request_id)
 
         if len(self.resqueue) > self.params['result_threshold']:
             self.rescommit.set()
@@ -145,13 +140,16 @@ class BasePlugin(threading.Thread):
 
                 self.rescommit.wait(self.params['check_poll'])
 
-                self.log('%BASIC%', 'number of threads alive %d' % threading.activeCount())
-                self.log('%BASIC%', 'approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
+                if self.params['debug']:
+                    self.log('%BASIC%', 'number of threads alive %d' % threading.activeCount())
+                if self.job_pool._requests_queue.qsize() > 0 or self.params['debug']:
+                    self.log('%BASIC%', 'approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
 
                 try:
                     self.job_pool.poll()
                 except threadpool.NoResultsPending:
-                    self.log('%BASIC%', 'there was no result to poll')
+                    if self.params['debug']:
+                        self.log('%BASIC%', 'there was no result to poll')
 
                 # Queue.qsize is unreliable, try to mitigate its weirdness
                 limit_fetch = self.params['max_checks_queue'] - self.job_pool._requests_queue.qsize()
@@ -176,7 +174,8 @@ class BasePlugin(threading.Thread):
 
                 # Get checks for the current plugin
                 checks = {}
-                self.log('%BASIC%', '*** fetching %s checks' % limit_fetch)
+                if self.params['debug']:
+                    self.log('%BASIC%', '*** fetching %s checks' % limit_fetch)
 
                 try:
                     checks = self.importer.call('spv', 'get_checks',
@@ -186,7 +185,8 @@ class BasePlugin(threading.Thread):
                     self.log('%BASIC%', 'remote module error while retrieving checks <' + str(error) + '>')
                     self.dismiss.wait(self.params['importer_retry_timeout'])
 
-                self.log('%BASIC%', 'got %s checks' % len(checks))
+                if len(checks) > 0:
+                    self.log('%BASIC%', 'got %s checks' % len(checks))
 
                 try:
                     for status_id, check in checks.iteritems():
@@ -199,8 +199,7 @@ class BasePlugin(threading.Thread):
                             exc_callback=self.handle_exception
                         )
                         self.job_pool.queue_request(req, self.params['check_poll'])
-                        if self.params['debug']:
-                            self.log(check['plugin_check'], 'Work request #%s added.' % req.request_id)
+                        self.log(check['plugin_check'], 'Work request #%s added.' % req.request_id)
                 except Queue.Full:
                     self.log('%BASIC%', "queue is full")
                     continue

@@ -8,6 +8,7 @@ Version 0.4.0~dev
 	* Fix conflict between webengine-delivery and spvd-delivery, closes: #2613.
 	* Now catches all plugins exceptions, closes: #2641.
 	* Now uses python logging facilities, closes: #2655.
+	* Moved events and delivery plugins to their own debian packages, refs: #2665.
 
 Version 0.3.1 Released on 2009/10/29
 

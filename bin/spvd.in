@@ -15,6 +15,8 @@ import ConfigParser
 import sjutils
 import threading
 
+import logging
+
 VERSION = "@PACKAGE_VERSION@"
 
 # Default daemon parameters.
@@ -40,36 +42,6 @@ if (hasattr(os, "devnull")):
 else:
     REDIRECT_TO = "/dev/null"
 
-class SpvdPluginLogger:
-    """ Logger facility for spvd plugins """
-
-    def __init__(self, plugin_name, log_dir, log_ext = '.log'):
-        """ Init method. """
-
-        self.log_dir = log_dir + '/' + plugin_name + '/'
-        self.name = plugin_name
-        self.files = { }
-        self.log_ext = log_ext
-
-        if os.path.exists(self.log_dir) is False:
-            os.mkdir(self.log_dir)
-        log_file = self.log_dir + self.name + self.log_ext
-        if os.path.exists(log_file) is False:
-            f = open(log_file, 'w')
-            f.close()
-        # '%BASIC%' is a special target file refering to 'plugin_name.log'
-        self.files['%BASIC%'] = sjutils.Logger2(log_file)
-
-    def log(self, target, msg):
-        """ Log message in target file """
-
-        if self.files.get(target) is None:
-            log_file = self.log_dir + self.name + '-' + target + self.log_ext
-            if os.path.exists(log_file) is False:
-                f = open(log_file, 'w')
-                f.close()
-            self.files[target] = sjutils.Logger2(log_file)
-        self.files[target].write(msg)
 
 class Monitor:
     """ Dummy class holding basic functions of the daemon. """
@@ -83,12 +55,17 @@ class Monitor:
         self.dismiss = threading.Event()
         self.options = monitor_options
 
+        self.log_name = 'spvd'
+        self.log = logging.getLogger(self.log_name)
+        self.log.setLevel(logging.INFO)
         if not self.options.nodaemon:
-            self.log = sjutils.Logger2(self.options.logfile)
-            self.log.redirect_stdout_stderr()
+            log_handler = logging.FileHandler(self.options.logfile)
         else:
-            # This is not portable but who cares ?
-            self.log = sjutils.Logger2('/dev/stdout')
+            log_handler = logging.FileHandler('/dev/stdout')
+        self.log_format = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        log_handler.setFormatter(self.log_format)
+        self.log.addHandler(log_handler)
+        self.log.propagate = 0
 
         self.parse_config(self.options.conffile)
 
@@ -111,7 +88,7 @@ class Monitor:
             if section == 'spvd':
                 self.plugins = dict([(plugin, plugin) for plugin in options['plugins'].split(', ') if plugin])
                 self.distant_url = options['distant_url'].strip()
-                self.log.write('Using %s' % self.distant_url)
+                self.log.info('Using %s' % self.distant_url)
             elif section.startswith('spvd:'):
                 plugin_name = section.split(':')[1]
                 if not plugin_name in self.plugins_params:
@@ -127,6 +104,7 @@ class Monitor:
                 plugin_options = {}
                 for key, value in options.iteritems():
                     if key == 'debug':
+                        self.log.setLevel(logging.DEBUG)
                         plugin_options[key] = value == 'True' and True or False
                     elif key in plugins_require[plugin_name] or key in plugins_optional[plugin_name]:
                         try:
@@ -139,7 +117,7 @@ class Monitor:
                                 option_type = plugins_optional[plugin_name][key]
                             plugin_options[key] = option_type(value)
                         except:
-                            self.log.write("Wrong format (should be %s): %s in [spvd:%s]" % (option_type.__name__, key, plugin_name))
+                            self.log.critical("Wrong format (should be %s): %s in [spvd:%s]" % (option_type.__name__, key, plugin_name))
                             self.shutdown()
 
                 self.plugins_params[plugin_name].update(plugin_options)
@@ -147,36 +125,34 @@ class Monitor:
         for plugin_name, requirement in plugins_require.iteritems():
             for key in requirement:
                 if not key in plugins_provided[plugin_name]:
-                    self.log.write("Need option: %s in [spvd:%s]" % (key, plugin_name))
+                    self.log.critical("Need option: %s in [spvd:%s]" % (key, plugin_name))
                     self.shutdown()
 
         if not len(self.plugins):
-            self.log.write("*** there is no plugin configured ***")
+            self.log.critical("*** there is no plugin configured ***")
             self.shutdown()
 
     def handle_signal(self, signum=0, frame=None):
         """ Handle signals telling all threads to exit. """
 
-        self.log.write('*** received Signal %d ***' % signum)
+        self.log.info('*** received Signal %d ***' % signum)
 
         if frame:
             del frame
 
         self.dismiss.set()
-        self.log.write('dismiss event sent')
+        self.log.info('dismiss event sent')
 
     def shutdown(self):
         """ Shutdown spvd cleanly. """
 
-        self.log.write('threads alive: %d' % threading.activeCount())
+        self.log.info('threads alive: %d' % threading.activeCount())
         self.pool.dismiss_workers(len(self.plugins))
-        self.log.write('workers dismissed')
+        self.log.info('workers dismissed')
         self.pool.join_all_dismissed_workers()
-        self.log.write('workers joined')
+        self.log.info('workers joined')
 
-        self.log.write("*** spvd version %s, terminated ***" % VERSION)
-        # Shows a warning when daemonized while it should not
-        #self.log.close()
+        self.log.info("*** spvd version %s, terminated ***" % VERSION)
         if not self.options.nodaemon:
             os.remove(self.options.pidfile)
         sys.exit(os.EX_OK)
@@ -187,37 +163,61 @@ class Monitor:
         try:
             plugin_classes = __import__(plugin)
         except ImportError:
-            self.log.write('failed to load %s plugin' % plugin)
+            self.log.error('failed to load %s plugin' % plugin)
             self.pool.dismiss_workers(1)
             return False
 
+        # Setup loggers for plugin
         if self.options.logfile.find('/') == -1:
-            logger = SpvdPluginLogger(plugin_classes.PLUGIN_NAME, '')
+            log_dir = '' + plugin + '/'
         elif self.options.logfile[0] == '/' and self.options.logfile.find('/', 1) == -1:
-            logger = SpvdPluginLogger(plugin_classes.PLUGIN_NAME, '/')
+            log_dir = '/' + plugin + '/'
         else:
-            logger = SpvdPluginLogger(plugin_classes.PLUGIN_NAME, self.options.logfile.rsplit('/', 1)[0])
+            log_dir = self.options.logfile.rsplit('/', 1)[0] + '/' + plugin + '/'
+        if os.path.exists(log_dir) is False:
+            os.mkdir(log_dir)
+        log_name = self.log_name + '.' + plugin
+        logger = logging.getLogger(log_name)
+        log_file = logging.FileHandler(log_dir + plugin + '.log')
+        log_file.setFormatter(self.log_format)
+        logger.addHandler(log_file)
+        logger.propagate = 0
+        if plugin in self.plugins_params and self.plugins_params[plugin].get('debug') is True:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.INFO)
+        for check in plugin_classes.Plugin.checks:
+            check_logger = logging.getLogger(self.log_name + '.' + plugin + '.' + check)
+            check_log_file = logging.FileHandler(log_dir + check + '.log')
+            check_log_file.setFormatter(self.log_format)
+            check_logger.addHandler(check_log_file)
+            check_logger.propagate = 0
+            if plugin in self.plugins_params and self.plugins_params[plugin].get('debug') is True:
+                check_logger.setLevel(logging.DEBUG)
+            else:
+                check_logger.setLevel(logging.INFO)
+
         if plugin in self.plugins_params:
-            inst = plugin_classes.Plugin(logger, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
+            inst = plugin_classes.Plugin(log_name, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
         else:
-            inst = plugin_classes.Plugin(logger, self.dismiss, self.distant_url)
+            inst = plugin_classes.Plugin(log_name, self.dismiss, self.distant_url)
             self.pool.dismiss_workers(1)
 
         # Wait for plugin thread to join
         inst.join()
 
-        self.log.write('plugin %s joined' % plugin)
+        self.log.info('plugin %s joined' % plugin)
         return True
 
     def plugin_instance_stop(self, request, result):
         """ Stops a supervision plugin. """
 
-        self.log.write("request %s finished" % request.request_id)
+        self.log.info("request %s finished" % request.request_id)
 
     def run(self):
         """ Main function. """
 
-        self.log.write("*** spvd version %s, started ***" % VERSION)
+        self.log.info("*** spvd version %s, started ***" % VERSION)
         self.pool = sjutils.threadpool.ThreadPool(len(self.plugins))
 
         for plugin in self.plugins:
@@ -230,12 +230,12 @@ class Monitor:
             )
 
             self.pool.queue_request(req)
-            self.log.write("plugin %s/id:%s queued" % (plugin, req.request_id))
+            self.log.info("plugin %s/id:%s queued" % (plugin, req.request_id))
 
         while not self.dismiss.isSet():
             for thread in threading.enumerate():
                 if hasattr(thread, 'daemon') and thread.daemon:
-                    self.log.write('no daemon thread [%s] is alive' % thread.getName())
+                    self.log.info('no daemon thread [%s] is alive' % thread.getName())
             self.pool.poll()
             self.dismiss.wait(10)
 

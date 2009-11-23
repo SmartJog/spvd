@@ -4,6 +4,7 @@ from baseplugin import BasePlugin
 from basejob import BaseJob, BaseJobRuntimeError
 from importer import Importer
 import psycopg2
+import logging
 
 PLUGIN_NAME = "delivery"
 
@@ -16,12 +17,13 @@ class DeliveryRuntimeError(BaseJobRuntimeError):
 
 class Job(BaseJob):
 
-    def __init__(self, logger, infos, params):
-        BaseJob.__init__(self, logger, infos)
+    def __init__(self, log_name, infos, params):
+        BaseJob.__init__(self, log_name, infos)
         self.importer = Importer()
         self.importer['distant_url'] = 'https://%s/exporter/' % (self.infos["address"])
         self.server_address = self.infos["address"]
         self.params = params
+        self.log_name = log_name
 
 
     def connect(self):
@@ -68,10 +70,10 @@ class Job(BaseJob):
                 entry['HOSTNAME'] = self.server_address
                 self.cursor.execute("ROLLBACK TO SAVEPOINT save_no_resend_%(DET_ID)s" % entry)
                 if entry["STATUS"] == "Processing":
-                    self.log('get_files_to_set_metadata', 'Failed to process NO-RESEND for delivery (DET_ID=%(DET_ID)s of file %(MD5)s (%(FILENAME)s) sent to %(HOSTNAME)s. Putting delivery transfer status back to "Processing"' % (entry))
+                    logging.getLogger(self.log_name + '.' + 'get_files_to_set_metadata').error('Failed to process NO-RESEND for delivery (DET_ID=%(DET_ID)s of file %(MD5)s (%(FILENAME)s) sent to %(HOSTNAME)s. Putting delivery transfer status back to "Processing"' % (entry))
                     self.cursor.execute("UPDATE sjg_delivery_transfer SET det_transfer_status='Processing' WHERE det_id = %(DET_ID)s" % (entry))
                 else:
-                    self.log('get_files_to_set_metadata', 'Failed to set metadata for delivery (DET_ID=%(DET_ID)s of file %(MD5)s (%(FILENAME)s) sent to %(HOSTNAME)s. Will retry later' % (entry))
+                    logging.getLogger(self.log_name + '.' + 'get_files_to_set_metadata').error('Failed to set metadata for delivery (DET_ID=%(DET_ID)s of file %(MD5)s (%(FILENAME)s) sent to %(HOSTNAME)s. Will retry later' % (entry))
         return ret_status, error_messages
 
     def get_files_to_set_metadata(self):
@@ -79,7 +81,7 @@ class Job(BaseJob):
         Select and set metadata for files are in waiting status for a
         specific receiver
         """
-        self.log('get_files_to_set_metadata', 'Get the check with waiting status')
+        logging.getLogger(self.log_name + '.' + 'get_files_to_set_metadata').debug('Get the check with waiting status')
         self.connect()
         fields = ("DET_ID", "STATUS", "MD5", "FILENAME", "CPY_ID", "CPY_NAME", "STREAM_ID")
         query = "SELECT det.det_id, det.det_status, det.det_md5, det.det_target_filename, cpy.cpy_id, cpy.cpy_name, upu.upu_private_id " \
@@ -92,7 +94,7 @@ class Job(BaseJob):
         # If some files are in waiting status
         entries = reduce(lambda infos, row: infos + [dict(zip(fields, row))], files, [])
         if (len(entries)):
-            self.log('get_files_to_set_metadata','entries found on server : ' + self.server_address)
+            logging.getLogger(self.log_name + '.' + 'get_files_to_set_metadata').info('entries found on server : ' + self.server_address)
             status, error_messages =  self.set_metadata(entries)
             self.conn.commit()
             if (len(error_messages)):
@@ -105,17 +107,15 @@ class Job(BaseJob):
             self.infos['message'] = "No file to set metadata"
             self.infos['status'] = "FINISHED"
 
-
-
 class Plugin(BasePlugin):
 
     require = {
         'distant_url' : str,
-        'ssl_cert' : str,
-        'ssl_key' : str,
      }
 
     optional = {
+        'ssl_cert' : str,
+        'ssl_key' : str,
         'host' : str,
         'port' : int,
         'user' : str,
@@ -123,7 +123,11 @@ class Plugin(BasePlugin):
         'database' : str
        }
 
-    def __init__(self, log, event, url=None, params=None):
+    checks = [
+        'get_files_to_set_metadata'
+    ]
+
+    def __init__(self, log_name, event, url=None, params=None):
         """ Init method of the streams plugin.
 
         @params is a dictionary of optional parameters among:
@@ -138,8 +142,8 @@ class Plugin(BasePlugin):
 
         delivery_params = {'host': 'dbpsql-1.lab', 'user': 'sjg', 'password': 'sjg', 'database': 'smartjog', 'port': '5432'}
         delivery_params.update(params)
-        BasePlugin.__init__(self, PLUGIN_NAME, log, event, url, delivery_params)
+        BasePlugin.__init__(self, PLUGIN_NAME, log_name, event, url, delivery_params)
 
     def create_new_job(self, job):
-        return Job(self.logger, job, self.params)
+        return Job(self.log_name, job, self.params)
 

@@ -1,5 +1,6 @@
 """ BaseJob class definitions. """
 
+import logging
 import traceback
 
 
@@ -14,11 +15,11 @@ class BaseJobRuntimeError(Exception):
 class BaseJob:
     """ Base class for job implementation in spvd. """
 
-    def __init__(self, logger, infos):
+    def __init__(self, log_name, infos):
         """ Init method. """
 
         self.infos = infos
-        self.logger = logger
+        self.log_name = log_name
         self.ident = "%s job_id=%s " % (self.infos['plugin'], self.infos['status_id'])
 
     def run(self):
@@ -28,17 +29,12 @@ class BaseJob:
             self.go()
 
         except Exception, error:
-            self.log('%BASIC%', 'Fatal error: job stopped')
-            self.log('%BASIC%', traceback.format_exc())
+            logging.getLogger(self.log_name).critical('Fatal error: job stopped')
+            logging.getLogger(self.log_name).critical(traceback.format_exc())
             self.infos['description'] = str(error)
             self.infos['status'] = 'ERROR'
 
         return self.infos
-
-    def log(self, target, message):
-        """ Custom logging method. """
-
-        self.logger.log(target, self.ident + message)
 
     def go(self):
         """ Calls specific check in BaseJob class of the plugin. """
@@ -51,6 +47,6 @@ class BaseJob:
             self.infos['message'] = message
             self.infos['status'] = 'ERROR'
 
-            self.log('%BASIC%', message)
+            logging.getLogger(self.log_name).error(message)
             raise BaseJobRuntimeError(message)
 

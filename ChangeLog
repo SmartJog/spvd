@@ -7,6 +7,7 @@ Version 0.4.0~dev
 	* Added a way for plugins to provide their conf requirements, closes: #2645.
 	* Fix conflict between webengine-delivery and spvd-delivery, closes: #2613.
 	* Now catches all plugins exceptions, closes: #2641.
+	* Now uses python logging facilities, closes: #2655.
 
 Version 0.3.1 Released on 2009/10/29
 

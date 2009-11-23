@@ -1,5 +1,6 @@
 """ BasePlugin definitions. """
 
+import logging
 import threading
 import traceback
 import Queue
@@ -17,7 +18,7 @@ class BasePlugin(threading.Thread):
     """ Base class for job implementation in spvd. """
 
 
-    def __init__(self, name, logger, event, url=None, params=None):
+    def __init__(self, name, log_name, event, url=None, params=None):
         """ Init method.
 
         @url: url pass to Importer.
@@ -39,7 +40,6 @@ class BasePlugin(threading.Thread):
         threading.Thread.__init__(self)
         self.setDaemon(True)
         self.name       = name
-        self.logger     = logger
         self.dismiss    = event
         self.resqueue   = {}
         self.rescommit  = threading.Event()
@@ -65,19 +65,18 @@ class BasePlugin(threading.Thread):
             self.importer['ssl_cert'] = self.params['ssl_cert']
             self.importer['ssl_key'] = self.params['ssl_key']
 
+        self.log_name = log_name
+        self.log = logging.getLogger(self.log_name)
+
         self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))
 
         self.start()
-        self.log('%BASIC%', self)
+        self.log.info(self)
 
     def __str__(self):
         return "<BasePlugin name=%s ssl=%s url=%s>" % (self.name, \
             (self.params['ssl_cert'] and self.params['ssl_key']) and \
             "on" or "off", self.importer['distant_url'] or "localhost")
-
-    def log(self, target, message):
-        """ Custom logging method. """
-        self.logger.log(target, message)
 
     @staticmethod
     def __prepare_status_update(check):
@@ -95,13 +94,13 @@ class BasePlugin(threading.Thread):
 
         check['plugin'] = self.name
         job = self.create_new_job(check)
-        self.log(check['plugin_check'], 'check %s started' % check['status_id'])
+        logging.getLogger(self.log_name + '.' + check['plugin_check']).info('check %s started' % check['status_id'])
         return job.run()
 
     def job_stop(self, request, result):
         """ Stops a job. """
 
-        self.log(result['plugin_check'], 'request #%s: check result is %s' % (request.request_id, result['check_message']))
+        logging.getLogger(self.log_name + '.' + result['plugin_check']).info('request #%s: check result is %s' % (request.request_id, result['check_message']))
 
         if 'message' not in result:
             result['message'] = 'No message'
@@ -109,7 +108,7 @@ class BasePlugin(threading.Thread):
         update = self.__prepare_status_update(result)
         self.resqueue.update({result['status_id']: update})
 
-        self.log(result['plugin_check'], 'request #%s: check terminated' % request.request_id)
+        logging.getLogger(self.log_name + '.' + result['plugin_check']).info('request #%s: check terminated' % request.request_id)
 
         if len(self.resqueue) > self.params['result_threshold']:
             self.rescommit.set()
@@ -119,20 +118,20 @@ class BasePlugin(threading.Thread):
 
         if not isinstance(exc_info, tuple):
             # Something is seriously wrong...
-            self.log('%BASIC%', '*** Worker thread raised an exception ***')
-            self.log('%BASIC%', request)
-            self.log('%BASIC%', exc_info)
+            self.log.critical('*** Worker thread raised an exception ***')
+            self.log.critical(request)
+            self.log.critical(exc_info)
             raise SystemExit
 
-        self.log(request.args[0]['plugin_check'], "*** Exception occured in request #%s: %s" % \
-            (request.request_id, exc_info))
+        logging.getLogger(self.log_name + '.' + request.args[0]['plugin_check']).error("*** Exception occured in request #%s: %s" % \
+                                                                                      (request.request_id, exc_info))
         for line in traceback.format_exception(exc_info[0], exc_info[1], exc_info[2]):
-            self.log(request.args[0]['plugin_check'], line)
+            logging.getLogger(self.log_name + '.' + request.args[0]['plugin_check']).error(line)
 
     def run(self):
         """ Run method. """
 
-        self.log('%BASIC%', "plugin started")
+        self.log.info("plugin started")
 
         while not self.dismiss.isSet():
 
@@ -140,16 +139,16 @@ class BasePlugin(threading.Thread):
 
                 self.rescommit.wait(self.params['check_poll'])
 
-                if self.params['debug']:
-                    self.log('%BASIC%', 'number of threads alive %d' % threading.activeCount())
-                if self.job_pool._requests_queue.qsize() > 0 or self.params['debug']:
-                    self.log('%BASIC%', 'approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
+                self.log.debug('number of threads alive %d' % threading.activeCount())
+                if self.job_pool._requests_queue.qsize() > 0:
+                    self.log.info('approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
+                else:
+                    self.log.debug('approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
 
                 try:
                     self.job_pool.poll()
                 except threadpool.NoResultsPending:
-                    if self.params['debug']:
-                        self.log('%BASIC%', 'there was no result to poll')
+                    self.log.debug('there was no result to poll')
 
                 # Queue.qsize is unreliable, try to mitigate its weirdness
                 limit_fetch = self.params['max_checks_queue'] - self.job_pool._requests_queue.qsize()
@@ -159,34 +158,33 @@ class BasePlugin(threading.Thread):
                     or limit_fetch > self.params['max_checks_queue'] \
                     or limit_fetch == 0:
                     # Non sensical value or no check to fetch
-                    self.log('%BASIC%', 'queue estimated full')
+                    self.log.info('queue estimated full')
                     continue
 
                 if self.resqueue:
-                    self.log('%BASIC%', '%d results to commit' % len(self.resqueue))
+                    self.log.info('%d results to commit' % len(self.resqueue))
                     # Try to commit results in queue
                     try:
                         self.importer.call('spv', 'set_checks_status', self.resqueue.values())
                         self.resqueue = {}
                         self.rescommit.clear()
                     except ImporterError, error:
-                        self.log('%BASIC%', 'remote module error while commiting updates <' + str(error) + '>')
+                        self.log.error('remote module error while commiting updates <' + str(error) + '>')
 
                 # Get checks for the current plugin
                 checks = {}
-                if self.params['debug']:
-                    self.log('%BASIC%', '*** fetching %s checks' % limit_fetch)
+                self.log.debug('*** fetching %s checks' % limit_fetch)
 
                 try:
                     checks = self.importer.call('spv', 'get_checks',
                         limit=limit_fetch,
                         plugins=[self.name])
                 except ImporterError, error:
-                    self.log('%BASIC%', 'remote module error while retrieving checks <' + str(error) + '>')
+                    self.log.error('remote module error while retrieving checks <' + str(error) + '>')
                     self.dismiss.wait(self.params['importer_retry_timeout'])
 
                 if len(checks) > 0:
-                    self.log('%BASIC%', 'got %s checks' % len(checks))
+                    self.log.info('got %s checks' % len(checks))
 
                 try:
                     for status_id, check in checks.iteritems():
@@ -199,21 +197,21 @@ class BasePlugin(threading.Thread):
                             exc_callback=self.handle_exception
                         )
                         self.job_pool.queue_request(req, self.params['check_poll'])
-                        self.log(check['plugin_check'], 'Work request #%s added.' % req.request_id)
+                        logging.getLogger(self.log_name + '.' + check['plugin_check']).info('Work request #%s added.' % req.request_id)
                 except Queue.Full:
-                    self.log('%BASIC%', "queue is full")
+                    self.log.error("queue is full")
                     continue
 
             except Exception:
-                self.log('%BASIC%', 'caught unknown exception :')
-                self.log('%BASIC%', traceback.print_exc())
+                self.log.error('caught unknown exception :')
+                self.log.error(traceback.print_exc())
                 continue
 
-        self.log('%BASIC%', 'dismissing workers')
+        self.log.info('dismissing workers')
         self.job_pool.dismiss_workers(int(self.params['max_parallel_checks']))
 
         # Do not join, takes time and results will not be written to database anyway
-        self.log('%BASIC%', "plugin stopped")
+        self.log.info("plugin stopped")
 
     def create_new_job(self, job):
         """ Dummy method. To be overridden in plugins. """

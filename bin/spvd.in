@@ -7,7 +7,6 @@ import os
 import sys
 import optparse
 import resource
-import re
 
 import signal
 import ConfigParser
@@ -103,7 +102,17 @@ class Monitor:
                 if not plugin_name in plugins_require:
                     plugins_require[plugin_name] = plugin_attrs.Plugin.require
                 if not plugin_name in plugins_optional:
-                    plugins_optional[plugin_name] = plugin_attrs.Plugin.optional
+                    plugins_optional[plugin_name] = {
+                        'distant_url' : str,
+                        'ssl_cert' : str,
+                        'ssl_key' : str,
+                        'importer_retry_timeout' : int,
+                        'max_parallel_checks' : int,
+                        'max_checks_queue' : int,
+                        'check_poll' : int,
+                        'result_threshold' : int
+                        }
+                    plugins_optional[plugin_name].update(plugin_attrs.Plugin.optional)
 
                 plugin_options = {}
                 for key, value in options.iteritems():

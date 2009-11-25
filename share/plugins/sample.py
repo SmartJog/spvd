@@ -23,7 +23,6 @@ class Plugin(BasePlugin):
 
     require = { }
     optional = { }
-    checks = [ 'nothing', 'pierrot' ]
 
     def __init__(self, log_name, event, url=None, params=None):
         BasePlugin.__init__(self, PLUGIN_NAME, log_name, event, url, params)

@@ -17,6 +17,7 @@ import threading
 
 import logging
 
+
 VERSION = "@PACKAGE_VERSION@"
 
 # Default daemon parameters.
@@ -35,6 +36,9 @@ DFLT_CONFFILE = "@sysconfdir@/spvd.conf"
 
 sys.path.insert(1, '@pkgdatadir@/plugins/')
 sys.path.insert(1, '@pkgdatadir@/')
+
+import basejob
+
 
 # The standard I/O file descriptors are redirected to /dev/null by default.
 if (hasattr(os, "devnull")):
@@ -186,7 +190,16 @@ class Monitor:
             logger.setLevel(logging.DEBUG)
         else:
             logger.setLevel(logging.INFO)
-        for check in plugin_classes.Plugin.checks:
+
+        # This is the proper way to detect a plugin's checks
+        thread_methods = dir(threading.Thread)
+        basejob_methods = dir(basejob.BaseJob)
+        methods = [method for method in dir(plugin_classes.Job)
+            if not method.startswith('_')
+            and not method in thread_methods
+            and not method in basejob_methods]
+
+        for check in methods:
             check_logger = logging.getLogger(self.log_name + '.' + plugin + '.' + check)
             check_log_file = logging.FileHandler(log_dir + check + '.log')
             check_log_file.setFormatter(self.log_format)

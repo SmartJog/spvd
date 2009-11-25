@@ -11,6 +11,7 @@ Version 0.4.0~dev
 	* Moved events and delivery plugins to their own debian packages, refs: #2665.
 	* Now spvd automatically detects its plugins checks, closes: #2675.
 	* Added missing optional parameter, closes: #2686.
+	* Added methods and options documentation to sample plugin, closes: #2692.
 
 Version 0.3.1 Released on 2009/10/29
 

@@ -13,6 +13,7 @@ Version 0.4.0~dev
 	* Added missing optional parameter, closes: #2686.
 	* Added methods and options documentation to sample plugin, closes: #2692.
 	* Removed spvd-delivery configuration in default spvd.conf, closes: #2603.
+	* Import daemonization code fixes from sl2d.
 
 Version 0.3.1 Released on 2009/10/29
 

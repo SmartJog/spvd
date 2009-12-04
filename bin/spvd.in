@@ -276,19 +276,25 @@ def daemonize(options):
 
     try:
         pid = os.fork()
+        if pid > 0:
+            sys.exit(os.EX_OK)
     except OSError, error:
-        raise Exception, "%s [%d]" % (error.strerror, error.errno)
+        raise Exception, "First fork failed: %s [%d]" % (error.strerror, error.errno)
 
-    if pid == 0:
-        # The first child.
-        os.setsid()
-        pidfile = open(options.pidfile, 'w')
-        pidfile.write("%d" % os.getpid())
-        pidfile.close()
-        Monitor(options).run()
+    os.chdir('/')
+    os.setsid()
+    os.umask(0)
 
-    else:
-        os._exit(os.EX_OK)
+    try:
+        pid = os.fork()
+        if pid > 0:
+            sys.exit(os.EX_OK)
+    except OSError, error:
+        raise Exception, "Second fork failed: %s [%d]" % (error.strerror, error.errno)
+
+    f = open(options.pidfile, 'w')
+    f.write("%d" % os.getpid())
+    f.close()
 
     # Resource usage information.
     maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
@@ -308,6 +314,7 @@ def daemonize(options):
     os.dup2(0, 1)			# standard output (1)
     os.dup2(0, 2)			# standard error (2)
 
+    Monitor(options).run()
     return os.EX_OK
 
 if __name__ == "__main__":

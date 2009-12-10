@@ -1,4 +1,4 @@
-Version 0.4.0~dev
+Version 0.4.0 Released on 2009/12/10
 
 	* Moved streams plugin to his own debian package, refs: #2313.
 	* Added one log file for each check for each plugin, closes: #2643.

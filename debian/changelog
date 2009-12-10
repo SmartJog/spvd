@@ -1,4 +1,4 @@
-spvd (0.4.0~dev-1) unstable; urgency=low
+spvd (0.4.0-1) unstable; urgency=low
 
   [ Thomas Souvignet ]
   * New upstream release, closes: #2643, #2644, #2645, #2613, #2641, #2655,
@@ -14,7 +14,7 @@ spvd (0.4.0~dev-1) unstable; urgency=low
   * Added myself to Uploaders.
   * Fix ChangeLog entries.
 
- -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Fri, 04 Dec 2009 17:49:33 +0100
+ -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Thu, 10 Dec 2009 16:26:56 +0100
 
 spvd (0.3.1-1) unstable; urgency=low
 

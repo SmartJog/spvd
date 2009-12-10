@@ -1,7 +1,8 @@
 spvd (0.4.0~dev-1) unstable; urgency=low
 
   [ Thomas Souvignet ]
-  * New upstream release.
+  * New upstream release, closes: #2643, #2644, #2645, #2613, #2641, #2655,
+    #2675, #2686, #2692, #2603.
   * Added new log files to logrotate.
 
   [ Victor Goya ]

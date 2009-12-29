@@ -1,5 +1,6 @@
-# Define user spvd will run as
+# Define user/group spvd will run as
 #DAEMONUSER=sjuser
+#DAEMONGROUP=sjgroup
 #PIDFILE=/var/run/spvd/spvd.pid
 #LOGFILE=/var/log/spvd/spvd.log
 #CONFFILE=/etc/spvd.conf

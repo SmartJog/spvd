@@ -61,14 +61,28 @@ DAEMON_OPTS="$DAEMON_OPTS -l $LOGFILE -f $CONFFILE"
 # Check that the user exists (if we set a user)
 # Does the user exist?
 if [ -n "$DAEMONUSER" ] ; then
-    if getent passwd | grep -q "^$DAEMONUSER:"; then
-        # Obtain the uid and gid
-        DAEMONUID=`getent passwd |grep "^$DAEMONUSER:" | awk -F : '{print $3}'`
-        DAEMONGID=`getent passwd |grep "^$DAEMONUSER:" | awk -F : '{print $4}'`
+    if getent passwd "$DAEMONUSER" > /dev/null; then
+        # Obtain the uid
+        DAEMONUID=`getent passwd "$DAEMONUSER" | awk -F : '{print $3}'`
     else
         log_failure_msg "The user $DAEMONUSER, required to run $NAME does not exist."
         exit 1
     fi
+fi
+
+# Check that the group exists (if we set a group)
+# Does the group exist?
+if [ -n "$DAEMONGROUP" ] ; then
+    if getent group "$DAEMONGROUP" > /dev/null; then
+        # Obtain the gid
+        DAEMONGID=`getent group "$DAEMONGROUP" | awk -F : '{print $3}'`
+    else
+        log_failure_msg "The group $DAEMONGROUP, required to run $NAME does not exist."
+        exit 1
+    fi
+elif [ -n "$DAEMONUSER" ] ; then
+    # Fallback if the user is set in the conf but not the group
+    DAEMONGID=`getent passwd "$DAEMONUSER" | awk -F : '{print $4}'`
 fi
 
 
@@ -105,8 +119,10 @@ start_server() {
         errcode=$?
     else
 # if we are using a daemonuser then change the user id
+        [ -n "$DAEMONGROUP" ] && chuidarg="$DAEMONUSER:$DAEMONGROUP" \
+                              || chuidarg="$DAEMONUSER"
         start-stop-daemon --start --quiet \
-            --chuid $DAEMONUSER \
+            --chuid $chuidarg \
             --exec $DAEMON -- $DAEMON_OPTS
         errcode=$?
     fi
@@ -120,8 +136,9 @@ stop_server() {
         errcode=$?
     else
 # if we are using a daemonuser then look for process that match
+        [ -n "$DAEMONGROUP" ] && groupopt="--group $DAEMONGROUP"
         start-stop-daemon --stop --quiet --pidfile $PIDFILE \
-            --user $DAEMONUSER
+            --user $DAEMONUSER $groupopt
         errcode=$?
     fi
     return $errcode
@@ -152,7 +169,7 @@ create_directories()
     do
         dir=`dirname $file`
         [ ! -d "$dir" ] && mkdir -p $dir
-        chown $DAEMONUID:$DAEMONGID $dir
+        chown -R $DAEMONUID:$DAEMONGID $dir
         chmod 770 $dir
     done
 }

@@ -1,3 +1,9 @@
+spvd (0.4.0-2~dev) unstable; urgency=low
+
+  * Add support for DAEMONGROUP in spvd.default, closes: #2813.
+
+ -- Rémi Cardona <remi.cardona@smartjog.com>  Tue, 29 Dec 2009 16:22:52 +0100
+
 spvd (0.4.0-1) unstable; urgency=low
 
   [ Thomas Souvignet ]

@@ -18,7 +18,7 @@ class BasePlugin(threading.Thread):
     """ Base class for job implementation in spvd. """
 
 
-    def __init__(self, name, log_name, event, url=None, params=None):
+    def __init__(self, name, log_dir, log_name, log_level, event, url=None, params=None):
         """ Init method.
 
         @url: url pass to Importer.
@@ -42,6 +42,7 @@ class BasePlugin(threading.Thread):
         self.name       = name
         self.dismiss    = event
         self.resqueue   = {}
+        self.checks     = {}
         self.rescommit  = threading.Event()
 
         self.params     = { 'importer_retry_timeout': 10,
@@ -66,7 +67,19 @@ class BasePlugin(threading.Thread):
             self.importer['ssl_key'] = self.params['ssl_key']
 
         self.log_name = log_name
+        self.log_level = log_level
+        self.log_dir = log_dir
+
         self.log = logging.getLogger(self.log_name)
+
+        log_handler = logging.FileHandler(self.log_dir + self.name + '.log')
+
+        self.log_format = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        log_handler.setFormatter(self.log_format)
+        self.log.addHandler(log_handler)
+
+        self.log.setLevel(self.log_level)
+        self.log.propagate = 0
 
         self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))
 
@@ -94,13 +107,14 @@ class BasePlugin(threading.Thread):
 
         check['plugin'] = self.name
         job = self.create_new_job(check)
-        logging.getLogger(self.log_name + '.' + check['plugin_check']).info('check %s started' % check['status_id'])
+        job.log.info('check started')
+        self.checks[check['status_id']] = job
         return job.run()
 
     def job_stop(self, request, result):
         """ Stops a job. """
 
-        logging.getLogger(self.log_name + '.' + result['plugin_check']).info('request #%s: check result is %s' % (request.request_id, result['check_message']))
+        self.checks[request.request_id].log.info('check result is %s' % result['check_message'])
 
         if 'message' not in result:
             result['message'] = 'No message'
@@ -108,10 +122,12 @@ class BasePlugin(threading.Thread):
         update = self.__prepare_status_update(result)
         self.resqueue.update({result['status_id']: update})
 
-        logging.getLogger(self.log_name + '.' + result['plugin_check']).info('request #%s: check terminated' % request.request_id)
+        self.checks[request.request_id].log.info('check terminated')
 
         if len(self.resqueue) > self.params['result_threshold']:
             self.rescommit.set()
+
+        del self.checks[request.request_id]
 
     def handle_exception(self, request, exc_info):
         """ Handle exception in a job. """
@@ -123,10 +139,9 @@ class BasePlugin(threading.Thread):
             self.log.critical(exc_info)
             raise SystemExit
 
-        logging.getLogger(self.log_name + '.' + request.args[0]['plugin_check']).error("*** Exception occured in request #%s: %s" % \
-                                                                                      (request.request_id, exc_info))
+        self.log.error("Exception occured in request #%s: %s" % (request.request_id, exc_info))
         for line in traceback.format_exception(exc_info[0], exc_info[1], exc_info[2]):
-            logging.getLogger(self.log_name + '.' + request.args[0]['plugin_check']).error(line)
+            self.log.error(line)
 
     def run(self):
         """ Run method. """
@@ -197,7 +212,7 @@ class BasePlugin(threading.Thread):
                             exc_callback=self.handle_exception
                         )
                         self.job_pool.queue_request(req, self.params['check_poll'])
-                        logging.getLogger(self.log_name + '.' + check['plugin_check']).info('Work request #%s added.' % req.request_id)
+                        self.log.info('Work request #%s added.' % req.request_id)
                 except Queue.Full:
                     self.log.error("queue is full")
                     continue

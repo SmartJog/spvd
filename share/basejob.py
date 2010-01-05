@@ -15,12 +15,25 @@ class BaseJobRuntimeError(Exception):
 class BaseJob:
     """ Base class for job implementation in spvd. """
 
-    def __init__(self, log_name, infos):
+    def __init__(self, log_dir, log_name, log_level, infos):
         """ Init method. """
 
         self.infos = infos
         self.log_name = log_name
+        self.log_level = log_level
         self.ident = "%s job_id=%s " % (self.infos['plugin'], self.infos['status_id'])
+
+        self.log = logging.getLogger(self.log_name + '.' + self.infos['plugin'] + '.' + self.infos['plugin_check'])
+        self.log_handler = logging.FileHandler(log_dir + self.infos['plugin_check'] + '.log')
+        self.log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s ' + ("#%5s " % str(self.infos['status_id'])) + '%(message)s'))
+        self.log.addHandler(self.log_handler)
+
+        self.log.propagate = 0
+        self.log.setLevel(self.log_level)
+
+    def __del__(self):
+        self.log.removeHandler (self.log_handler)
+        self.log_handler.close()
 
     def run(self):
         """ Starts the job implemented by this plugin. """
@@ -29,8 +42,8 @@ class BaseJob:
             self.go()
 
         except Exception, error:
-            logging.getLogger(self.log_name).critical('Fatal error: job stopped')
-            logging.getLogger(self.log_name).critical(traceback.format_exc())
+            self.log.critical('Fatal error: job stopped')
+            self.log.critical(traceback.format_exc())
             self.infos['description'] = str(error)
             self.infos['status'] = 'ERROR'
 
@@ -47,6 +60,6 @@ class BaseJob:
             self.infos['message'] = message
             self.infos['status'] = 'ERROR'
 
-            logging.getLogger(self.log_name).error(message)
+            self.log.error(message)
             raise BaseJobRuntimeError(message)
 

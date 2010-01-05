@@ -191,15 +191,10 @@ class Monitor:
         if os.path.exists(log_dir) is False:
             os.mkdir(log_dir)
         log_name = self.log_name + '.' + plugin
-        logger = logging.getLogger(log_name)
-        log_file = logging.FileHandler(log_dir + plugin + '.log')
-        log_file.setFormatter(self.log_format)
-        logger.addHandler(log_file)
-        logger.propagate = 0
         if plugin in self.plugins_params and self.plugins_params[plugin].get('debug') is True:
-            logger.setLevel(logging.DEBUG)
+            log_level = logging.DEBUG
         else:
-            logger.setLevel(logging.INFO)
+            log_level = logging.INFO
 
         # This is the proper way to detect a plugin's checks
         thread_methods = dir(threading.Thread)
@@ -209,21 +204,10 @@ class Monitor:
             and not method in thread_methods
             and not method in basejob_methods]
 
-        for check in methods:
-            check_logger = logging.getLogger(self.log_name + '.' + plugin + '.' + check)
-            check_log_file = logging.FileHandler(log_dir + check + '.log')
-            check_log_file.setFormatter(self.log_format)
-            check_logger.addHandler(check_log_file)
-            check_logger.propagate = 0
-            if plugin in self.plugins_params and self.plugins_params[plugin].get('debug') is True:
-                check_logger.setLevel(logging.DEBUG)
-            else:
-                check_logger.setLevel(logging.INFO)
-
         if plugin in self.plugins_params:
-            inst = plugin_classes.Plugin(log_name, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
+            inst = plugin_classes.Plugin(log_dir, log_name, log_level, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
         else:
-            inst = plugin_classes.Plugin(log_name, self.dismiss, self.distant_url)
+            inst = plugin_classes.Plugin(log_dir, log_name, log_level, self.dismiss, self.distant_url)
             self.pool.dismiss_workers(1)
 
         # Wait for plugin thread to join

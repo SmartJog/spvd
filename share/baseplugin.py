@@ -23,7 +23,7 @@ class BasePlugin(threading.Thread):
 
         @url: url pass to Importer.
 
-        @params is a dictionnary of optional parameters among:
+        @params is a dictionary of optional parameters among:
         importer_retry_timeout: interval between successive importer calls if
                                 importer failed.
         max_parallel_checks:    maximum number of threads for this plugin.

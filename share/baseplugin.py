@@ -100,6 +100,9 @@ class BasePlugin(threading.Thread):
             'message': check['message'],
         }
 
+        if 'status_infos' in check:
+            status['status_infos'] = check['status_infos']
+
         return status
 
     def job_start(self, check):

@@ -1,12 +1,12 @@
 spvd (0.4.1~dev-1) unstable; urgency=low
 
   [ Victor Goya ]
-  * New upstream release, closes: 2814.
+  * New upstream release, closes: 2814, #2832.
 
   [ Rémi Cardona ]
   * Add support for DAEMONGROUP in spvd.default, closes: #2813.
 
- --  Victor Goya <victor.goya@smartjog.com>  Tue, 05 Jan 2010 14:53:21 +0100
+ -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Wed, 06 Jan 2010 10:52:00 +0100
 
 spvd (0.4.0-1) unstable; urgency=low
 

@@ -222,7 +222,7 @@ class BasePlugin(threading.Thread):
 
             except Exception:
                 self.log.error('caught unknown exception :')
-                self.log.error(traceback.print_exc())
+                self.log.error(traceback.format_exc())
                 continue
 
         self.log.info('dismissing workers')

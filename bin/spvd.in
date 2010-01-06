@@ -309,7 +309,7 @@ if __name__ == "__main__":
         optparse.Option("-f", "--conf",       dest="conffile", help="Define spvd conf file", metavar="FILE", default=DFLT_CONFFILE),
         optparse.Option("-l", "--log",        dest="logfile",  help="Define spvd log file",  metavar="FILE", default=DFLT_LOGFILE),
         optparse.Option("-p", "--pid",        dest="pidfile",  help="Define spvd pid file",  metavar="FILE", default=DFLT_PIDFILE),
-        optparse.Option("-n", "--no-daemon",  dest="nodaemon", help="Define spvd log file",  action="store_true",  default=False)]
+        optparse.Option("-n", "--no-daemon",  dest="nodaemon", help="Run in foreground",  action="store_true",  default=False)]
         )
 
     (parsed_options, args) = parser.parse_args()

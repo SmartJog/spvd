@@ -44,7 +44,7 @@ class BaseJob:
         except Exception, error:
             self.log.critical('Fatal error: job stopped')
             self.log.critical(traceback.format_exc())
-            self.infos['description'] = str(error)
+            self.infos['message'] = str(error)
             self.infos['status'] = 'ERROR'
 
         return self.infos

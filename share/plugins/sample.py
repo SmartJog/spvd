@@ -40,4 +40,4 @@ class Plugin(BasePlugin):
         BasePlugin.__init__(self, PLUGIN_NAME, log_dir, log_name, log_level, event, url, params)
 
     def create_new_job(self, job):
-        return Job(self.log_name, job)
+        return Job(self.log_dir, self.log_name, self.log_level, job)

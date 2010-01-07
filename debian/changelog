@@ -1,4 +1,4 @@
-spvd (0.5.0~dev-1) unstable; urgency=low
+spvd (0.5.0-1) unstable; urgency=low
 
   [ Victor Goya ]
   * New upstream release, closes: 2814, #2832.

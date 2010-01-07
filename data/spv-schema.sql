@@ -2,11 +2,14 @@
 -- PostgreSQL database dump
 --
 
-\connect rxtx
-
 SET client_encoding = 'UTF8';
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET default_tablespace = '';
+SET default_with_oids = false;
+SET escape_string_warning = off;
+SET standard_conforming_strings = off;
+SET statement_timeout = 0;
 
 --
 -- Role: sjspv
@@ -559,6 +562,76 @@ ALTER TABLE ONLY status
 REVOKE ALL ON SCHEMA spv FROM PUBLIC;
 REVOKE ALL ON SCHEMA spv FROM sjspv;
 GRANT ALL ON SCHEMA spv TO sjspv;
+
+
+--
+-- status_infos schema modification
+--
+
+CREATE OR REPLACE FUNCTION update_modif_date() RETURNS trigger AS $$
+BEGIN
+    NEW.modification_date = now();
+    RETURN NEW;
+END$$
+LANGUAGE plpgsql security definer;
+
+
+CREATE SEQUENCE status_infos_increment
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER TABLE status_infos_increment OWNER TO sjspv;
+
+CREATE TABLE status_infos (
+    sinfo_id integer DEFAULT nextval(('spv.status_infos_increment'::text)::regclass) NOT NULL,
+    status_id integer NOT NULL,
+    key character varying(4096) NOT NULL,
+    value character varying(4096),
+    creation_date timestamp without time zone DEFAULT now(),
+    modification_date timestamp without time zone DEFAULT now()
+);
+
+ALTER TABLE ONLY status_infos
+    ADD CONSTRAINT sinfo_id_pkey PRIMARY KEY (sinfo_id);
+
+ALTER TABLE ONLY status_infos
+    ADD CONSTRAINT status_infos_status_id_fk FOREIGN KEY (status_id) REFERENCES status(status_id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY status_infos
+    ADD CONSTRAINT status_infos_status_key_uniq UNIQUE (status_id, key);
+
+CREATE TRIGGER status_infos_update_modif_date BEFORE UPDATE ON spv.status_infos FOR EACH ROW EXECUTE PROCEDURE update_modif_date();
+
+CREATE OR REPLACE FUNCTION insert_spv(INTEGER, character varying, character varying) RETURNS boolean AS
+$BODY$
+    DECLARE
+        _status_id      ALIAS FOR $1;
+        _key            ALIAS FOR $2;
+        _value          ALIAS FOR $3;
+        _sinfo_id        INTEGER;
+    BEGIN
+        IF _status_id IS NULL OR _key IS NULL THEN -- Allow _value to be null
+            RETURN false;
+        END IF;
+        SELECT INTO _sinfo_id sinfo_id FROM status_infos WHERE status_id = _status_id AND "key" = _key;
+        IF _sinfo_id IS NULL THEN
+           INSERT INTO status_infos (status_id, key, value) VALUES (_status_id, _key, _value);
+        ELSE
+           UPDATE status_infos SET value = _value WHERE sinfo_id = _sinfo_id;
+        END IF;
+        RETURN true;
+    END;
+$BODY$
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE VIEW status_infos_view AS SELECT * FROM status_infos;
+CREATE OR REPLACE RULE status_infos_view_rule AS ON INSERT TO status_infos_view DO INSTEAD SELECT insert_spv (NEW.status_id, NEW.key, NEW.value);
+
+ALTER TABLE spv.status_infos OWNER TO sjspv;
 
 --
 -- PostgreSQL database dump complete

@@ -30,6 +30,7 @@ class BasePlugin(threading.Thread):
         max_checks_queue:       maximum number of checks to get from
                                 the DB and queue for execution.
         check_poll:             interval between two get_checks call.
+        check_timeout:          maximum wait time for get_checks calls.
         debug:                  enable debugging information.
         ssl_cert:               client X.509 public key.
         ssl_key:                client X.509 secret key.
@@ -49,6 +50,7 @@ class BasePlugin(threading.Thread):
                             'max_parallel_checks': 3,
                             'max_checks_queue': 9,
                             'check_poll': 1,
+                            'check_timeout' : None,
                             'debug': False,
                             'ssl_cert': None,
                             'ssl_key': None,
@@ -65,6 +67,9 @@ class BasePlugin(threading.Thread):
         if self.params['ssl_cert'] and self.params['ssl_key']:
             self.importer['ssl_cert'] = self.params['ssl_cert']
             self.importer['ssl_key'] = self.params['ssl_key']
+
+        if self.params['check_timeout']:
+            self.importer['timeout'] = self.params['check_timeout']
 
         self.log_name = log_name
         self.log_level = log_level

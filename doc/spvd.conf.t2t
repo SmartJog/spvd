@@ -44,6 +44,10 @@ Maximum number of checks to keep in queue for this plugin.
 : **check_poll** = //3//
 Interval in seconds between contacts of the supervision to retrieve new checks.
 
+: **check_timeout** = //30//
+Maximum wait time in seconds before assuming the retrieval of new checks has
+failed.
+
 : **debug** = //True|False//
 Activate/Desactivate debugging of the plugin. Currently this is used to debug
 scheduling issues.

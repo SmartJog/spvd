@@ -111,6 +111,7 @@ class Monitor:
                         'max_parallel_checks' : int,
                         'max_checks_queue' : int,
                         'check_poll' : int,
+                        'check_timeout' : int,
                         'result_threshold' : int
                         }
                     plugins_optional[plugin_name].update(plugin_attrs.Plugin.optional)

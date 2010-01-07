@@ -9,7 +9,7 @@ Standards-Version: 3.8.3
 
 Package: spvd
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, importer (>=0.2.0), python-sjutils (>=1.10.1)
+Depends: ${misc:Depends}, ${python:Depends}, importer (>=0.2.5), python-sjutils (>=1.10.1)
 Suggests: python-psycopg2
 XB-Python-Version: ${python:Versions}
 Description: SmartJog core supervision

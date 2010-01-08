@@ -177,7 +177,8 @@ class Monitor:
         try:
             plugin_classes = __import__(plugin)
         except ImportError:
-            self.log.error('failed to load %s plugin' % plugin)
+            import traceback
+            self.log.error('failed to load %s plugin: %s' % (plugin, traceback.format_exc()))
             self.pool.dismiss_workers(1)
             return False
 

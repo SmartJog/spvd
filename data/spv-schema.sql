@@ -632,6 +632,7 @@ CREATE OR REPLACE VIEW status_infos_view AS SELECT * FROM status_infos;
 CREATE OR REPLACE RULE status_infos_view_rule AS ON INSERT TO status_infos_view DO INSTEAD SELECT insert_spv (NEW.status_id, NEW.key, NEW.value);
 
 ALTER TABLE spv.status_infos OWNER TO sjspv;
+ALTER TABLE spv.status_infos_view OWNER TO sjspv;
 
 --
 -- PostgreSQL database dump complete

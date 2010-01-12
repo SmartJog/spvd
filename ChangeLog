@@ -2,6 +2,7 @@ Version 0.6.0~dev
 
 	* Updated database schema for status informations, refs: #2831, #2832.
 	* Allow setting Importer timeout from config, refs: #2825.
+	* Corrected SQL code of checks_list VIEW on data folder wich was buggy.
 
 Version 0.5.0 Released on 2010/01/07
 

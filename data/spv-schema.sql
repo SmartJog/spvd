@@ -325,8 +325,9 @@ COMMENT ON COLUMN status.next_check IS 'When will the check be performed again';
 -- Name: checks_list; Type: VIEW; Schema: spv; Owner: sjspv
 --
 
-CREATE VIEW checks_list AS
-    SELECT checks.plugin_check, checks.plugin, groups.grp_id, status.last_check, status.next_check, status.check_status, status.check_message, status.cg_id, status.og_id, status.seq_id, status.status_id, objects.address, groups.name AS group_name, checks.name AS check_name FROM ((((((status JOIN objects_group ON ((status.og_id = objects_group.og_id))) JOIN objects ON ((objects_group.obj_id = objects.obj_id))) JOIN groups ON ((objects_group.grp_id = groups.grp_id))) JOIN checks_group ON ((status.cg_id = checks_group.cg_id))) JOIN checks ON ((checks_group.chk_id = checks.chk_id))) JOIN groups alias_ppa_1240585188 ON ((checks_group.grp_id = groups.grp_id)));
+
+CREATE OR REPLACE VIEW checks_list AS SELECT checks.plugin_check, checks.plugin, groups.grp_id, status.last_check, status.next_check, status.check_status, status.check_message, status.cg_id, status.og_id, status.seq_id, status.status_id, objects.address, groups.name AS group_name, checks.name AS check_name FROM objects NATURAL JOIN objects_group NATURAL JOIN status NATURAL JOIN checks_group NATURAL JOIN checks left JOIN groups ON (checks_group.grp_id=groups.grp_id); 
+
 
 
 ALTER TABLE spv.checks_list OWNER TO sjspv;

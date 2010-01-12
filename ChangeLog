@@ -1,4 +1,4 @@
-Version 0.6.0~dev
+Version 0.6.0 Released on 2010/01/12
 
 	* Updated database schema for status informations, refs: #2831, #2832.
 	* Allow setting Importer timeout from config, refs: #2825.

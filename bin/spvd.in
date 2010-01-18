@@ -36,9 +36,6 @@ DFLT_CONFFILE = "@sysconfdir@/spvd.conf"
 sys.path.insert(1, '@pkgdatadir@/plugins/')
 sys.path.insert(1, '@pkgdatadir@/')
 
-import basejob
-
-
 # The standard I/O file descriptors are redirected to /dev/null by default.
 if (hasattr(os, "devnull")):
     REDIRECT_TO = os.devnull
@@ -197,14 +194,6 @@ class Monitor:
             log_level = logging.DEBUG
         else:
             log_level = logging.INFO
-
-        # This is the proper way to detect a plugin's checks
-        thread_methods = dir(threading.Thread)
-        basejob_methods = dir(basejob.BaseJob)
-        methods = [method for method in dir(plugin_classes.Job)
-            if not method.startswith('_')
-            and not method in thread_methods
-            and not method in basejob_methods]
 
         if plugin in self.plugins_params:
             inst = plugin_classes.Plugin(log_dir, log_name, log_level, self.dismiss, self.distant_url, params=self.plugins_params[plugin])

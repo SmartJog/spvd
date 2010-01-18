@@ -15,8 +15,6 @@ BEGIN
     seconds := quote_literal(repeat) || ' seconds';
     NEW.last_check := now();
     NEW.next_check := CAST (now() as TIMESTAMP) + CAST (seconds AS INTERVAL);
-    RAISE DEBUG 'Last Check: (%)', NEW.last_check;
-    RAISE DEBUG 'Next Check: (%)', NEW.next_check;
   END IF;
   IF OLD.check_status != NEW.check_status THEN
     NEW.status_changed_date=now();
@@ -73,3 +71,38 @@ GRANT ALL ON checks TO webengine;
 GRANT ALL ON checks_group TO webengine;
 GRANT ALL ON objects TO webengine;
 GRANT ALL ON objects_group TO webengine;
+
+CREATE OR REPLACE FUNCTION status_update() RETURNS trigger
+    AS $$DECLARE
+
+  repeat INTEGER;
+
+  seconds VARCHAR;
+
+BEGIN
+
+  IF OLD.last_check < NEW.last_check THEN
+    repeat := status_get_repeat(NEW.status_id);
+    seconds := quote_literal(repeat) || ' seconds';
+    NEW.last_check := now();
+    NEW.next_check := CAST (now() as TIMESTAMP) + CAST (seconds AS INTERVAL);
+  END IF;
+
+  RETURN NEW;
+
+END;$$
+
+CREATE OR REPLACE FUNCTION status_get_repeat(status_id integer) RETURNS integer
+    AS $$DECLARE
+
+  r INTEGER;
+
+BEGIN
+
+  r := repeat FROM status, checks_group, checks WHERE status.cg_id = checks_group.cg_id AND checks_group.chk_id = checks.chk_id AND status.status_id = status_id;
+
+  RETURN r;
+
+END;$$
+    LANGUAGE plpgsql;
+

@@ -1,8 +1,12 @@
-spvd (0.6.0-2~dev) unstable; urgency=low
+spvd (0.6.1~dev) unstable; urgency=low
 
+  [ Rémi Cardona ]
   * Added myself to Uploaders.
 
- -- Rémi Cardona <remi.cardona@smartjog.com>  Tue, 12 Jan 2010 11:48:43 +0100
+  [ Victor Goya ]
+  * New upstream release.
+
+ -- Victor Goya <victor.goya@smartjog.com>  Mon, 18 Jan 2010 17:00:06 +0100
 
 spvd (0.6.0-1) unstable; urgency=low
 

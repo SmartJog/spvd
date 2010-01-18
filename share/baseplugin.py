@@ -122,7 +122,7 @@ class BasePlugin(threading.Thread):
     def job_stop(self, request, result):
         """ Stops a job. """
 
-        self.checks[request.request_id].log.info('check result is %s' % result['check_message'])
+        self.checks[request.request_id].log.info('check result is %s' % result['message'])
 
         if 'message' not in result:
             result['message'] = 'No message'

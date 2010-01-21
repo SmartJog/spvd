@@ -99,10 +99,11 @@ class BasePlugin(threading.Thread):
     @staticmethod
     def __prepare_status_update(check):
         """ Prepare a structure for status update. """
-        status = {'status_id': check['status_id'],
-            'sequence_id': check['seq_id'],
-            'status': check['status'],
-            'message': check['message'],
+        status = {
+            'status_id'     : check['status']['status_id'],
+            'sequence_id'   : check['status']['seq_id'],
+            'status'        : check['status']['check_status'],
+            'message'       : check['status']['check_message'],
         }
 
         if 'status_infos' in check:
@@ -113,24 +114,18 @@ class BasePlugin(threading.Thread):
     def job_start(self, check):
         """ Starts a job. """
 
-        check['plugin'] = self.name
         job = self.create_new_job(check)
         job.log.info('check started')
-        self.checks[check['status_id']] = job
+        self.checks[check['status']['status_id']] = job
         return job.run()
 
     def job_stop(self, request, result):
         """ Stops a job. """
 
-        self.checks[request.request_id].log.info('check result is %s' % result['message'])
-
-        if 'message' not in result:
-            result['message'] = 'No message'
+        self.checks[request.request_id].log.info('check result is %s : (%s)' % (result['status']['check_status'], result['status']['check_message']))
 
         update = self.__prepare_status_update(result)
-        self.resqueue.update({result['status_id']: update})
-
-        self.checks[request.request_id].log.info('check terminated')
+        self.resqueue.update({result['status']['status_id']: update})
 
         if len(self.resqueue) > self.params['result_threshold']:
             self.rescommit.set()
@@ -199,23 +194,33 @@ class BasePlugin(threading.Thread):
                 self.log.debug('*** fetching %s checks' % limit_fetch)
 
                 try:
-                    checks = self.importer.call('spv', 'get_checks',
-                        limit=limit_fetch,
-                        plugins=[self.name])
+                    checks = self.importer.call('spv.services', 'get_checks',
+                        {'limit' : limit_fetch,
+                        'plugins' : [self.name],
+                        'get_check_infos' : True,
+                        'get_object_infos' : True,
+                        'update_next_check' : True,
+                        'next_check_expired' : True})
                 except ImporterError, error:
                     self.log.error('remote module error while retrieving checks <' + str(error) + '>')
                     self.dismiss.wait(self.params['importer_retry_timeout'])
+                    continue
 
-                if len(checks) > 0:
-                    self.log.info('got %s checks' % len(checks))
+                if len(checks['status']) > 0:
+                    self.log.info('got %s checks' % len(checks['status']))
 
                 try:
-                    for status_id, check in checks.iteritems():
+                    for status in checks['status']:
+
                         req = threadpool.WorkRequest(
                             self.job_start,
-                            [check],
+                            [ {
+                                'check' : checks['checks'][status['chk_id']],
+                                'group' : checks['groups'][status['grp_id']],
+                                'object' : checks['objects'][status['obj_id']],
+                                'status' : status}],
                             None,
-                            request_id=status_id,
+                            request_id=status['status_id'],
                             callback=self.job_stop,
                             exc_callback=self.handle_exception
                         )

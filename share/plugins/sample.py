@@ -1,7 +1,6 @@
 from baseplugin import BasePlugin
 from basejob import BaseJob
 import time
-import logging
 
 PLUGIN_NAME = "sample"
 

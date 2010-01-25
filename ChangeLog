@@ -1,6 +1,7 @@
 Version 0.6.2~dev
 
 	* Change setCheckStatus method to match convention.
+	* sample: drop unused imports.
 
 Version 0.6.1 Released on 2010/01/25
 

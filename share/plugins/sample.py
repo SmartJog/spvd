@@ -18,12 +18,12 @@ class Job(BaseJob):
     def nothing(self):
         self.log.info('This check is doing nothing.')
         self._do_nothing()
-        self.infos['status'] = 'FINISHED'
+        self.set_check_status('FINISHED', 'I really did nothing')
 
     # This method is called by a check.
     def pierrot(self):
         self.log.info('Au clair de la lune.')
-        self.infos['status'] = 'FINISHED'
+        self.set_check_status('FINISHED', 'Nothing to say')
 
 class Plugin(BasePlugin):
 

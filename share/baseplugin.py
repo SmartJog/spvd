@@ -104,6 +104,7 @@ class BasePlugin(threading.Thread):
             'sequence_id'   : check['status']['seq_id'],
             'status'        : check['status']['check_status'],
             'message'       : check['status']['check_message'],
+            'status_infos'  : check['status']['status_infos'],
         }
 
         if 'status_infos' in check:

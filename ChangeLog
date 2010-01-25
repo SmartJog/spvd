@@ -5,6 +5,7 @@ Version 0.6.1~dev
 	* Changed calls to importer to use new spv webservices located on
 	services.py. Modified internal structure to store object_infos and
 	check_infos.
+	* Added possility to set check status_infos result by calling setCheckStatus helper.
 
 Version 0.6.0 Released on 2010/01/12
 

@@ -197,7 +197,7 @@ class BasePlugin(threading.Thread):
                 try:
                     checks = self.importer.call('spv.services', 'get_checks',
                         {'limit' : limit_fetch,
-                        'plugins' : [self.name],
+                        'plugin_name' : self.name,
                         'get_check_infos' : True,
                         'get_object_infos' : True,
                         'update_next_check' : True,

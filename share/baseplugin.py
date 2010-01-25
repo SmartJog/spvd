@@ -242,7 +242,7 @@ class BasePlugin(threading.Thread):
         # Do not join, takes time and results will not be written to database anyway
         self.log.info("plugin stopped")
 
-    def create_new_job(self, job):
+    def create_new_job(self, _job):
         """ Dummy method. To be overridden in plugins. """
 
         raise BasePluginError('Plugin %s does not implement <create_new_job>' % self.name)

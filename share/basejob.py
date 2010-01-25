@@ -35,7 +35,8 @@ class BaseJob:
         self.log.removeHandler (self.log_handler)
         self.log_handler.close()
 
-    def setCheckStatus(self, check_status, check_message, status_infos=None):
+    def set_check_status(self, check_status, check_message, status_infos=None):
+        """ Helper function to prepare check's status. """
         self.infos['status']['check_message'] = check_message
         self.infos['status']['check_status'] = check_status
         self.infos['status']['status_infos'] = status_infos

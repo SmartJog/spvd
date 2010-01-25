@@ -1,4 +1,4 @@
-Version 0.6.1~dev
+Version 0.6.1 Released on 2010/01/25
 
 	* Fixed check result log message to use 'message' instead of 'check_message', closes: #2898.
 	* Updated database schema on spv-schema.sql file (rewrote all file).

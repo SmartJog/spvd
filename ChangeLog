@@ -4,6 +4,7 @@ Version 0.6.2~dev
 	* sample: drop unused imports.
 	* sample: fix usage of basejob API.
 	* sample: add some documentation.
+	* Added references to plugins manpages in spvd.conf manual, refs: #2793.
 
 Version 0.6.1 Released on 2010/01/25
 

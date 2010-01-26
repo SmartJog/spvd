@@ -70,5 +70,10 @@ The spvd daemon and this manual page have been written by the **SmartJog** compa
 
 = SEE ALSO =
 
-**spvd**(8)
+**spvd**(8),
+**spvd-connect**(5),
+**spvd-delivery**(5),
+**spvd-events**(5),
+**spvd-smartdamstreaming**(5),
+**spvd-streams**(5)
 

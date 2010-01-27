@@ -1,3 +1,9 @@
+spvd (0.6.2-2) unstable; urgency=low
+
+  * Add Breaks since the API changed in an incompatible way.
+
+ -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Wed, 27 Jan 2010 17:33:27 +0100
+
 spvd (0.6.2-1) unstable; urgency=low
 
   * New upstream release.

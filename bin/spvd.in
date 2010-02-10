@@ -95,10 +95,19 @@ class Monitor:
                 if not plugin_name in self.plugins_params:
                     self.plugins_params[plugin_name] = {}
 
-                plugin_attrs = __import__(plugin_name)
+                try:
+                    plugin_attrs = __import__(plugin_name)
+                except ImportError:
+                    self.log.error('Invalid configuration field: %s' % plugin_name)
+                    self.shutdown()
 
                 if not plugin_name in plugins_require:
-                    plugins_require[plugin_name] = plugin_attrs.Plugin.require
+                    try:
+                        plugins_require[plugin_name] = plugin_attrs.Plugin.require
+                    except AttributeError:
+                        self.log.error("Plugin %s doesn't provide its required configuration options" % plugin_name)
+                        self.shutdown()
+
                 if not plugin_name in plugins_optional:
                     plugins_optional[plugin_name] = {
                         'distant_url' : str,

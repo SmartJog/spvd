@@ -1,6 +1,6 @@
 AC_PREREQ(2.61)
 
-AC_INIT([spvd],[0.6.2])
+AC_INIT([spvd],[0.6.3~dev])
 
 AM_INIT_AUTOMAKE([foreign])
 

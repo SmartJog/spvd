@@ -23,8 +23,8 @@ spvd is a highly threaded and modular supervision daemon.
 : **-f** //configfile//
 Use //configfile// instead of the default.
 
-: **-l** //logfile//
-Use //logfile// instead of the default.
+: **-l** //logdir//
+Use //logdir// instead of the default.
 
 : **-p** //pidfile//
 Use //pidfile// instead of the default.

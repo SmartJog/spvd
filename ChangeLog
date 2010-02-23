@@ -1,6 +1,7 @@
-Version 0.6.3~dev
+Version 0.7.0~dev
 
 	* Added error message if plugin imports fail in the configuration parser, closes: #2820.
+	* Changed 'logfile' parameter to 'logdir' since spvd uses multiple log files, refs: #2843.
 
 Version 0.6.2 Released on 2010/01/27
 

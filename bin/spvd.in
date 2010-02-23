@@ -30,7 +30,7 @@ WORKDIR = "/"
 MAXFD = 1024
 
 DFLT_PIDFILE = "@localstatedir@/run/spvd/spvd.pid"
-DFLT_LOGFILE = "@localstatedir@/log/spvd/spvd.log"
+DFLT_LOGDIR = "@localstatedir@/log/spvd/"
 DFLT_CONFFILE = "@sysconfdir@/spvd.conf"
 
 sys.path.insert(1, '@pkgdatadir@/plugins/')
@@ -60,7 +60,7 @@ class Monitor:
         self.log = logging.getLogger(self.log_name)
         self.log.setLevel(logging.INFO)
         if not self.options.nodaemon:
-            log_handler = logging.FileHandler(self.options.logfile)
+            log_handler = logging.FileHandler(self.options.logdir + "/spvd.log")
         else:
             log_handler = logging.FileHandler('/dev/stdout')
         self.log_format = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
@@ -307,7 +307,7 @@ if __name__ == "__main__":
     parser = optparse.OptionParser(
         version="%prog " + VERSION, option_list=[
         optparse.Option("-f", "--conf",       dest="conffile", help="Define spvd conf file", metavar="FILE", default=DFLT_CONFFILE),
-        optparse.Option("-l", "--log",        dest="logfile",  help="Define spvd log file",  metavar="FILE", default=DFLT_LOGFILE),
+        optparse.Option("-l", "--log",        dest="logdir",  help="Define spvd log file",  metavar="FILE", default=DFLT_LOGDIR),
         optparse.Option("-p", "--pid",        dest="pidfile",  help="Define spvd pid file",  metavar="FILE", default=DFLT_PIDFILE),
         optparse.Option("-n", "--no-daemon",  dest="nodaemon", help="Run in foreground",  action="store_true",  default=False)]
         )

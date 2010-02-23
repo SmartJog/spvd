@@ -2,6 +2,6 @@
 #DAEMONUSER=sjuser
 #DAEMONGROUP=sjgroup
 #PIDFILE=/var/run/spvd/spvd.pid
-#LOGFILE=/var/log/spvd/spvd.log
+#LOGDIR=/var/log/spvd/
 #CONFFILE=/etc/spvd.conf
 #NICE=19

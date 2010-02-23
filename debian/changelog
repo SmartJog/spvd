@@ -1,8 +1,9 @@
-spvd (0.6.3~dev-1) unstable; urgency=low
+spvd (0.7.0~dev-1) unstable; urgency=low
 
-  * New upstream release, closes: #2820.
+  * New upstream release.
+  * Update init script and default values to use logdir, refs: #2843.
 
- -- Victor Goya <victor.goya@smartjog.com>  Wed, 10 Feb 2010 15:54:45 +0100
+ -- Victor Goya <victor.goya@smartjog.com>  Tue, 02 Feb 2010 15:50:06 +0100
 
 spvd (0.6.2-2) unstable; urgency=low
 

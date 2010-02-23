@@ -42,7 +42,6 @@ DIETIME=10              # Time to wait for the server to die, in seconds
                         # be a false positive (says it did not start
                         # when it actually did)
 
-LOGFILE=$LOGDIR/$NAME.log  # Server logfile
 DAEMONUSER=root         # Users to run the daemons as. If this value
                         # is set start-stop-daemon will chuid the server
 
@@ -56,7 +55,7 @@ if [ -f /etc/default/$NAME ] ; then
     . /etc/default/$NAME
 fi
 
-DAEMON_OPTS="$DAEMON_OPTS -l $LOGFILE -f $CONFFILE"
+DAEMON_OPTS="$DAEMON_OPTS -l $LOGDIR -f $CONFFILE"
 
 # Check that the user exists (if we set a user)
 # Does the user exist?
@@ -165,9 +164,9 @@ force_stop() {
 
 create_directories()
 {
-    for file in $PIDFILE $LOGFILE
+    PIDDIR=`dirname $PIDFILE`
+    for dir in $PIDDIR $LOGDIR
     do
-        dir=`dirname $file`
         [ ! -d "$dir" ] && mkdir -p $dir
         chown -R $DAEMONUID:$DAEMONGID $dir
         chmod 770 $dir

@@ -2,6 +2,7 @@
 
 import logging
 import traceback
+import os
 
 
 class BaseJobRuntimeError(Exception):
@@ -15,21 +16,31 @@ class BaseJobRuntimeError(Exception):
 class BaseJob:
     """ Base class for job implementation in spvd. """
 
-    def __init__(self, log_dir, log_name, log_level, infos):
+    def __init__(self, options, infos, params):
         """ Init method. """
 
         self.infos = infos
-        self.log_name = log_name
-        self.log_level = log_level
         self.ident = "%s job_id=%s " % (self.infos['check']['plugin'], self.infos['status']['status_id'])
 
-        self.log = logging.getLogger(self.log_name + '.' + self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'])
-        self.log_handler = logging.FileHandler(log_dir + self.infos['check']['plugin_check'] + '.log')
+        self.log = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'])
+
+        if options.nodaemon:
+            self.log_handler = logging.FileHandler('/dev/stdout')
+        else:
+            log_dir = options.logdir + '/' + self.infos['check']['plugin']
+            if os.path.exists(log_dir) is False:
+                os.mkdir(log_dir)
+            self.log_handler = logging.FileHandler(log_dir + '/' + self.infos['check']['plugin_check'] + '.log')
+
         self.log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s ' + ("%5s " % ("#" + str(self.infos['status']['status_id']))) + '%(message)s'))
         self.log.addHandler(self.log_handler)
 
+        if params.has_key('debug') and params['debug'] is True:
+            self.log.setLevel(logging.DEBUG)
+        else:
+            self.log.setLevel(logging.INFO)
+
         self.log.propagate = 0
-        self.log.setLevel(self.log_level)
 
     def __del__(self):
         self.log.removeHandler (self.log_handler)

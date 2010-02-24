@@ -3,6 +3,7 @@
 import logging
 import threading
 import traceback
+import os
 import Queue
 from importer import Importer, ImporterError
 from sjutils import threadpool
@@ -18,7 +19,7 @@ class BasePlugin(threading.Thread):
     """ Base class for job implementation in spvd. """
 
 
-    def __init__(self, name, log_dir, log_name, log_level, event, url=None, params=None):
+    def __init__(self, options, event, url=None, params=None):
         """ Init method.
 
         @url: url pass to Importer.
@@ -40,7 +41,6 @@ class BasePlugin(threading.Thread):
 
         threading.Thread.__init__(self)
         self.setDaemon(True)
-        self.name       = name
         self.dismiss    = event
         self.resqueue   = {}
         self.checks     = {}
@@ -71,19 +71,27 @@ class BasePlugin(threading.Thread):
         if self.params['check_timeout']:
             self.importer['timeout'] = self.params['check_timeout']
 
-        self.log_name = log_name
-        self.log_level = log_level
-        self.log_dir = log_dir
+        self.options = options
 
-        self.log = logging.getLogger(self.log_name)
+        self.log = logging.getLogger(self.name)
 
-        log_handler = logging.FileHandler(self.log_dir + self.name + '.log')
+        if self.options.nodaemon:
+            log_handler = logging.FileHandler('/dev/stdout')
+        else:
+            log_dir = options.logdir + '/' + self.name
+            if os.path.exists(log_dir) is False:
+                os.mkdir(log_dir)
+            log_handler = logging.FileHandler(log_dir + '/' + self.name + '.log')
 
         self.log_format = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
         log_handler.setFormatter(self.log_format)
         self.log.addHandler(log_handler)
 
-        self.log.setLevel(self.log_level)
+        if self.params.has_key('debug') and self.params['debug'] is True:
+            self.log.setLevel(logging.DEBUG)
+        else:
+            self.log.setLevel(logging.INFO)
+
         self.log.propagate = 0
 
         self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))

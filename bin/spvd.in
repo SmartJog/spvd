@@ -189,25 +189,10 @@ class Monitor:
             self.pool.dismiss_workers(1)
             return False
 
-        # Setup loggers for plugin
-        if self.options.logfile.find('/') == -1:
-            log_dir = '' + plugin + '/'
-        elif self.options.logfile[0] == '/' and self.options.logfile.find('/', 1) == -1:
-            log_dir = '/' + plugin + '/'
-        else:
-            log_dir = self.options.logfile.rsplit('/', 1)[0] + '/' + plugin + '/'
-        if os.path.exists(log_dir) is False:
-            os.mkdir(log_dir)
-        log_name = self.log_name + '.' + plugin
-        if plugin in self.plugins_params and self.plugins_params[plugin].get('debug') is True:
-            log_level = logging.DEBUG
-        else:
-            log_level = logging.INFO
-
         if plugin in self.plugins_params:
-            inst = plugin_classes.Plugin(log_dir, log_name, log_level, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
+            inst = plugin_classes.Plugin(self.options, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
         else:
-            inst = plugin_classes.Plugin(log_dir, log_name, log_level, self.dismiss, self.distant_url)
+            inst = plugin_classes.Plugin(self.options, self.dismiss, self.distant_url)
             self.pool.dismiss_workers(1)
 
         # Wait for plugin thread to join

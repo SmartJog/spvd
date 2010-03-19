@@ -6,8 +6,9 @@ spvd (0.7.0~dev-1) unstable; urgency=low
 
   [ Rémi Cardona ]
   * New upstream release, closes: #2843.
+  * Update packaging for Lenny.
 
- -- Rémi Cardona <remi.cardona@smartjog.com>  Fri, 19 Mar 2010 15:35:47 +0100
+ -- Rémi Cardona <remi.cardona@smartjog.com>  Fri, 19 Mar 2010 15:40:17 +0100
 
 spvd (0.6.2-2) unstable; urgency=low
 

@@ -7,4 +7,4 @@ EXTRA_DIST = $(man8_MANS) $(man5_MANS)
 SUFFIXES = .t2t
 
 .t2t.man:
-	txt2tags -o $@ $<
+	$(TXT2TAGS) -o $@ $<

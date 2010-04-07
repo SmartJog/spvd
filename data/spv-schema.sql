@@ -194,7 +194,7 @@ CREATE TABLE status (
     status_acknowledged_date timestamp without time zone default now(),
     status_changed_date timestamp without time zone default now(),
     seq_id integer DEFAULT 0 NOT NULL,
-    CONSTRAINT positive_seqence CHECK ((seq_id >= 0)),
+    CONSTRAINT positive_seqence CHECK ((seq_id >= 0))
 );
 
 CREATE TABLE status_infos (

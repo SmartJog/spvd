@@ -2,6 +2,7 @@
 
 import logging
 import traceback
+import time
 import os
 
 class BaseJobRuntimeError(Exception):
@@ -14,6 +15,8 @@ class BaseJobRuntimeError(Exception):
 
 class BaseJob:
     """ Base class for job implementation in spvd. """
+
+    _valid_status = ('FINISHED', 'WARNING', 'ERROR')
 
     def __init__(self, options, infos, params):
         """ Init method. """
@@ -53,6 +56,16 @@ class BaseJob:
 
     def set_check_status(self, check_status, check_message, status_infos=None):
         """ Helper function to prepare check's status. """
+
+        if check_status not in self._valid_status:
+            message = 'Job returned an invalid status <%s>' % check_status
+            self.log.error(message)
+            raise BaseJobRuntimeError(message)
+
+        if self.infos['check']['check_infos'].get('history', False) == 'true' and self.infos['status']['check_status'] != check_status:
+            self.log.debug('Saving new history checkpoint')
+            status_infos = {'history-%s-%s' % (time.time(), check_status.lower()): check_message}
+
         self.infos['status']['check_message'] = check_message
         self.infos['status']['check_status'] = check_status
         self.infos['status']['status_infos'] = status_infos

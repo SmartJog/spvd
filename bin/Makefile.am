@@ -2,7 +2,7 @@
 bin_SCRIPTS = \
 	spvd
 
-edit = sed \
+edit = $(SED) \
 	-e 's|@PACKAGE_VERSION[@]|$(PACKAGE_VERSION)|g' \
 	-e 's|@localstatedir[@]|$(localstatedir)|g' \
 	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g' \

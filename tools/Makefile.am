@@ -5,7 +5,7 @@ tools_SCRIPTS = \
 	gis2spv.py \
 	spv-inject.sh
 
-edit = sed \
+edit = $(SED) \
 	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g' \
 	-e 's|@datadir[@]|$(datadir)|g' \
 	-e 's|@exec_prefix[@]|$(exec_prefix)|g' \

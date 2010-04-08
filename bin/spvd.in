@@ -151,7 +151,7 @@ class Monitor:
 
         if not len(self.plugins):
             self.log.critical("*** there is no plugin configured ***")
-            self.shutdown()
+            self.log.critical("*** spvd will do nothing ***")
 
     def handle_signal(self, signum=0, frame=None):
         """ Handle signals telling all threads to exit. """
@@ -228,7 +228,10 @@ class Monitor:
             for thread in threading.enumerate():
                 if hasattr(thread, 'daemon') and thread.daemon:
                     self.log.info('no daemon thread [%s] is alive' % thread.getName())
-            self.pool.poll()
+            try:
+                self.pool.poll()
+            except sjutils.threadpool.NoResultsPending:
+                pass
             self.dismiss.wait(10)
 
         self.shutdown()

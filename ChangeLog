@@ -7,6 +7,7 @@ Version 0.7.0~dev
 	* Check for txt2tags in configure.
 	* Check for sed in configure.
 	* Fix SQL schema.
+	* Prevent spvd from quitting if no plugins are configured.
 
 Version 0.6.2 Released on 2010/01/27
 

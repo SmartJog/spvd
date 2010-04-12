@@ -8,6 +8,7 @@ Version 0.7.0~dev
 	* Check for sed in configure.
 	* Fix SQL schema (SQL syntax errors, missing permission queries)
 	* Prevent spvd from quitting if no plugins are configured.
+	* Fixed wrong permission on log file, closes #2085.
 
 Version 0.6.2 Released on 2010/01/27
 

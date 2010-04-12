@@ -5,10 +5,12 @@ spvd (0.7.0~dev-1) unstable; urgency=low
   * Update minimal versions for plugins, refs: #2843.
 
   [ Rémi Cardona ]
-  * New upstream release, closes: #2843.
   * Update packaging for Lenny.
 
- -- Rémi Cardona <remi.cardona@smartjog.com>  Fri, 19 Mar 2010 15:40:17 +0100
+  [ Mathieu Dupuy ]
+  * New upstream release, closes: #2843, #2085.
+
+ -- Mathieu Dupuy <mathieu.dupuy@smartjog.com>  Mon, 12 Apr 2010 11:42:28 +0200
 
 spvd (0.6.2-2) unstable; urgency=low
 

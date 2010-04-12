@@ -21,7 +21,7 @@ VERSION = "@PACKAGE_VERSION@"
 
 # Default daemon parameters.
 # File mode creation mask of the daemon.
-UMASK = 0
+UMASK = 0022
 
 # Default working directory for the daemon.
 WORKDIR = "/"
@@ -254,9 +254,9 @@ def daemonize(options):
     except OSError, error:
         raise Exception, "First fork failed: %s [%d]" % (error.strerror, error.errno)
 
-    os.chdir('/')
+    os.chdir(WORKDIR)
     os.setsid()
-    os.umask(0)
+    os.umask(UMASK)
 
     try:
         pid = os.fork()

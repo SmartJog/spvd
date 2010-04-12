@@ -6,7 +6,7 @@ Version 0.7.0~dev
 	* Fixed log output in --no-daemon mode, closes: #2843.
 	* Check for txt2tags in configure.
 	* Check for sed in configure.
-	* Fix SQL schema.
+	* Fix SQL schema (SQL syntax errors, missing permission queries)
 	* Prevent spvd from quitting if no plugins are configured.
 
 Version 0.6.2 Released on 2010/01/27

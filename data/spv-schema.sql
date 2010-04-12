@@ -286,6 +286,8 @@ ALTER TABLE spv.status_infos                OWNER TO spv;
 ALTER TABLE spv.status_infos_view           OWNER TO spv;
 ALTER TABLE spv.status_status_id_seq        OWNER TO spv;
 ALTER TABLE status_infos_sinfo_id_seq       OWNER TO spv;
+ALTER TABLE spv.object_infos                OWNER TO spv;
+ALTER TABLE spv.check_infos                 OWNER TO spv;
 
 ALTER FUNCTION spv.check_insert()                                   OWNER TO spv;
 ALTER FUNCTION spv.new_check(in_cg_id integer, in_grp_id integer)   OWNER TO spv;

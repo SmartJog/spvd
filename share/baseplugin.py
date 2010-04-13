@@ -45,6 +45,7 @@ class BasePlugin(threading.Thread):
         self.resqueue   = {}
         self.checks     = {}
         self.rescommit  = threading.Event()
+        self.name       = ''
 
         self.params     = { 'importer_retry_timeout': 10,
                             'max_parallel_checks': 3,

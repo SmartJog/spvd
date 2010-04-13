@@ -9,6 +9,7 @@ Version 0.7.0~dev
 	* Fix SQL schema (SQL syntax errors, missing permission queries)
 	* Prevent spvd from quitting if no plugins are configured.
 	* Fixed wrong permission on log file, closes #2085.
+	* Fixed use of unitialized class member 'name', closes: #2986.
 
 Version 0.6.2 Released on 2010/01/27
 

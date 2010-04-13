@@ -8,9 +8,9 @@ spvd (0.7.0~dev-1) unstable; urgency=low
   * Update packaging for Lenny.
 
   [ Mathieu Dupuy ]
-  * New upstream release, closes: #2843, #2085.
+  * New upstream release, closes: #2843, #2085, #2986.
 
- -- Mathieu Dupuy <mathieu.dupuy@smartjog.com>  Mon, 12 Apr 2010 11:42:28 +0200
+ -- Mathieu Dupuy <mathieu.dupuy@smartjog.com>  Tue, 13 Apr 2010 14:34:59 +0200
 
 spvd (0.6.2-2) unstable; urgency=low
 

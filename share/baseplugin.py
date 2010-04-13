@@ -207,10 +207,12 @@ class BasePlugin(threading.Thread):
                     checks = self.importer.call('spv.services', 'get_checks',
                         {'limit' : limit_fetch,
                         'plugin_name' : self.name,
-                        'get_check_infos' : True,
-                        'get_object_infos' : True,
-                        'update_next_check' : True,
-                        'next_check_expired' : True})
+                        'get_check_infos'       : True,
+                        'get_object_infos'      : True,
+                        'get_status_infos'      : True,
+                        'get_detailed_infos'    : False,
+                        'update_next_check'     : True,
+                        'next_check_expired'    : True})
                 except ImporterError, error:
                     self.log.error('remote module error while retrieving checks <' + str(error) + '>')
                     self.dismiss.wait(self.params['importer_retry_timeout'])

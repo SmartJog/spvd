@@ -4,11 +4,10 @@ Version 0.7.0~dev
 	* Changed 'logfile' parameter to 'logdir' since spvd uses multiple log files, refs: #2843.
 	* Changed API to be more concise and flexible, refs: #2900.
 	* Fixed log output in --no-daemon mode, closes: #2843.
-	* Check for txt2tags in configure.
-	* Check for sed in configure.
+	* Check for txt2tags and sed in configure.
 	* Fix SQL schema (SQL syntax errors, missing permission queries)
 	* Prevent spvd from quitting if no plugins are configured.
-	* Fixed wrong permission on log file, closes #2085.
+	* Fixed wrong permission on log file, closes: #2085.
 	* Fixed use of unitialized class member 'name', closes: #2986.
 	* Using new webengine-spv get_checks parameter :  get_detailed_infos.
 	* Retreive status_infos to let jobs access them.

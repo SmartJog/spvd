@@ -38,6 +38,24 @@ def main():
                 and not method in thread_methods
                 and not method in basejob_methods]
 
+            #for form like __check_volume__ like in streams.py
+            if len(methods) == 0:
+                methods += [method[2:-2] for method in dir(plugin_classes.Job)
+                    if method.startswith('__check')
+                    and method.endswith('__')
+                    and method is not "__check__"
+                    and not method in thread_methods
+                    and not method in basejob_methods]
+
+            #for form like __collect__ like in collect.py
+            if len(methods) == 0:
+                methods += [method[2:-2] for method in dir(plugin_classes.Job)
+                    if method.startswith('__')
+                    and method.endswith('__')
+                    and method is not "__getattr__"
+                    and not method in thread_methods
+                    and not method in basejob_methods]
+
             for method in methods:
                 print plugin + '.Job.' + method
 

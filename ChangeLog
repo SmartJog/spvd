@@ -12,6 +12,7 @@ Version 0.7.0~dev
 	* Fixed use of unitialized class member 'name', closes: #2986.
 	* Using new webengine-spv get_checks parameter :  get_detailed_infos.
 	* Retreive status_infos to let jobs access them.
+	* Fix outdated plugin instrospection for checklists, closes: #2985.
 
 Version 0.6.2 Released on 2010/01/27
 

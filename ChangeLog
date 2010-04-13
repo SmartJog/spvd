@@ -21,6 +21,7 @@ Version 0.7.0~dev
 	* data: add triggers needed for new webengine-spv management functions,
 	  closes: #3072.
 	* data: sync some column definition with (pre)prod.
+	* data: Add 'repeat_on_error' column in the 'checks' table, refs: #3035.
 
 Version 0.6.2 Released on 2010/01/27
 

@@ -189,7 +189,8 @@ CREATE TABLE checks (
     plugin_check character varying NOT NULL,
     name character varying NOT NULL,
     repeat integer NOT NULL,
-    CONSTRAINT strictly_positive_time CHECK ((repeat > 0))
+    repeat_on_error integer NOT NULL,
+    CONSTRAINT strictly_positive_time CHECK ((repeat > 0 AND repeat_on_error > 0))
 );
 
 CREATE TABLE checks_group (

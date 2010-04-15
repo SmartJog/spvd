@@ -22,7 +22,7 @@ class BaseJob:
         self.infos = infos
         self.ident = "%s job_id=%s " % (self.infos['check']['plugin'], self.infos['status']['status_id'])
 
-        self.log = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'])
+        self.log = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'] + '.' + str(self.infos['status']['status_id']))
 
         if options.nodaemon:
             self.log_handler = logging.FileHandler('/dev/stdout')

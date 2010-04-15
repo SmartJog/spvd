@@ -4,7 +4,6 @@ import logging
 import traceback
 import os
 
-
 class BaseJobRuntimeError(Exception):
     """ BaseJob Exceptions. """
 
@@ -32,7 +31,13 @@ class BaseJob:
                 os.mkdir(log_dir)
             self.log_handler = logging.FileHandler(log_dir + '/' + self.infos['check']['plugin_check'] + '.log')
 
-        self.log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s ' + ("%5s " % ("#" + str(self.infos['status']['status_id']))) + '%(message)s'))
+        ident = "%5s %s:%s %s %s : " % (
+                "#" + str(self.infos['status']['status_id']),
+                self.infos['check']['plugin'],
+                self.infos['check']['plugin_check'],
+                self.infos['group']['name'],
+                self.infos['object']['address'])
+        self.log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s ' + ident + '%(message)s'))
         self.log.addHandler(self.log_handler)
 
         if params.has_key('debug') and params['debug'] is True:

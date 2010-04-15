@@ -125,7 +125,7 @@ class BasePlugin(threading.Thread):
         """ Starts a job. """
 
         job = self.create_new_job(check)
-        job.log.info('check started')
+        job.log.debug('check started')
         self.checks[check['status']['status_id']] = job
         return job.run()
 
@@ -169,7 +169,7 @@ class BasePlugin(threading.Thread):
 
                 self.log.debug('number of threads alive %d' % threading.activeCount())
                 if self.job_pool._requests_queue.qsize() > 0:
-                    self.log.info('approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
+                    self.log.debug('approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
                 else:
                     self.log.debug('approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
 
@@ -190,7 +190,7 @@ class BasePlugin(threading.Thread):
                     continue
 
                 if self.resqueue:
-                    self.log.info('%d results to commit' % len(self.resqueue))
+                    self.log.debug('%d results to commit' % len(self.resqueue))
                     # Try to commit results in queue
                     try:
                         self.importer.call('spv', 'set_checks_status', self.resqueue.values())
@@ -219,7 +219,7 @@ class BasePlugin(threading.Thread):
                     continue
 
                 if len(checks['status']) > 0:
-                    self.log.info('got %s checks' % len(checks['status']))
+                    self.log.debug('got %s checks' % len(checks['status']))
 
                 try:
                     for status in checks['status']:
@@ -237,7 +237,7 @@ class BasePlugin(threading.Thread):
                             exc_callback=self.handle_exception
                         )
                         self.job_pool.queue_request(req, self.params['check_poll'])
-                        self.log.info('Work request #%s added.' % req.request_id)
+                        self.log.debug('Work request #%s added.' % req.request_id)
                 except Queue.Full:
                     self.log.error("queue is full")
                     continue

@@ -17,6 +17,7 @@ Version 0.7.0~dev
 	* data: Removed useless SQL functions.
 	* Stop using deprecated webengine-spv 'spv' APIs, migrate to 'spv.services'.
 	* Add history support in BaseJob class, closes: #3038.
+	* Add documentation for general plugin/job configuration.
 
 Version 0.6.2 Released on 2010/01/27
 

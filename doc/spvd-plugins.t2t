@@ -1,0 +1,47 @@
+spvd-plugins
+spvd-plugins
+%%mtime
+
+%!target : man
+%!encoding : utf-8
+%!postproc(man): "^(\.TH.*) 1 "  "\1 5 "
+
+= NAME =
+
+spvd-plugins - Supervision daemon plugins
+
+= DESCRIPTION =
+
+spvd-plugins documents the configuration variables of spvd checks.
+
+= CHECK CONFIGURATION =
+
+Supervision daemon can do a couple of actions for all plugins according to some values in object_infos, check_infos or status_infos. For additional configuration options, please refer to plugin's specific man page.
+
+== check_infos ==
+
+: **history** = //boolean//
+Optional parameter to require historical archive for the check. This parameter defaults to //false//, set it to //true// to enable the feature. On check completion, the supervision daemon will add status_infos entries. See **history-<timestamp>-<status>** documentation.
+
+
+= CHECK RESULTS =
+
+Supervision daemon stores basic check information in the status and status_message fields. Additional information can be stored using status_infos.
+
+: **history-<timestamp>-<status>**:
+On status change, spvd creates a key named history-<timestamp>-<status> where <timestamp> is the epoch timestamp of when the event occured and <status> is the new state of the check. The value of this key is the message of the last state last message.
+
+
+= AUTHOR =
+
+The spvd daemon and this manual page have been written by the **SmartJog** company.
+
+= SEE ALSO =
+
+**spvd.conf**(5),
+**spvd-connect**(5),
+**spvd-delivery**(5),
+**spvd-events**(5),
+**spvd-smartdamstreaming**(5),
+**spvd-streams**(5)
+

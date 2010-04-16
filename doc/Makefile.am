@@ -1,8 +1,8 @@
-man8_MANS = spvd.man
-man5_MANS = spvd.conf.man
+dist_man8_MANS = spvd.man
+dist_man5_MANS = spvd.conf.man spvd-plugins.man
 
-DISTCLEANFILES = $(man8_MANS) $(man5_MANS)
-EXTRA_DIST = $(man8_MANS) $(man5_MANS)
+CLEANFILES = $(dist_man8_MANS) $(dist_man5_MANS)
+EXTRA_DIST = $(wildcard $(srcdir)/*.t2t)
 
 SUFFIXES = .t2t
 

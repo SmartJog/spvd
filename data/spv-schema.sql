@@ -77,18 +77,6 @@ LANGUAGE plpgsql;
 
 
 
-CREATE FUNCTION status_get_repeat(status_id integer) RETURNS integer AS $$
-DECLARE
-  r INTEGER;
-BEGIN
-  r := repeat FROM status, checks_group, checks WHERE status.cg_id = checks_group.cg_id AND checks_group.chk_id = checks.chk_id AND status.status_id = status_id;
-  RAISE DEBUG 'Repeat: (% seconds)', r;
-  RETURN r;
-END;$$
-LANGUAGE plpgsql;
-
-
-
 CREATE OR REPLACE FUNCTION status_update() RETURNS trigger AS $$DECLARE
     repeat INTEGER;
     seconds VARCHAR;
@@ -101,15 +89,6 @@ END;$$
 LANGUAGE plpgsql;
 
 
-
-CREATE OR REPLACE FUNCTION status_get_repeat(status_id integer) RETURNS integer AS $$
-DECLARE
-  r INTEGER;
-BEGIN
-  r := repeat FROM status, checks_group, checks WHERE status.cg_id = checks_group.cg_id AND checks_group.chk_id = checks.chk_id AND status.status_id = status_id;
-  RETURN r;
-END;$$
-LANGUAGE plpgsql;
 
 
 
@@ -293,7 +272,6 @@ ALTER FUNCTION spv.check_insert()                                   OWNER TO spv
 ALTER FUNCTION spv.new_check(in_cg_id integer, in_grp_id integer)   OWNER TO spv;
 ALTER FUNCTION spv.new_object(in_og_id integer, in_grp_id integer)  OWNER TO spv;
 ALTER FUNCTION spv.object_insert()                                  OWNER TO spv;
-ALTER FUNCTION spv.status_get_repeat(status_id integer)             OWNER TO spv;
 ALTER FUNCTION spv.status_update()                                  OWNER TO spv;
 
 GRANT ALL ON SCHEMA spv                 TO webengine;

@@ -15,6 +15,7 @@ Version 0.7.0~dev
 	* Moved some logs to debug level.
 	* Changed default log line format to be more verbose.
 	* data: Removed useless SQL functions.
+	* Stop using deprecated webengine-spv 'spv' APIs, migrate to 'spv.services'.
 
 Version 0.6.2 Released on 2010/01/27
 

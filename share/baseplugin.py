@@ -193,7 +193,7 @@ class BasePlugin(threading.Thread):
                     self.log.debug('%d results to commit' % len(self.resqueue))
                     # Try to commit results in queue
                     try:
-                        self.importer.call('spv', 'set_checks_status', self.resqueue.values())
+                        self.importer.call('spv.services', 'set_checks_status', self.resqueue.values())
                         self.resqueue = {}
                         self.rescommit.clear()
                     except ImporterError, error:

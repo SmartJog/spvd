@@ -13,7 +13,12 @@ ALTER ROLE spv SET search_path TO spv, pg_catalog;
 
 CREATE SCHEMA spv;
 ALTER SCHEMA spv OWNER TO spv;
-GRANT ALL ON SCHEMA spv to spv;
+GRANT ALL ON SCHEMA spv TO spv;
+
+--
+-- Name: SCHEMA spv; Type: COMMENT; Schema: -; Owner: spv
+--
+
 COMMENT ON SCHEMA spv IS 'Supervision schema';
 CREATE PROCEDURAL LANGUAGE plpgsql;
 ALTER PROCEDURAL LANGUAGE plpgsql OWNER TO postgres;
@@ -201,7 +206,6 @@ CREATE TABLE groups (
 CREATE TABLE objects (
     obj_id integer DEFAULT nextval(('spv.objects_obj_id_seq'::text)::regclass) NOT NULL,
     address character varying NOT NULL,
-    type character varying(64),
     creation_date date DEFAULT now() NOT NULL,
     modification_date date
 );
@@ -220,9 +224,9 @@ CREATE TABLE status (
     check_message character varying,
     last_check timestamp without time zone DEFAULT now(),
     next_check timestamp without time zone DEFAULT now(),
-    status_acknowledged_date timestamp without time zone default now(),
-    status_changed_date timestamp without time zone default now(),
     seq_id integer DEFAULT 0 NOT NULL,
+    status_acknowledged_date timestamp without time zone,
+    status_changed_date timestamp without time zone,
     CONSTRAINT positive_seqence CHECK ((seq_id >= 0))
 );
 

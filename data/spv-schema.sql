@@ -30,9 +30,23 @@ CREATE SEQUENCE check_infos_cinfo_id_seq    START WITH 1 INCREMENT BY 1 NO MAXVA
 CREATE SEQUENCE status_infos_sinfo_id_seq   START WITH 1 INCREMENT BY 1 NO MAXVALUE NO MINVALUE CACHE 1;
 CREATE SEQUENCE object_infos_oinfo_id_seq   START WITH 1 INCREMENT BY 1 NO MAXVALUE NO MINVALUE CACHE 1;
 
+--
+-- Name: check_infos_insert_fn(); Type: FUNCTION; Schema: spv; Owner: spv
+--
+
+CREATE FUNCTION check_infos_insert_fn() RETURNS "trigger"
+    AS $$BEGIN
+    if (SELECT count(chk_id) FROM check_infos WHERE chk_id=NEW.chk_id AND key=NEW.key) = 0 THEN
+        RETURN NEW;
+    END IF;
+    UPDATE check_infos SET value=NEW.value WHERE key=NEW.key AND chk_id=NEW.chk_id;
+    RETURN OLD;
+END;
+$$
+    LANGUAGE plpgsql;
 
 
-
+ALTER FUNCTION spv.check_infos_insert_fn() OWNER TO spv;
 
 
 CREATE FUNCTION check_insert() RETURNS trigger AS $$
@@ -67,6 +81,23 @@ END;$$
 LANGUAGE plpgsql;
 
 
+--
+-- Name: object_infos_insert_fn(); Type: FUNCTION; Schema: spv; Owner: spv
+--
+
+CREATE FUNCTION object_infos_insert_fn() RETURNS "trigger"
+    AS $$BEGIN
+    if (SELECT count(obj_id) FROM object_infos WHERE obj_id=NEW.obj_id AND key=NEW.key) = 0 THEN
+        RETURN NEW;
+    END IF;
+    UPDATE object_infos SET value=NEW.value WHERE key=NEW.key AND obj_id=NEW.obj_id;
+    RETURN OLD;
+END;
+$$
+    LANGUAGE plpgsql;
+
+
+ALTER FUNCTION spv.object_infos_insert_fn() OWNER TO spv;
 
 CREATE FUNCTION object_insert() RETURNS trigger AS $$
 BEGIN
@@ -74,6 +105,25 @@ BEGIN
   RETURN NEW;
 END;$$
 LANGUAGE plpgsql;
+
+
+--
+-- Name: status_infos_insert_fn(); Type: FUNCTION; Schema: spv; Owner: spv
+--
+
+CREATE FUNCTION status_infos_insert_fn() RETURNS "trigger"
+    AS $$BEGIN
+    if (SELECT count(status_id) FROM status_infos WHERE status_id=NEW.status_id AND key=NEW.key) = 0 THEN
+        RETURN NEW;
+    END IF;
+    UPDATE status_infos SET value=NEW.value WHERE key=NEW.key AND status_id=NEW.status_id;
+    RETURN OLD;
+END;
+$$
+    LANGUAGE plpgsql;
+
+
+ALTER FUNCTION spv.status_infos_insert_fn() OWNER TO spv;
 
 
 
@@ -240,12 +290,44 @@ ALTER TABLE ONLY check_infos    ADD CONSTRAINT cinfo_id_pkey PRIMARY KEY (cinfo_
 ALTER TABLE ONLY checks_group   ADD CONSTRAINT grp_id_fk FOREIGN KEY (grp_id) REFERENCES groups(grp_id) ON DELETE CASCADE;
 ALTER TABLE ONLY object_infos   ADD CONSTRAINT object_infos_obj_id_fk FOREIGN KEY (obj_id) REFERENCES objects(obj_id) ON DELETE CASCADE;
 
-CREATE TRIGGER checks_group_insert AFTER INSERT ON checks_group FOR EACH ROW EXECUTE PROCEDURE check_insert();
-CREATE TRIGGER objects_group_insert AFTER INSERT ON objects_group FOR EACH ROW EXECUTE PROCEDURE object_insert();
-CREATE TRIGGER status_update_trigger BEFORE UPDATE ON status FOR EACH ROW EXECUTE PROCEDURE status_update();
-CREATE TRIGGER status_infos_update_modif_date BEFORE UPDATE ON spv.status_infos FOR EACH ROW EXECUTE PROCEDURE update_modif_date();
-CREATE TRIGGER object_infos_update_modif_date BEFORE UPDATE ON spv.object_infos FOR EACH ROW EXECUTE PROCEDURE spv.update_modif_date();
+
+--
+-- Name: check_infos_insert_trg; Type: TRIGGER; Schema: spv; Owner: spv
+--
+
+CREATE TRIGGER check_infos_insert_trg
+    BEFORE INSERT ON check_infos
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_infos_insert_fn();
+
 CREATE TRIGGER check_infos_update_modif_date BEFORE UPDATE ON spv.check_infos FOR EACH ROW EXECUTE PROCEDURE spv.update_modif_date();
+CREATE TRIGGER checks_group_insert AFTER INSERT ON checks_group FOR EACH ROW EXECUTE PROCEDURE check_insert();
+
+--
+-- Name: object_infos_insert_trg; Type: TRIGGER; Schema: spv; Owner: spv
+--
+
+CREATE TRIGGER object_infos_insert_trg
+    BEFORE INSERT ON object_infos
+    FOR EACH ROW
+    EXECUTE PROCEDURE object_infos_insert_fn();
+
+CREATE TRIGGER object_infos_update_modif_date BEFORE UPDATE ON spv.object_infos FOR EACH ROW EXECUTE PROCEDURE spv.update_modif_date();
+CREATE TRIGGER objects_group_insert AFTER INSERT ON objects_group FOR EACH ROW EXECUTE PROCEDURE object_insert();
+
+--
+-- Name: status_infos_insert_trg; Type: TRIGGER; Schema: spv; Owner: spv
+--
+
+CREATE TRIGGER status_infos_insert_trg
+    BEFORE INSERT ON status_infos
+    FOR EACH ROW
+    EXECUTE PROCEDURE status_infos_insert_fn();
+
+
+CREATE TRIGGER status_infos_update_modif_date BEFORE UPDATE ON spv.status_infos FOR EACH ROW EXECUTE PROCEDURE update_modif_date();
+CREATE TRIGGER status_update_trigger BEFORE UPDATE ON status FOR EACH ROW EXECUTE PROCEDURE status_update();
+
 
 ALTER TABLE spv.check_infos_cinfo_id_seq    OWNER TO spv;
 ALTER TABLE spv.object_infos_oinfo_id_seq   OWNER TO spv;

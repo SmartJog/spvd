@@ -9,8 +9,9 @@ spvd (0.7.0~dev-1) unstable; urgency=low
 
   [ Gilles Dartiguelongue ]
   * New upstream release, closes: #2843, #2085, #2986, #2985, #3038.
+  * Add missing txt2tags to Build-Depends.
 
- -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Fri, 16 Apr 2010 16:22:26 +0200
+ -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Fri, 16 Apr 2010 16:24:06 +0200
 
 spvd (0.6.2-2) unstable; urgency=low
 

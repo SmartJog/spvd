@@ -18,6 +18,7 @@ class BasePluginError(Exception):
 class BasePlugin(threading.Thread):
     """ Base class for job implementation in spvd. """
 
+    name = ''
 
     def __init__(self, options, event, url=None, params=None):
         """ Init method.
@@ -45,7 +46,6 @@ class BasePlugin(threading.Thread):
         self.resqueue   = {}
         self.checks     = {}
         self.rescommit  = threading.Event()
-        self.name       = ''
 
         self.params     = { 'importer_retry_timeout': 10,
                             'max_parallel_checks': 3,

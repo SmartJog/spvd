@@ -64,7 +64,7 @@ class BaseJob:
 
         if self.infos['check']['check_infos'].get('history', False) == 'true' and self.infos['status']['check_status'] != check_status:
             self.log.debug('Saving new history checkpoint')
-            status_infos = {'history-%s-%s' % (time.time(), check_status.lower()): check_message}
+            status_infos = {'history-%d-%s' % (int(time.time()), check_status.lower()): check_message}
 
         self.infos['status']['check_message'] = check_message
         self.infos['status']['check_status'] = check_status

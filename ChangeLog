@@ -23,6 +23,7 @@ Version 0.7.0~dev
 	* data: sync some column definition with (pre)prod.
 	* data: Add 'repeat_on_error' column in the 'checks' table, refs: #3035.
 	* Do not erase plugin defined name attribute, refs: #2986.
+	* Cast history timestamp part of the key to an integer.
 
 Version 0.6.2 Released on 2010/01/27
 

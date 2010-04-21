@@ -1,4 +1,4 @@
-spvd (0.7.0~dev-1) unstable; urgency=low
+spvd (0.7.0-1) unstable; urgency=low
 
   [ Victor Goya ]
   * Update init script and default values to use logdir, refs: #2843.

@@ -12,6 +12,7 @@ Version 0.8.0 Released on 2010/05/12
 	  usage and fix "broken" log output, closes: #3057.
 	previously saved status.
 	* Fix sample plugin API out of date, closes: #2984.
+	* Add alternate sample plugin using getattr.
 
 Version 0.7.0 Released on 2010/04/21
 

@@ -1,9 +1,9 @@
 spvd (0.8.0-1) unstable; urgency=low
 
-  * New upstream release, closes: #3057.
+  * New upstream release, closes: #3057, 2984.
   * Depend on newer version of python-sjutils.
 
- -- Rémi Cardona <remi.cardona@smartjog.com>  Wed, 12 May 2010 17:12:40 +0200
+ -- Mathieu Dupuy <mathieu.dupuy@smartjog.com>  Wed, 12 May 2010 18:53:26 +0200
 
 spvd (0.7.0-1) unstable; urgency=low
 

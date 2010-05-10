@@ -98,7 +98,7 @@ class BasePlugin(threading.Thread):
             log_handler = logging.StreamHandler(sys.stdout)
         else:
             log_dir = options.logdir + '/' + self.name
-            if os.path.exists(log_dir) is False:
+            if not os.path.exists(log_dir):
                 os.mkdir(log_dir)
             log_handler = logging.FileHandler(log_dir + '/' + self.name + '.log')
 
@@ -106,12 +106,12 @@ class BasePlugin(threading.Thread):
         log_handler.setFormatter(self.log_format)
         self.log.addHandler(log_handler)
 
-        if self.params.has_key('debug') and self.params['debug'] is True:
+        if self.params.get('debug', False):
             self.log.setLevel(logging.DEBUG)
         else:
             self.log.setLevel(logging.INFO)
 
-        self.log.propagate = 0
+        self.log.propagate = False
 
         self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))
 

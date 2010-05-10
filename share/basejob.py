@@ -23,7 +23,6 @@ class BaseJob:
         """ Init method. """
 
         self.infos = infos
-        self.ident = "%s job_id=%s " % (self.infos['check']['plugin'], self.infos['status']['status_id'])
 
         self.log = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'] + '.' + str(self.infos['status']['status_id']))
         self.old_status = self.infos['status']['check_status']
@@ -34,7 +33,8 @@ class BaseJob:
             log_dir = options.logdir + '/' + self.infos['check']['plugin']
             if os.path.exists(log_dir) is False:
                 os.mkdir(log_dir)
-            self.log_handler = logging.FileHandler(log_dir + '/' + self.infos['check']['plugin_check'] + '.log')
+            log_file = "%s/%s.log" % (log_dir, self.infos['check']['plugin_check'])
+            self.log_handler = logging.FileHandler(log_file)
 
         ident = "%5s %s:%s %s %s : " % (
                 "#" + str(self.infos['status']['status_id']),
@@ -45,12 +45,12 @@ class BaseJob:
         self.log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s ' + ident + '%(message)s'))
         self.log.addHandler(self.log_handler)
 
-        if params.has_key('debug') and params['debug'] is True:
+        if params.get('debug', False):
             self.log.setLevel(logging.DEBUG)
         else:
             self.log.setLevel(logging.INFO)
 
-        self.log.propagate = 0
+        self.log.propagate = False
 
     def __del__(self):
         self.log.removeHandler (self.log_handler)

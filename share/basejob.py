@@ -27,28 +27,29 @@ class BaseJob:
 
         self.old_status = self.infos['status']['check_status']
 
-        self._logger = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'] + '.' + str(self.infos['status']['status_id']))
+        self._logger = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'])
 
-        if options.nodaemon:
-            self.log_handler = logging.StreamHandler(sys.stdout)
-        else:
-            log_dir = options.logdir + '/' + self.infos['check']['plugin']
-            if os.path.exists(log_dir) is False:
-                os.mkdir(log_dir)
-            log_file = "%s/%s.log" % (log_dir, self.infos['check']['plugin_check'])
-            self.log_handler = logging.FileHandler(log_file)
+        if len(self._logger.handlers) == 0:
+            if options.nodaemon:
+                log_handler = logging.StreamHandler(sys.stdout)
+            else:
+                log_dir = options.logdir + '/' + self.infos['check']['plugin']
+                if os.path.exists(log_dir) is False:
+                    os.mkdir(log_dir)
+                log_file = "%s/%s.log" % (log_dir, self.infos['check']['plugin_check'])
+                log_handler = logging.FileHandler(log_file)
 
-        formatter_string = '%(asctime)s %(levelname)-8s %(statusid)5s ' + \
-                           '%(plugin)s:%(check)s %(group)s %(object)s : %(message)s'
-        self.log_handler.setFormatter(logging.Formatter(formatter_string))
-        self._logger.addHandler(self.log_handler)
+            formatter_string = '%(asctime)s %(levelname)-8s %(statusid)5s ' + \
+                               '%(plugin)s:%(check)s %(group)s %(object)s : %(message)s'
+            log_handler.setFormatter(logging.Formatter(formatter_string))
+            self._logger.addHandler(log_handler)
 
-        if params.get('debug', False):
-            self._logger.setLevel(logging.DEBUG)
-        else:
-            self._logger.setLevel(logging.INFO)
+            if params.get('debug', False):
+                self._logger.setLevel(logging.DEBUG)
+            else:
+                self._logger.setLevel(logging.INFO)
 
-        self._logger.propagate = False
+            self._logger.propagate = False
 
         self.log = LoggerAdapter(self._logger, {
             'plugin':   self.infos['check']['plugin'],
@@ -56,10 +57,6 @@ class BaseJob:
             'statusid': "#" + str(self.infos['status']['status_id']),
             'group':    self.infos['group']['name'],
             'object':   self.infos['object']['address']})
-
-    def __del__(self):
-        self._logger.removeHandler (self.log_handler)
-        self.log_handler.close()
 
     def set_check_status(self, check_status, check_message, status_infos=None):
         """ Helper function to prepare check's status. """

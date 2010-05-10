@@ -118,7 +118,8 @@ class Monitor:
                         'max_checks_queue' : int,
                         'check_poll' : int,
                         'check_timeout' : int,
-                        'result_threshold' : int
+                        'result_threshold' : int,
+                        'limit_group' : str,
                         }
                     plugins_optional[plugin_name].update(plugin_attrs.Plugin.optional)
 

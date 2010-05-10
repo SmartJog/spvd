@@ -56,6 +56,7 @@ class BasePlugin(threading.Thread):
                             'ssl_cert': None,
                             'ssl_key': None,
                             'result_threshold': 5,
+                            'limit_group': None,
                         }
 
         if params:
@@ -212,6 +213,7 @@ class BasePlugin(threading.Thread):
                         'get_status_infos'      : True,
                         'get_detailed_infos'    : False,
                         'update_next_check'     : True,
+                        'limit_group'           : self.params['limit_group'],
                         'next_check_expired'    : True})
                 except ImporterError, error:
                     self.log.error('remote module error while retrieving checks <' + str(error) + '>')

@@ -27,9 +27,9 @@ class BaseJob:
 
         self.old_status = self.infos['status']['check_status']
 
-        self._logger = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'])
+        logger = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'])
 
-        if len(self._logger.handlers) == 0:
+        if len(logger.handlers) == 0:
             if options.nodaemon:
                 log_handler = logging.StreamHandler(sys.stdout)
             else:
@@ -42,16 +42,16 @@ class BaseJob:
             formatter_string = '%(asctime)s %(levelname)-8s %(statusid)5s ' + \
                                '%(plugin)s:%(check)s %(group)s %(object)s : %(message)s'
             log_handler.setFormatter(logging.Formatter(formatter_string))
-            self._logger.addHandler(log_handler)
+            logger.addHandler(log_handler)
 
             if params.get('debug', False):
-                self._logger.setLevel(logging.DEBUG)
+                logger.setLevel(logging.DEBUG)
             else:
-                self._logger.setLevel(logging.INFO)
+                logger.setLevel(logging.INFO)
 
-            self._logger.propagate = False
+            logger.propagate = False
 
-        self.log = LoggerAdapter(self._logger, {
+        self.log = LoggerAdapter(logger, {
             'plugin':   self.infos['check']['plugin'],
             'check':    self.infos['check']['plugin_check'],
             'statusid': "#" + str(self.infos['status']['status_id']),

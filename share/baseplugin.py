@@ -74,6 +74,12 @@ class BasePlugin(threading.Thread):
         if self.params['check_timeout']:
             self.importer['timeout'] = self.params['check_timeout']
 
+        # Limiting groups
+        if self.params['limit_group']:
+            self.limit_group = map(lambda group: group.strip(), self.params['limit_group'].split(","))
+            if len(self.limit_group) == 1:
+                self.limit_group = self.limit_group[0]
+
         self.options = options
 
         self.log = logging.getLogger(self.name)
@@ -218,7 +224,7 @@ class BasePlugin(threading.Thread):
                         'get_status_infos'      : True,
                         'get_detailed_infos'    : False,
                         'update_next_check'     : True,
-                        'limit_group'           : self.params['limit_group'],
+                        'group_name'            : self.limit_group,
                         'next_check_expired'    : True})
                 except ImporterError, error:
                     self.log.error('remote module error while retrieving checks <' + str(error) + '>')

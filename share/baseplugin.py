@@ -57,6 +57,7 @@ class BasePlugin(threading.Thread):
                             'ssl_key': None,
                             'result_threshold': 5,
                             'limit_group': None,
+                            'limit_commit': 40,
                         }
 
         if params:
@@ -194,7 +195,11 @@ class BasePlugin(threading.Thread):
                     self.log.debug('%d results to commit' % len(self.resqueue))
                     # Try to commit results in queue
                     try:
-                        self.importer.call('spv.services', 'set_checks_status', self.resqueue.values())
+                        # Do not try to update status in one shot. Split it into packets of @limit_commit results.
+                        values = self.resqueue.values()
+                        for i in range(0, len(values) / self.params['limit_commit'] + 1):
+                               self.importer.call('spv.services', 'set_checks_status', values[i * self.params['limit_commit']:(i+1) * self.params['limit_commit']])
+
                         self.resqueue = {}
                         self.rescommit.clear()
                     except ImporterError, error:

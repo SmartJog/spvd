@@ -120,6 +120,7 @@ class Monitor:
                         'check_timeout' : int,
                         'result_threshold' : int,
                         'limit_group' : str,
+                        'limit_commit' : int,
                         }
                     plugins_optional[plugin_name].update(plugin_attrs.Plugin.optional)
 

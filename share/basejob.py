@@ -27,7 +27,13 @@ class BaseJob:
 
         self.old_status = self.infos['status']['check_status']
 
-        logger = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'])
+        logger_per_job = logging.getLogger("spvd.jobs.%s.%s" % (self.infos['check']['plugin'],
+                                                                self.infos['check']['plugin_check']))
+
+        if options.nodaemon:
+            logger = logging.getLogger("spvd.jobs")
+        else:
+            logger = logger_per_job
 
         if len(logger.handlers) == 0:
             if options.nodaemon:
@@ -51,7 +57,9 @@ class BaseJob:
 
             logger.propagate = False
 
-        self.log = LoggerAdapter(logger, {
+        # Jobs will always use logger_per_job here, even in nodaemon mode,
+        # since "spvd.jobs" will trap all log messages in that case.
+        self.log = LoggerAdapter(logger_per_job, {
             'plugin':   self.infos['check']['plugin'],
             'check':    self.infos['check']['plugin_check'],
             'statusid': "#" + str(self.infos['status']['status_id']),

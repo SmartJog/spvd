@@ -5,6 +5,7 @@ import traceback
 import time
 import os
 import sys
+from sjutils.loggeradapter import LoggerAdapter
 
 class BaseJobRuntimeError(Exception):
     """ BaseJob Exceptions. """
@@ -24,8 +25,9 @@ class BaseJob:
 
         self.infos = infos
 
-        self.log = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'] + '.' + str(self.infos['status']['status_id']))
         self.old_status = self.infos['status']['check_status']
+
+        self._logger = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'] + '.' + str(self.infos['status']['status_id']))
 
         if options.nodaemon:
             self.log_handler = logging.StreamHandler(sys.stdout)
@@ -36,24 +38,27 @@ class BaseJob:
             log_file = "%s/%s.log" % (log_dir, self.infos['check']['plugin_check'])
             self.log_handler = logging.FileHandler(log_file)
 
-        ident = "%5s %s:%s %s %s : " % (
-                "#" + str(self.infos['status']['status_id']),
-                self.infos['check']['plugin'],
-                self.infos['check']['plugin_check'],
-                self.infos['group']['name'],
-                self.infos['object']['address'])
-        self.log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s ' + ident + '%(message)s'))
-        self.log.addHandler(self.log_handler)
+        formatter_string = '%(asctime)s %(levelname)-8s %(statusid)5s ' + \
+                           '%(plugin)s:%(check)s %(group)s %(object)s : %(message)s'
+        self.log_handler.setFormatter(logging.Formatter(formatter_string))
+        self._logger.addHandler(self.log_handler)
 
         if params.get('debug', False):
-            self.log.setLevel(logging.DEBUG)
+            self._logger.setLevel(logging.DEBUG)
         else:
-            self.log.setLevel(logging.INFO)
+            self._logger.setLevel(logging.INFO)
 
-        self.log.propagate = False
+        self._logger.propagate = False
+
+        self.log = LoggerAdapter(self._logger, {
+            'plugin':   self.infos['check']['plugin'],
+            'check':    self.infos['check']['plugin_check'],
+            'statusid': "#" + str(self.infos['status']['status_id']),
+            'group':    self.infos['group']['name'],
+            'object':   self.infos['object']['address']})
 
     def __del__(self):
-        self.log.removeHandler (self.log_handler)
+        self._logger.removeHandler (self.log_handler)
         self.log_handler.close()
 
     def set_check_status(self, check_status, check_message, status_infos=None):

@@ -3,7 +3,6 @@
 import logging
 import threading
 import traceback
-import sys
 import os
 import Queue
 from importer import Importer, ImporterError
@@ -92,26 +91,24 @@ class BasePlugin(threading.Thread):
 
         self.options = options
 
-        self.log = logging.getLogger(self.name)
+        self.log = logging.getLogger("spvd.plugins." + self.name)
 
-        if self.options.nodaemon:
-            log_handler = logging.StreamHandler(sys.stdout)
-        else:
+        if not self.options.nodaemon:
             log_dir = options.logdir + '/' + self.name
             if not os.path.exists(log_dir):
                 os.mkdir(log_dir)
             log_handler = logging.FileHandler(log_dir + '/' + self.name + '.log')
 
-        self.log_format = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-        log_handler.setFormatter(self.log_format)
-        self.log.addHandler(log_handler)
+            log_format = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+            log_handler.setFormatter(log_format)
+            self.log.addHandler(log_handler)
 
-        if self.params.get('debug', False):
-            self.log.setLevel(logging.DEBUG)
-        else:
-            self.log.setLevel(logging.INFO)
+            if self.params.get('debug', False):
+                self.log.setLevel(logging.DEBUG)
+            else:
+                self.log.setLevel(logging.INFO)
 
-        self.log.propagate = False
+            self.log.propagate = False
 
         self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))
 

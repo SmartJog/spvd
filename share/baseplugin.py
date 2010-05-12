@@ -57,6 +57,7 @@ class BasePlugin(threading.Thread):
                             'ssl_key': None,
                             'result_threshold': 5,
                             'limit_group': None,
+                            'limit_check': None,
                             'limit_commit': 40,
                         }
 
@@ -79,6 +80,13 @@ class BasePlugin(threading.Thread):
             self.limit_group = map(lambda group: group.strip(), self.params['limit_group'].split(","))
             if len(self.limit_group) == 1:
                 self.limit_group = self.limit_group[0]
+
+        # Limiting groups
+        self.limit_check = None
+        if self.params['limit_check']:
+            self.limit_check = map(lambda check: check.strip(), self.params['limit_check'].split(","))
+            if len(self.limit_check) == 1:
+                self.limit_check = self.limit_check[0]
 
         self.options = options
 
@@ -225,6 +233,7 @@ class BasePlugin(threading.Thread):
                         'get_detailed_infos'    : False,
                         'update_next_check'     : True,
                         'group_name'            : self.limit_group,
+                        'plugin_check'          : self.limit_check,
                         'next_check_expired'    : True})
                 except ImporterError, error:
                     self.log.error('remote module error while retrieving checks <' + str(error) + '>')

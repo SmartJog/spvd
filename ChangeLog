@@ -1,7 +1,7 @@
 Version 0.8.0~dev
 
-	* Added 'limit_group' parameter to allow multiple instances of spvd to
-	work on identical DB but different groups.
+	* Added 'limit_group' and 'limit_check' parameter to allow multiple instances of spvd to
+	work on identical DB but different groups and checks.
 	* Limit number of results to commit at the same time (default 50).
 	Configration value is 'limit_commit'.
 	* Allow to limit plugins to several groups.

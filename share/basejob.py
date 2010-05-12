@@ -65,7 +65,7 @@ class BaseJob:
 
         self.infos['status']['check_message'] = check_message
         self.infos['status']['check_status'] = check_status
-        self.infos['status']['status_infos'] = status_infos
+        self.infos['status']['status_infos'].update(status_infos)
 
     def run(self):
         """ Starts the job implemented by this plugin. """

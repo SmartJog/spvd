@@ -62,6 +62,11 @@ Full path to the secret key to use when contacting distant webservice.
 Maximum number of result that are queue before forcing commiting the results to
 the webservice.
 
+: **limit_group** = //no limit//
+Get checks only for given groups only.
+
+: **limit_check** = //no limit//
+Get checks only for given checks only.
 
 = AUTHOR =
 

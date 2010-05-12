@@ -25,6 +25,7 @@ class BaseJob:
         self.ident = "%s job_id=%s " % (self.infos['check']['plugin'], self.infos['status']['status_id'])
 
         self.log = logging.getLogger(self.infos['check']['plugin'] + '.' + self.infos['check']['plugin_check'] + '.' + str(self.infos['status']['status_id']))
+        self.old_status = self.infos['status']['check_status']
 
         if options.nodaemon:
             self.log_handler = logging.FileHandler('/dev/stdout')
@@ -62,10 +63,6 @@ class BaseJob:
             self.log.error(message)
             raise BaseJobRuntimeError(message)
 
-        if self.infos['check']['check_infos'].get('history', False) == 'true' and self.infos['status']['check_status'] != check_status:
-            self.log.debug('Saving new history checkpoint')
-            status_infos = {'history-%d-%s' % (int(time.time()), check_status.lower()): check_message}
-
         self.infos['status']['check_message'] = check_message
         self.infos['status']['check_status'] = check_status
         self.infos['status']['status_infos'] = status_infos
@@ -81,6 +78,11 @@ class BaseJob:
             self.log.critical(traceback.format_exc())
             self.infos['status']['check_message'] = str(error)
             self.infos['status']['check_status'] = 'ERROR'
+
+        self.log.error(self.old_status + "   " +  self.infos['status']['check_status'])
+        if self.infos['check']['check_infos'].get('history', False) == 'true' and self.old_status != self.infos['status']['check_status']:
+            self.log.debug('Saving new history checkpoint')
+            self.infos['status']['status_infos'].update({'history-%d-%s' % (int(time.time()),  self.infos['status']['check_status'].lower()): self.infos['status']['check_message']})
 
         return self.infos
 

@@ -76,6 +76,7 @@ class BasePlugin(threading.Thread):
             self.importer['timeout'] = self.params['check_timeout']
 
         # Limiting groups
+        self.limit_group = None
         if self.params['limit_group']:
             self.limit_group = map(lambda group: group.strip(), self.params['limit_group'].split(","))
             if len(self.limit_group) == 1:

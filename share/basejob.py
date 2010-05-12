@@ -4,6 +4,7 @@ import logging
 import traceback
 import time
 import os
+import sys
 
 class BaseJobRuntimeError(Exception):
     """ BaseJob Exceptions. """
@@ -28,7 +29,7 @@ class BaseJob:
         self.old_status = self.infos['status']['check_status']
 
         if options.nodaemon:
-            self.log_handler = logging.FileHandler('/dev/stdout')
+            self.log_handler = logging.StreamHandler(sys.stdout)
         else:
             log_dir = options.logdir + '/' + self.infos['check']['plugin']
             if os.path.exists(log_dir) is False:

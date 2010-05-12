@@ -8,6 +8,8 @@ Version 0.8.0~dev
 	* Allow to limit plugins to several groups.
 	* Save history only when job is finished and new status differs from
 	  previously saved status.
+	* Overhaul logging in BaseJob and BasePlugin to reduce file descriptor
+	  usage and fix "broken" log output.
 
 Version 0.7.0 Released on 2010/04/21
 

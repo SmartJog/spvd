@@ -3,6 +3,7 @@
 import logging
 import threading
 import traceback
+import sys
 import os
 import Queue
 from importer import Importer, ImporterError
@@ -94,7 +95,7 @@ class BasePlugin(threading.Thread):
         self.log = logging.getLogger(self.name)
 
         if self.options.nodaemon:
-            log_handler = logging.FileHandler('/dev/stdout')
+            log_handler = logging.StreamHandler(sys.stdout)
         else:
             log_dir = options.logdir + '/' + self.name
             if os.path.exists(log_dir) is False:

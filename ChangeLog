@@ -1,3 +1,8 @@
+Version 0.8.1~dev
+
+	* Move status infos in old_status_infos variable to avoid having to always
+	push all status infos to spv webservices when check is complete.
+
 Version 0.8.0 Released on 2010/05/12
 
 	* Added 'limit_group' and 'limit_check' parameter to allow multiple

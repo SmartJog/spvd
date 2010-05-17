@@ -26,6 +26,8 @@ class BaseJob:
         self.infos = infos
 
         self.old_status = self.infos['status']['check_status']
+        self.old_status_infos = self.infos['status']['status_infos']
+        self.infos['status']['status_infos'] = {}
 
         logger_per_job = logging.getLogger("spvd.jobs.%s.%s" % (self.infos['check']['plugin'],
                                                                 self.infos['check']['plugin_check']))

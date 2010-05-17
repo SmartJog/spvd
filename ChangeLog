@@ -1,4 +1,4 @@
-Version 0.8.1~dev
+Version 0.8.1 Released on 2010/05/17
 
 	* Move status infos in old_status_infos variable to avoid having to always
 	push all status infos to spv webservices when check is complete.

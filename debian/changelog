@@ -1,8 +1,8 @@
-spvd (0.8.1~dev-1) unstable; urgency=low
+spvd (0.8.1-1) unstable; urgency=low
 
   * New upstream release.
 
- -- Philippe Bridant <philippe.bridant@smartjog.com>  Mon, 17 May 2010 15:38:39 +0200
+ -- Philippe Bridant <philippe.bridant@smartjog.com>  Mon, 17 May 2010 15:41:38 +0200
 
 spvd (0.8.0-1) unstable; urgency=low
 

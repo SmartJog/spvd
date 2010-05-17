@@ -1,6 +1,7 @@
 Version 0.8.2~dev
 
 	* sample: plugin updated with new API, closes: #2984.
+	* sample: add alternate plugin using getattr.
 
 Version 0.8.1 Released on 2010/05/17
 

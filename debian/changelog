@@ -1,3 +1,9 @@
+spvd (0.8.2~dev-1) unstable; urgency=low
+
+  * New upstream release, closes: #2984.
+
+ -- Mathieu Dupuy <mathieu.dupuy@smartjog.com>  Mon, 17 May 2010 11:09:12 +0200
+
 spvd (0.8.1-1) unstable; urgency=low
 
   * New upstream release.

@@ -1,8 +1,9 @@
 spvd (0.8.2~dev-1) unstable; urgency=low
 
-  * New upstream release, closes: #2984.
+  * New upstream release, closes: #2984, #3147.
+  * Changed logrotate options.
 
- -- Mathieu Dupuy <mathieu.dupuy@smartjog.com>  Mon, 17 May 2010 11:09:12 +0200
+ -- Mathieu Dupuy <mathieu.dupuy@smartjog.com>  Tue, 25 May 2010 11:28:19 +0200
 
 spvd (0.8.1-1) unstable; urgency=low
 

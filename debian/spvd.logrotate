@@ -1,8 +1,8 @@
 /var/log/spvd/*/*.log
 /var/log/spvd/*.log {
-	weekly
+	daily
 	missingok
-	rotate 7
+	rotate 30
 	copytruncate
 	compress
 	notifempty

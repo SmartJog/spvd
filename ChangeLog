@@ -2,6 +2,8 @@ Version 0.8.2~dev
 
 	* sample: plugin updated with new API, closes: #2984.
 	* sample: add alternate plugin using getattr.
+	* Change logrotate options for rotating daily and keep 30 days of logs,
+	closes: #3147.
 
 Version 0.8.1 Released on 2010/05/17
 

@@ -78,7 +78,8 @@ class BaseJob:
 
         self.infos['status']['check_message'] = check_message
         self.infos['status']['check_status'] = check_status
-        self.infos['status']['status_infos'].update(status_infos)
+        if status_infos:
+            self.infos['status']['status_infos'].update(status_infos)
 
     def run(self):
         """ Starts the job implemented by this plugin. """
@@ -92,7 +93,7 @@ class BaseJob:
             self.infos['status']['check_message'] = str(error)
             self.infos['status']['check_status'] = 'ERROR'
 
-        self.log.error(self.old_status + "   " +  self.infos['status']['check_status'])
+        self.log.error(self.old_status + "   " +  str(self.infos['status']['check_status']))
         if self.infos['check']['check_infos'].get('history', False) == 'true' and self.old_status != self.infos['status']['check_status']:
             self.log.debug('Saving new history checkpoint')
             self.infos['status']['status_infos'].update({'history-%d-%s' % (int(time.time()),  self.infos['status']['check_status'].lower()): self.infos['status']['check_message']})

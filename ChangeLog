@@ -4,6 +4,7 @@ Version 0.8.2~dev
 	* sample: add alternate plugin using getattr.
 	* Change logrotate options for rotating daily and keep 30 days of logs,
 	closes: #3147.
+	* basejob: Protected code against null values.
 
 Version 0.8.1 Released on 2010/05/17
 

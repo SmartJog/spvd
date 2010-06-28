@@ -1,7 +1,0 @@
-debian/tmp/usr/bin
-debian/tmp/usr/share/spvd/*.py
-debian/tmp/usr/share/spvd/plugins/*
-debian/tmp/usr/share/spvd/tools/gis2spv.py
-debian/tmp/usr/share/spvd/tools/checks-list.py
-debian/tmp/usr/share/man
-debian/tmp/etc

@@ -15,10 +15,3 @@ Breaks: spvd-collect (<< 0.3.0), spvd-delivery (<< 0.6.0), spvd-events (<< 0.5.0
 XB-Python-Version: ${python:Versions}
 Description: SmartJog core supervision
  Provides the daemon for SmartJog's core supervision.
-
-Package: spv-data
-Architecture: all
-Depends: ${misc:Depends}
-Suggests: postgresql
-Description: SmartJog schema for supervision
- Provides SQL schemas and tools to load them into a postgres database.

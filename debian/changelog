@@ -1,9 +1,13 @@
 spvd (0.8.2~dev-1) unstable; urgency=low
 
+  [ Mathieu Dupuy ]
   * New upstream release, closes: #2984, #3147.
   * Changed logrotate options.
 
- -- Mathieu Dupuy <mathieu.dupuy@smartjog.com>  Tue, 25 May 2010 11:28:19 +0200
+  [ Maxime Mouial ]
+  * Remove spv-data, refs: #3280.
+
+ -- Maxime Mouial <maxime.mouial@smartjog.com>  Mon, 28 Jun 2010 16:02:47 +0200
 
 spvd (0.8.1-1) unstable; urgency=low
 

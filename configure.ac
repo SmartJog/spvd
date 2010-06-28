@@ -14,7 +14,6 @@ AC_SUBST([pluginspkgdatadir], [\$\(pkgdatadir\)/plugins])
 AC_CONFIG_FILES([
 	Makefile
 	bin/Makefile
-	data/Makefile
 	doc/Makefile
 	etc/Makefile
 	share/Makefile

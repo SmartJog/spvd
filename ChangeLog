@@ -6,6 +6,7 @@ Version 0.8.2~dev
 	closes: #3147.
 	* basejob: Protected code against null values.
 	* basejob: fix crash on first run of a specific job
+	* Remove: spv-data.
 
 Version 0.8.1 Released on 2010/05/17
 

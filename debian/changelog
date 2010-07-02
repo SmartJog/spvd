@@ -1,4 +1,4 @@
-spvd (0.8.2~dev-1) unstable; urgency=low
+spvd (0.8.2-1) unstable; urgency=low
 
   [ Mathieu Dupuy ]
   * New upstream release, closes: #2984, #3147.
@@ -7,7 +7,7 @@ spvd (0.8.2~dev-1) unstable; urgency=low
   [ Maxime Mouial ]
   * Remove spv-data, refs: #3280.
 
- -- Maxime Mouial <maxime.mouial@smartjog.com>  Mon, 28 Jun 2010 16:02:47 +0200
+ -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Fri, 02 Jul 2010 11:32:53 +0200
 
 spvd (0.8.1-1) unstable; urgency=low
 

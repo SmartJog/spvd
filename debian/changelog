@@ -1,9 +1,9 @@
-spvd (0.8.3~dev-1) unstable; urgency=low
+spvd (0.8.3-1) unstable; urgency=low
 
   * New upstream release, closes: #3304.
   * Added new sjconf-spvd package for #3304.
 
- -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Wed, 07 Jul 2010 12:07:09 +0200
+ -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Wed, 07 Jul 2010 15:46:46 +0200
 
 spvd (0.8.2-1) unstable; urgency=low
 

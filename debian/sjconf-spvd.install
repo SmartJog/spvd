@@ -1,0 +1,3 @@
+sjconf/plugins/*.py usr/share/sjconf-spvd/plugins
+sjconf/confs/*.conf etc/sjconf-spvd/confs
+debian/tmp/usr/share/man/man8/sjconf-spvd.8

@@ -1,0 +1,5 @@
+SUBDIRS =
+
+SJCONF_PLUGINS = spvd
+
+@AM_SJCONF@

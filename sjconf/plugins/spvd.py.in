@@ -1,0 +1,20 @@
+import sjconf, ConfigParser, StringIO
+
+class Plugin(sjconf.Plugin):
+    VERSION = '@VERSION@'
+
+    def conf_files_path(self):
+        return (self.sjconf.etc_dir + '/spvd.conf',)
+
+    def services_to_restart(self):
+          return ('spvd',)
+
+    def file_content(self, file_path):
+        tmp_conf = ConfigParser.RawConfigParser()
+        tmp_conf.add_section('spvd')
+        for option, value in self.conf[self.name()].iteritems():
+            tmp_conf.set('spvd', option, value)
+        res_content = StringIO.StringIO()
+        tmp_conf.write(res_content)
+        return res_content.getvalue()
+

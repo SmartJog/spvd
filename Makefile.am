@@ -1,1 +1,1 @@
-SUBDIRS = bin doc etc share tools
+SUBDIRS = bin doc etc share tools sjconf

@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+
+PLUGINS='spvd'
+
+if [ "$1" = 'remove' ]
+then
+	for plugin in $PLUGINS
+	do
+		sjconf --disable-plugin $plugin || true
+		sjconf --uninstall-plugin $plugin || true
+		sjconf --uninstall-conf $plugin || true
+	done
+fi

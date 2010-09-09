@@ -3,6 +3,8 @@ Version 0.8.5~dev
 	* Set default check_poll to 60, closes: #3336.
 	* New fix for race condition causing duplicate
 	  logging output, closes: #3202.
+	* Reduce verbosity for exceptions derived from BaseJobRuntimeError,
+	  refs: #3415.
 
 Version 0.8.4 Released on 2010/10/04
 

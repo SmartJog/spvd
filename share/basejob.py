@@ -98,6 +98,11 @@ class BaseJob:
         try:
             self.go()
 
+        except BaseJobRuntimeError, error:
+            self.log.error(str(error))
+            self.infos['status']['check_message'] = str(error)
+            self.infos['status']['check_status'] = 'ERROR'
+
         except Exception, error:
             self.log.critical('Fatal error: job stopped')
             self.log.critical(traceback.format_exc())

@@ -89,6 +89,9 @@ class BaseJob:
     def set_check_status(self, check_status, check_message, status_infos=None):
         """ Helper function to prepare check's status. """
 
+        self.log.warning('This module is using [set_check_status] which is deprecated.'
+            ' Please upgrade it or fill a bug report if an update does not exist.')
+
         if check_status not in self._valid_status:
             message = 'Job returned an invalid status <%s>' % check_status
             self.log.error(message)
@@ -102,20 +105,33 @@ class BaseJob:
     def run(self):
         """ Starts the job implemented by this plugin. """
 
+        status, message = '', ''
         try:
-            self.go()
+            status, message = self.go()
+
+        except TypeError, error:
+            # Transitional catch
+            self.log.warning('This module is not returning its status like it should.'
+                ' This is a deprecated behavior.'
+                ' Please upgrade it or fill a bug report if an update does not exist.')
 
         except (BaseJob.BaseError, BaseJobRuntimeError), error:
             # Expected exception, nothing to worry about
             self.log.error(str(error))
-            self.infos['status']['check_message'] = str(error)
-            self.infos['status']['check_status'] = 'ERROR'
+            status, message = 'ERROR', str(error)
 
         except Exception, error:
+            # Unexpected exception, should log a traceback
             self.log.critical('Fatal error: job stopped')
             self.log.critical(traceback.format_exc())
-            self.infos['status']['check_message'] = str(error)
-            self.infos['status']['check_status'] = 'ERROR'
+            status, message = 'ERROR', str(error)
+
+        if status not in self._valid_status:
+            status, message = 'ERROR', 'Job returned an invalid status <%s>' % status
+            self.log.error(message)
+
+        self.infos['status']['check_message'] = message
+        self.infos['status']['check_status'] = status
 
         self.log.error(str(self.old_status) + "   " +  str(self.infos['status']['check_status']))
         if self.infos['check']['check_infos'].get('history', False) == 'true' and self.old_status != self.infos['status']['check_status']:
@@ -128,7 +144,7 @@ class BaseJob:
         """ Calls specific check in BaseJob class of the plugin. """
 
         if hasattr(self, self.infos['check']['plugin_check']):
-            getattr(self, self.infos['check']['plugin_check'])()
+            return getattr(self, self.infos['check']['plugin_check'])()
         else:
             message = 'Job does not implement <%s> method' % self.infos['check']['plugin_check']
             raise BaseJob.BaseError(message)

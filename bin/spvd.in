@@ -92,8 +92,8 @@ class Monitor:
                 try:
                     plugin_attrs = __import__(plugin_name)
                 except ImportError:
-                    self.log.error('Invalid configuration field: %s' % plugin_name)
-                    self.shutdown()
+                    self.log.warning('Unkown plugin %s configuration found, skipping.' % plugin_name)
+                    continue
 
                 if not plugin_name in plugins_require:
                     try:

@@ -4,6 +4,7 @@ Version 0.8.4~dev
 	  closes: #3532.
 	* sjconf: read all [spvd:*] sections, not just [spvd].
 	* Do not provide spv-inject since it moved to webengine-spv module.
+	* Do not stop daemon on extra configuration section presence.
 
 Version 0.8.3 Released on 2010/07/07
 

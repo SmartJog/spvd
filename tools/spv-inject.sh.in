@@ -1,8 +1,0 @@
-#!/bin/sh
-
-if [ "$(whoami)" != "postgres" ] ; then
-	echo "This script must run as user postgres"
-	exit 2
-fi
-
-psql -f @pkgdatadir@/sql/spv-schema.sql

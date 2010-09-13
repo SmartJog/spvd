@@ -2,8 +2,7 @@
 toolsdir = $(pkgdatadir)/tools
 tools_SCRIPTS = \
 	checks-list.py \
-	gis2spv.py \
-	spv-inject.sh
+	gis2spv.py
 
 edit = $(SED) \
 	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g' \

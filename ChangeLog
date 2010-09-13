@@ -3,6 +3,7 @@ Version 0.8.4~dev
 	* Fix race condition which causes double/triple logging output,
 	  closes: #3532.
 	* sjconf: read all [spvd:*] sections, not just [spvd].
+	* Do not provide spv-inject since it moved to webengine-spv module.
 
 Version 0.8.3 Released on 2010/07/07
 

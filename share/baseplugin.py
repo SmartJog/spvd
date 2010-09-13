@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ BasePlugin definitions. """
 
 import logging
@@ -83,6 +85,7 @@ class BasePlugin(threading.Thread):
         if params:
             self.params.update(params)
 
+        # Set up the importer
         self.importer   = Importer()
         if url:
             self.importer['distant_url'] = url
@@ -97,14 +100,14 @@ class BasePlugin(threading.Thread):
         # Limiting groups
         self.limit_group = None
         if self.params['limit_group']:
-            self.limit_group = map(lambda group: group.strip(), self.params['limit_group'].split(","))
+            self.limit_group = [group.strip() for group in self.params['limit_group'].split(",") if group.strip()]
             if len(self.limit_group) == 1:
                 self.limit_group = self.limit_group[0]
 
         # Limiting groups
         self.limit_check = None
         if self.params['limit_check']:
-            self.limit_check = map(lambda check: check.strip(), self.params['limit_check'].split(","))
+            self.limit_check = [check.strip() for check in self.params['limit_check'].split(",") if check.strip()]
             if len(self.limit_check) == 1:
                 self.limit_check = self.limit_check[0]
 
@@ -112,6 +115,7 @@ class BasePlugin(threading.Thread):
 
         self.log = logging.getLogger("spvd.plugins." + self.name)
 
+        # Set up logging
         if not self.options.nodaemon:
             log_dir = options.logdir + '/' + self.name
             if not os.path.exists(log_dir):
@@ -129,6 +133,7 @@ class BasePlugin(threading.Thread):
 
             self.log.propagate = False
 
+        # Finalize init
         self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))
 
         self.start()
@@ -230,7 +235,7 @@ class BasePlugin(threading.Thread):
                         # Do not try to update status in one shot. Split it into packets of @limit_commit results.
                         values = self.resqueue.values()
                         for i in range(0, len(values) / self.params['limit_commit'] + 1):
-                               self.importer.call('spv.services', 'set_checks_status', values[i * self.params['limit_commit']:(i+1) * self.params['limit_commit']])
+                            self.importer.call('spv.services', 'set_checks_status', values[i * self.params['limit_commit']:(i+1) * self.params['limit_commit']])
 
                         self.resqueue = {}
                         self.rescommit.clear()

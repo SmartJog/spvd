@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 """ BaseJob class definitions. """
+
 from __future__ import with_statement
 
 import logging
@@ -133,9 +136,8 @@ class BaseJob:
         self.infos['status']['check_message'] = message
         self.infos['status']['check_status'] = status
 
-        self.log.error(str(self.old_status) + "   " +  str(self.infos['status']['check_status']))
         if self.infos['check']['check_infos'].get('history', False) == 'true' and self.old_status != self.infos['status']['check_status']:
-            self.log.debug('Saving new history checkpoint')
+            self.log.debug('Saving new history checkpoint: ' + str(self.old_status) + " -> " +  str(self.infos['status']['check_status']))
             self.infos['status']['status_infos'].update({'history-%d-%s' % (int(time.time()),  self.infos['status']['check_status'].lower()): self.infos['status']['check_message']})
 
         return self.infos

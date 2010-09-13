@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ Sample module """
 
 from baseplugin import BasePlugin

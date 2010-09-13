@@ -20,10 +20,12 @@ class BasePlugin(threading.Thread):
 
     name = ''
 
-    require = {}
+    require = {
+        'distant_url' : str,
+    }
 
     optional = {
-        'distant_url' : str,
+        'debug': bool,
         'ssl_cert' : str,
         'ssl_key' : str,
         'importer_retry_timeout' : int,

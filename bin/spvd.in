@@ -15,7 +15,7 @@ import sjutils
 import threading
 
 import logging
-
+from pprint import pformat
 
 VERSION = "@PACKAGE_VERSION@"
 
@@ -46,7 +46,6 @@ class Monitor:
         self.pool = None
         self.plugins = {}
         self.plugins_params = {}
-        self.distant_url = None
         self.dismiss = threading.Event()
         self.options = monitor_options
 
@@ -73,67 +72,72 @@ class Monitor:
         config = ConfigParser.RawConfigParser()
         config.read(configfile)
 
-        plugins_require = {}
-        plugins_provided = {}
-        plugins_optional = {}
+        # Main configuration
+        self.plugins = dict((plugin, plugin) for plugin in config.get('spvd', 'plugins').split(', ') if plugin)
+        if config.has_option('spvd', 'debug'):
+            self.log.setLevel(config.getboolean('spvd', 'debug') and logging.DEBUG or logging.INFO)
+        else:
+            self.log.setLevel(logging.INFO)
 
-        for section in config.sections():
-            options = dict(config.items(section))
-            if section == 'spvd':
-                self.plugins = dict([(plugin, plugin) for plugin in options['plugins'].split(', ') if plugin])
-                self.distant_url = options['distant_url'].strip()
-                self.log.info('Using %s' % self.distant_url)
+        # Load plugins configuration
+        for plugin_name in self.plugins:
+            section = 'spvd:' + plugin_name
+            params_required = {}
+            params_optional = {}
 
-            elif section.startswith('spvd:'):
-                plugin_name = section.split(':')[1]
-                self.plugins_params[plugin_name] = {}
+            try:
+                plugin_attrs = __import__(plugin_name)
+            except ImportError:
+                self.log.warning('Unkown plugin %s configuration found, skipping.' % plugin_name)
+                continue
 
+            try:
+                params_required = plugin_attrs.BasePlugin.require
+                params_required.update(plugin_attrs.Plugin.require)
+            except AttributeError:
+                self.log.error("Plugin %s doesn't provide its required configuration options" % plugin_name)
+                self.shutdown()
+
+            try:
+                params_optional = plugin_attrs.BasePlugin.optional
+                params_optional.update(plugin_attrs.Plugin.optional)
+            except AttributeError:
+                self.log.error("Plugin %s doesn't provide its optional configuration options" % plugin_name)
+                self.shutdown()
+
+            plugin_conf = {}
+            # Load required parameters
+            for key, convert in params_required.iteritems():
                 try:
-                    plugin_attrs = __import__(plugin_name)
-                except ImportError:
-                    self.log.warning('Unkown plugin %s configuration found, skipping.' % plugin_name)
-                    continue
+                    if config.has_option(section, key):
+                        plugin_conf[key] = convert(config.get(section, key))
+                    elif config.has_option('spvd', key):
+                        plugin_conf[key] = convert(config.get('spvd', key))
+                    else:
+                        self.log.critical("[%s] missing mandatory option %s." % (section, key))
+                        self.shutdown()
 
-                try:
-                    plugins_require[plugin_name] = plugin_attrs.BasePlugin.require
-                    plugins_require[plugin_name].update(plugin_attrs.Plugin.require)
-                except AttributeError:
-                    self.log.error("Plugin %s doesn't provide its required configuration options" % plugin_name)
+                except ValueError:
+                    self.log.critical("[%s] option %s: expected type %s." % (section, key, str(convert)))
                     self.shutdown()
 
+            # Load optional parameters
+            for key, convert in params_optional.iteritems():
+                if key == 'debug':
+                    convert = lambda debug: debug in ('True', 'true', 'on', 'yes') and True or False
+
                 try:
-                    plugins_optional[plugin_name] = plugin_attrs.BasePlugin.optional
-                    plugins_optional[plugin_name].update(plugin_attrs.Plugin.optional)
-                except AttributeError:
-                    self.log.error("Plugin %s doesn't provide its optional configuration options" % plugin_name)
+                    if config.has_option(section, key):
+                        plugin_conf[key] = convert(config.get(section, key))
+                    elif config.has_option('spvd', key):
+                        plugin_conf[key] = convert(config.get('spvd', key))
+
+                except ValueError:
+                    self.log.critical("[%s] option %s: expected type %s." % (section, key, str(convert)))
                     self.shutdown()
 
-                plugin_options = {}
-                for key, value in options.iteritems():
-                    if key == 'debug':
-                        self.log.setLevel(logging.DEBUG)
-                        plugin_options[key] = value == 'True' and True or False
-                    elif key in plugins_require[plugin_name] or key in plugins_optional[plugin_name]:
-                        try:
-                            if key in plugins_require[plugin_name]:
-                                option_type = plugins_require[plugin_name][key]
-                                if not plugin_name in plugins_provided:
-                                    plugins_provided[plugin_name] = []
-                                plugins_provided[plugin_name].append(key)
-                            else:
-                                option_type = plugins_optional[plugin_name][key]
-                            plugin_options[key] = option_type(value)
-                        except ValueError:
-                            self.log.critical("Wrong format (should be %s): %s in [spvd:%s]" % (option_type.__name__, key, plugin_name))
-                            self.shutdown()
-
-                self.plugins_params[plugin_name].update(plugin_options)
-
-        for plugin_name, requirement in plugins_require.iteritems():
-            for key in requirement:
-                if not key in plugins_provided[plugin_name]:
-                    self.log.critical("Need option: %s in [spvd:%s]" % (key, plugin_name))
-                    self.shutdown()
+            self.log.debug('[%s] configuration is %s' % (section, pformat(plugin_conf)))
+            self.plugins_params[plugin_name] = plugin_conf
 
         if not len(self.plugins):
             self.log.critical("*** there is no plugin configured ***")
@@ -175,11 +179,10 @@ class Monitor:
             self.pool.dismiss_workers(1)
             return False
 
-        if plugin in self.plugins_params:
-            inst = plugin_classes.Plugin(self.options, self.dismiss, self.distant_url, params=self.plugins_params[plugin])
-        else:
-            inst = plugin_classes.Plugin(self.options, self.dismiss, self.distant_url)
-            self.pool.dismiss_workers(1)
+        inst = plugin_classes.Plugin(self.options, self.dismiss, \
+            self.plugins_params[plugin].get('distant_url' or None), \
+            params=self.plugins_params[plugin])
+        self.pool.dismiss_workers(1)
 
         # Wait for plugin thread to join
         inst.join()

@@ -75,7 +75,6 @@ class Monitor:
 
         plugins_require = {}
         plugins_provided = {}
-
         plugins_optional = {}
 
         for section in config.sections():
@@ -84,6 +83,7 @@ class Monitor:
                 self.plugins = dict([(plugin, plugin) for plugin in options['plugins'].split(', ') if plugin])
                 self.distant_url = options['distant_url'].strip()
                 self.log.info('Using %s' % self.distant_url)
+
             elif section.startswith('spvd:'):
                 plugin_name = section.split(':')[1]
                 if not plugin_name in self.plugins_params:

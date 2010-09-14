@@ -20,6 +20,23 @@ class BasePlugin(threading.Thread):
 
     name = ''
 
+    require = {}
+
+    optional = {
+        'distant_url' : str,
+        'ssl_cert' : str,
+        'ssl_key' : str,
+        'importer_retry_timeout' : int,
+        'max_parallel_checks' : int,
+        'max_checks_queue' : int,
+        'check_poll' : int,
+        'check_timeout' : int,
+        'result_threshold' : int,
+        'limit_group' : str,
+        'limit_check' : str,
+        'limit_commit' : int,
+    }
+
     def __init__(self, options, event, url=None, params=None):
         """ Init method.
 

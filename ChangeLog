@@ -7,6 +7,8 @@ Version 0.8.4~dev
 	* Do not stop daemon on extra configuration section presence.
 	* Simplify configuration parsing code, refs: #3308.
 	* Catch plugins not declaring optional parameters, refs: #3308.
+	* Move optional default parameters to BasePlugin, closes: #3070 and
+	  refs: #3308.
 
 Version 0.8.3 Released on 2010/07/07
 

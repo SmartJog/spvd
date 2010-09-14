@@ -95,26 +95,14 @@ class Monitor:
                     continue
 
                 try:
-                    plugins_require[plugin_name] = plugin_attrs.Plugin.require
+                    plugins_require[plugin_name] = plugin_attrs.BasePlugin.require
+                    plugins_require[plugin_name].update(plugin_attrs.Plugin.require)
                 except AttributeError:
                     self.log.error("Plugin %s doesn't provide its required configuration options" % plugin_name)
                     self.shutdown()
 
                 try:
-                    plugins_optional[plugin_name] = {
-                        'distant_url' : str,
-                        'ssl_cert' : str,
-                        'ssl_key' : str,
-                        'importer_retry_timeout' : int,
-                        'max_parallel_checks' : int,
-                        'max_checks_queue' : int,
-                        'check_poll' : int,
-                        'check_timeout' : int,
-                        'result_threshold' : int,
-                        'limit_group' : str,
-                        'limit_check' : str,
-                        'limit_commit' : int,
-                        }
+                    plugins_optional[plugin_name] = plugin_attrs.BasePlugin.optional
                     plugins_optional[plugin_name].update(plugin_attrs.Plugin.optional)
                 except AttributeError:
                     self.log.error("Plugin %s doesn't provide its optional configuration options" % plugin_name)

@@ -5,7 +5,14 @@ import traceback
 import time
 import os
 import sys
+import threading
 from sjutils.loggeradapter import LoggerAdapter
+
+# Adding handlers to loggers is not thread-safe *AT ALL*.
+# This lock is used to protect multiple accesses to the "logger.handlers"
+# variable below
+__handler_lock__ = threading.Lock()
+
 
 class BaseJobRuntimeError(Exception):
     """ BaseJob Exceptions. """
@@ -37,6 +44,9 @@ class BaseJob:
         else:
             logger = logger_per_job
 
+        # critical section around logger.handlers
+        global __handler_lock__
+        __handler_lock__.acquire()
         if len(logger.handlers) == 0:
             if options.nodaemon:
                 log_handler = logging.StreamHandler(sys.stdout)
@@ -58,6 +68,8 @@ class BaseJob:
                 logger.setLevel(logging.INFO)
 
             logger.propagate = False
+        # end of critical section
+        __handler_lock__.release()
 
         # Jobs will always use logger_per_job here, even in nodaemon mode,
         # since "spvd.jobs" will trap all log messages in that case.

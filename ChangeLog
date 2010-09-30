@@ -1,3 +1,8 @@
+Version 0.8.4~dev
+
+	* Fix race condition which causes double/triple logging output,
+	  closes: #3532.
+
 Version 0.8.3 Released on 2010/07/07
 
 	* Add a SJConf plugin, closes: #3304.

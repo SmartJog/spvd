@@ -2,7 +2,7 @@ Version 0.8.4~dev
 
 	* Fix race condition which causes double/triple logging output,
 	  closes: #3532.
-	* sjconf: read all [spvd:*] sections, not just [spvd].
+	* sjconf: read all [spvd:*] sections, not just [spvd], closes #3498.
 	* Do not provide spv-inject since it moved to webengine-spv module.
 	* Do not stop daemon on extra configuration section presence.
 	* Simplify configuration parsing code, refs: #3308.

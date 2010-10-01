@@ -1,8 +1,8 @@
 spvd (0.8.4~dev-1) unstable; urgency=low
 
-  * New upstream release, closes: #3532, #3070, #3308.
+  * New upstream release, closes: #3532, #3070, #3308, #3498.
 
- -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Fri, 01 Oct 2010 14:19:23 +0200
+ -- Rémi Cardona <remi.cardona@smartjog.com>  Fri, 01 Oct 2010 14:35:22 +0200
 
 spvd (0.8.3-1) unstable; urgency=low
 

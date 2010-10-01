@@ -11,9 +11,12 @@ class Plugin(sjconf.Plugin):
 
     def file_content(self, file_path):
         tmp_conf = ConfigParser.RawConfigParser()
-        tmp_conf.add_section('spvd')
-        for option, value in self.conf[self.name()].iteritems():
-            tmp_conf.set('spvd', option, value)
+
+        for section in self.conf.keys():
+            tmp_conf.add_section(section)
+            for option, value in self.conf[section].iteritems():
+                tmp_conf.set(section, option, value)
+
         res_content = StringIO.StringIO()
         tmp_conf.write(res_content)
         return res_content.getvalue()

@@ -1,4 +1,4 @@
-Version 0.8.4~dev
+Version 0.8.4 Released on 2010/10/04
 
 	* Fix race condition which causes double/triple logging output,
 	  closes: #3532.

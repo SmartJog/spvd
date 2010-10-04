@@ -1,8 +1,9 @@
-spvd (0.8.4~dev-1) unstable; urgency=low
+spvd (0.8.4-1) unstable; urgency=low
 
+  [ Rémi Cardona ]
   * New upstream release, closes: #3532, #3070, #3308, #3498.
 
- -- Rémi Cardona <remi.cardona@smartjog.com>  Fri, 01 Oct 2010 14:35:22 +0200
+ -- Philippe Bridant <philippe.bridant@smartjog.com>  Mon, 04 Oct 2010 16:40:21 +0200
 
 spvd (0.8.3-1) unstable; urgency=low
 

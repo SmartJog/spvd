@@ -41,7 +41,7 @@ Maximum number of checks to run in parallel for this plugin.
 : **max_checks_queue** = //9//
 Maximum number of checks to keep in queue for this plugin.
 
-: **check_poll** = //3//
+: **check_poll** = //60//
 Interval in seconds between contacts of the supervision to retrieve new checks.
 
 : **check_timeout** = //30//

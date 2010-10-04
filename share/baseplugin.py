@@ -69,7 +69,7 @@ class BasePlugin(threading.Thread):
         self.params     = { 'importer_retry_timeout': 10,
                             'max_parallel_checks': 3,
                             'max_checks_queue': 9,
-                            'check_poll': 1,
+                            'check_poll': 60,
                             'check_timeout' : None,
                             'debug': False,
                             'ssl_cert': None,

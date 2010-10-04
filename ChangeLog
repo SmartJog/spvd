@@ -1,3 +1,7 @@
+Version 0.8.5~dev
+
+	* Set default check_poll to 60, closes: #3336.
+
 Version 0.8.4 Released on 2010/10/04
 
 	* Fix race condition which causes double/triple logging output,

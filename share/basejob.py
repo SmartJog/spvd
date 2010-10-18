@@ -26,6 +26,13 @@ class BaseJobRuntimeError(Exception):
 class BaseJob:
     """ Base class for job implementation in spvd. """
 
+    class BaseError(Exception):
+        """ Base class for BaseJob Exceptions. """
+
+        def __init__(self, error):
+            """ Init method. """
+            Exception.__init__(self, error)
+
     _valid_status = ('FINISHED', 'WARNING', 'ERROR')
 
     def __init__(self, options, infos, params):
@@ -85,7 +92,7 @@ class BaseJob:
         if check_status not in self._valid_status:
             message = 'Job returned an invalid status <%s>' % check_status
             self.log.error(message)
-            raise BaseJobRuntimeError(message)
+            raise BaseJob.BaseError(message)
 
         self.infos['status']['check_message'] = check_message
         self.infos['status']['check_status'] = check_status
@@ -98,7 +105,8 @@ class BaseJob:
         try:
             self.go()
 
-        except BaseJobRuntimeError, error:
+        except (BaseJob.BaseError, BaseJobRuntimeError), error:
+            # Expected exception, nothing to worry about
             self.log.error(str(error))
             self.infos['status']['check_message'] = str(error)
             self.infos['status']['check_status'] = 'ERROR'
@@ -123,10 +131,5 @@ class BaseJob:
             getattr(self, self.infos['check']['plugin_check'])()
         else:
             message = 'Job does not implement <%s> method' % self.infos['check']['plugin_check']
-
-            self.infos['status']['check_message'] = message
-            self.infos['status']['check_status'] = 'ERROR'
-
-            self.log.error(message)
-            raise BaseJobRuntimeError(message)
+            raise BaseJob.BaseError(message)
 

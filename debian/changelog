@@ -1,9 +1,8 @@
 spvd (0.8.5~dev-1) unstable; urgency=low
 
-  [ Nicolas Noirbent ]
-  * New upstream release, closes: #3336, #3202.
+  * New upstream release, closes: #3336, #3202, #3415.
 
- -- Alexandre Bossard <alexandre.bossard@smartjog.com>  Mon, 11 Oct 2010 17:33:01 +0200
+ -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Tue, 04 Jan 2011 11:52:05 +0100
 
 spvd (0.8.4-1) unstable; urgency=low
 

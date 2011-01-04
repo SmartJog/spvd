@@ -8,6 +8,7 @@ Version 0.8.5~dev
 	* Add BaseJob.BaseError to reduce verbosity of derived exceptions,
 	  closes: #3415.
 	* Deprecate set_check_status and except checks to return their status.
+	* Try to import python2.6's LoggerAdapter before the one from sjutils.
 
 Version 0.8.4 Released on 2010/10/04
 

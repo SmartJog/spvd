@@ -10,7 +10,10 @@ import time
 import os
 import sys
 import threading
-from sjutils.loggeradapter import LoggerAdapter
+try:
+    from logging import LoggerAdapter
+except ImportError:
+    from sjutils.loggeradapter import LoggerAdapter
 
 # Adding handlers to loggers is not thread-safe *AT ALL*.
 # This lock is used to protect multiple accesses to the "logger.handlers"

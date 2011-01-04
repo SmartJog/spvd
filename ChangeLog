@@ -9,6 +9,7 @@ Version 0.8.5~dev
 	  closes: #3415.
 	* Deprecate set_check_status and except checks to return their status.
 	* Try to import python2.6's LoggerAdapter before the one from sjutils.
+	* Make BaseJob derive from new style python objects.
 
 Version 0.8.4 Released on 2010/10/04
 

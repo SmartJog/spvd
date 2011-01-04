@@ -29,7 +29,7 @@ class BaseJobRuntimeError(Exception):
         Exception.__init__(self, error)
 
 
-class BaseJob:
+class BaseJob(object):
     """ Base class for job implementation in spvd. """
 
     class BaseError(Exception):

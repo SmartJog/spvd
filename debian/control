@@ -2,7 +2,7 @@ Source: spvd
 Section: misc
 Priority: optional
 Maintainer: Philippe Bridant <philippe.bridant@smartjog.com>
-Uploaders: Nicolas Noirbent <nicolas.noirbent@smartjog.com>, Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>, Rémi Cardona <remi.cardona@smartjog.com>
+Uploaders: Nicolas Noirbent <nicolas.noirbent@smartjog.com>, Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>, Rémi Cardona <remi.cardona@smartjog.com>, Clément Bœsch <clement.boesch@smartjog.com>
 Build-Depends: debhelper (>= 5.0.38), cdbs, python-central (>= 0.6), txt2tags
 XS-Python-Version: >= 2.5
 Standards-Version: 3.8.4

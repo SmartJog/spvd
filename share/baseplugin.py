@@ -230,17 +230,16 @@ class BasePlugin(threading.Thread):
 
                 if self.resqueue:
                     self.log.debug('%d results to commit' % len(self.resqueue))
-                    # Try to commit results in queue
-                    try:
-                        # Do not try to update status in one shot. Split it into packets of @limit_commit results.
-                        values = self.resqueue.values()
-                        for i in range(0, len(values) / self.params['limit_commit'] + 1):
+                    # Do not try to update status in one shot. Split it into packets of @limit_commit results.
+                    values = self.resqueue.values()
+                    for i in range(0, len(values) / self.params['limit_commit'] + 1):
+                        # Try to commit current slice
+                        try:
                             self.importer.call('spv.services', 'set_checks_status', values[i * self.params['limit_commit']:(i+1) * self.params['limit_commit']])
-
-                        self.resqueue = {}
-                        self.rescommit.clear()
-                    except ImporterError, error:
-                        self.log.error('remote module error while commiting updates <' + str(error) + '>')
+                        except ImporterError, error:
+                            self.log.error('remote module error while commiting updates <' + str(error) + '>')
+                    self.resqueue = {}
+                    self.rescommit.clear()
 
                 # Get checks for the current plugin
                 checks = {}

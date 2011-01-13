@@ -1,8 +1,8 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          spvd
-# Required-Start:    $local_fs
-# Required-Stop:
+# Required-Start:    $remote_fs
+# Required-Stop:     $remote_fs
 # Should-Start:
 # Should-Stop:
 # Default-Start:     2 3 4 5

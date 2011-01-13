@@ -1,9 +1,16 @@
 spvd (0.8.5~dev-1) unstable; urgency=low
 
+  [ Clément Bœsch ]
   * New upstream release, closes: #3336, #3202, #3415, #3838.
   * Added myself to Uploaders.
 
- -- Clément Bœsch <clement.boesch@smartjog.com>  Wed, 12 Jan 2011 17:05:13 +0100
+  [ Gilles Dartiguelongue ]
+  * Raise debhelper to 7 since older versions are deprecated.
+  * Raise Standards-Version to 3.9.1.
+  * Add missing misc and python dependencies for sjconf-spvd.
+  * Change init script requirements to remote_fs.
+
+ -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Thu, 13 Jan 2011 12:47:09 +0100
 
 spvd (0.8.4-1) unstable; urgency=low
 

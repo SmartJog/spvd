@@ -3,9 +3,9 @@ Section: misc
 Priority: optional
 Maintainer: Philippe Bridant <philippe.bridant@smartjog.com>
 Uploaders: Nicolas Noirbent <nicolas.noirbent@smartjog.com>, Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>, Rémi Cardona <remi.cardona@smartjog.com>, Clément Bœsch <clement.boesch@smartjog.com>
-Build-Depends: debhelper (>= 5.0.38), cdbs, python-central (>= 0.6), txt2tags
+Build-Depends: debhelper (>= 7), cdbs, python-central (>= 0.6), txt2tags
 XS-Python-Version: >= 2.5
-Standards-Version: 3.8.4
+Standards-Version: 3.9.1
 
 Package: spvd
 Architecture: all
@@ -18,6 +18,6 @@ Description: SmartJog core supervision
 
 Package: sjconf-spvd
 Architecture: all
-Depends: sjconf1 (>= 1.3), spvd (>= ${source:Version})
+Depends: ${misc:Depends}, ${python:Depends}, sjconf1 (>= 1.3), spvd (>= ${source:Version})
 Description: SJConf plugin for spvd
  This package provides a SJConf plugin to handle spvd configuration.

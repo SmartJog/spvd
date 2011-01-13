@@ -1,4 +1,4 @@
-Version 0.8.5~dev
+Version 0.8.5 Released on 2011/01/13
 
 	* Set default check_poll to 60, closes: #3336.
 	* New fix for race condition causing duplicate

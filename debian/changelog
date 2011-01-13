@@ -1,4 +1,4 @@
-spvd (0.8.5~dev-1) unstable; urgency=low
+spvd (0.8.5-1) unstable; urgency=low
 
   [ Clément Bœsch ]
   * New upstream release, closes: #3336, #3202, #3415, #3838.
@@ -10,7 +10,7 @@ spvd (0.8.5~dev-1) unstable; urgency=low
   * Add missing misc and python dependencies for sjconf-spvd.
   * Change init script requirements to remote_fs.
 
- -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Thu, 13 Jan 2011 12:47:09 +0100
+ -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Thu, 13 Jan 2011 12:49:01 +0100
 
 spvd (0.8.4-1) unstable; urgency=low
 

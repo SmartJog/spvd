@@ -13,6 +13,7 @@ Version 0.8.5~dev
 	* Use logging.exception for traceback logging.
 	* Fix backward compatibility of set_check_status deprecation.
 	* Discard results that failed to commit, closes: #3838.
+	* Disable deprecation warnings for current release, refs: #3838.
 
 Version 0.8.4 Released on 2010/10/04
 

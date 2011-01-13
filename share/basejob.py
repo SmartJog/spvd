@@ -95,8 +95,8 @@ class BaseJob(object):
     def set_check_status(self, check_status, check_message, status_infos=None):
         """ Helper function to prepare check's status. """
 
-        self.log.warning('This module is using [set_check_status] which is deprecated.'
-            ' Please upgrade it or fill a bug report if an update does not exist.')
+        #self.log.warning('This module is using [set_check_status] which is deprecated.'
+        #    ' Please upgrade it or fill a bug report if an update does not exist.')
 
         if check_status not in self._valid_status:
             message = 'Job returned an invalid status <%s>' % check_status
@@ -117,9 +117,9 @@ class BaseJob(object):
 
         except TypeError, error:
             # Transitional catch
-            self.log.warning('This module is not returning its status like it should.'
-                ' This is a deprecated behavior.'
-                ' Please upgrade it or fill a bug report if an update does not exist.')
+            #self.log.warning('This module is not returning its status like it should.'
+            #    ' This is a deprecated behavior.'
+            #    ' Please upgrade it or fill a bug report if an update does not exist.')
             status = self.infos['status']['check_status']
             message = self.infos['status']['check_message']
 

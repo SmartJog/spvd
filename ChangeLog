@@ -1,3 +1,7 @@
+Version 0.8.6~dev
+
+	* Always try to commit results, closes: #3759.
+
 Version 0.8.5 Released on 2011/01/13
 
 	* Set default check_poll to 60, closes: #3336.

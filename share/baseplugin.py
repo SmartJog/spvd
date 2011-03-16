@@ -217,17 +217,6 @@ class BasePlugin(threading.Thread):
                 except threadpool.NoResultsPending:
                     self.log.debug('there was no result to poll')
 
-                # Queue.qsize is unreliable, try to mitigate its weirdness
-                limit_fetch = self.params['max_checks_queue'] - self.job_pool._requests_queue.qsize()
-                limit_fetch = min(abs(limit_fetch), self.params['max_checks_queue'])
-
-                if self.job_pool._requests_queue.full() \
-                    or limit_fetch > self.params['max_checks_queue'] \
-                    or limit_fetch == 0:
-                    # Non sensical value or no check to fetch
-                    self.log.info('queue estimated full')
-                    continue
-
                 if self.resqueue:
                     self.log.debug('%d results to commit' % len(self.resqueue))
                     # Do not try to update status in one shot. Split it into packets of @limit_commit results.
@@ -240,6 +229,17 @@ class BasePlugin(threading.Thread):
                             self.log.error('remote module error while commiting updates <' + str(error) + '>')
                     self.resqueue = {}
                     self.rescommit.clear()
+
+                # Queue.qsize is unreliable, try to mitigate its weirdness
+                limit_fetch = self.params['max_checks_queue'] - self.job_pool._requests_queue.qsize()
+                limit_fetch = min(abs(limit_fetch), self.params['max_checks_queue'])
+
+                if self.job_pool._requests_queue.full() \
+                    or limit_fetch > self.params['max_checks_queue'] \
+                    or limit_fetch == 0:
+                    # Non sensical value or no check to fetch
+                    self.log.info('queue estimated full')
+                    continue
 
                 # Get checks for the current plugin
                 checks = {}

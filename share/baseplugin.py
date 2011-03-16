@@ -248,17 +248,18 @@ class BasePlugin(threading.Thread):
                 self.log.debug('*** fetching %s checks' % limit_fetch)
 
                 try:
-                    checks = self.importer.call('spv.services', 'get_checks',
-                        {'limit' : limit_fetch,
-                        'plugin_name' : self.name,
-                        'get_check_infos'       : True,
-                        'get_object_infos'      : True,
-                        'get_status_infos'      : True,
-                        'get_detailed_infos'    : False,
-                        'update_next_check'     : True,
-                        'group_name'            : self.limit_group,
-                        'plugin_check'          : self.limit_check,
-                        'next_check_expired'    : True})
+                    checks = self.importer.call('spv.services', 'get_checks', {
+                        'limit'             : limit_fetch,
+                        'plugin_name'       : self.name,
+                        'get_check_infos'   : True,
+                        'get_object_infos'  : True,
+                        'get_status_infos'  : True,
+                        'get_detailed_infos': False,
+                        'update_next_check' : True,
+                        'group_name'        : self.limit_group,
+                        'plugin_check'      : self.limit_check,
+                        'next_check_expired': True
+                    })
                 except ImporterError, error:
                     self.log.error('remote module error while retrieving checks <' + str(error) + '>')
                     self.dismiss.wait(self.params['importer_retry_timeout'])
@@ -273,7 +274,7 @@ class BasePlugin(threading.Thread):
 
                         req = threadpool.WorkRequest(
                             self.job_start,
-                            [ {
+                            [{
                                 'check' : checks['checks'][status['chk_id']],
                                 'group' : checks['groups'][status['grp_id']],
                                 'object' : checks['objects'][status['obj_id']],
@@ -290,7 +291,7 @@ class BasePlugin(threading.Thread):
                     continue
 
             except Exception, error:
-                self.log.error('caught unknown exception :')
+                self.log.error('caught unknown exception:')
                 self.log.exception(error)
                 continue
 

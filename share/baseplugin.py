@@ -104,7 +104,7 @@ class BasePlugin(threading.Thread):
             if len(self.limit_group) == 1:
                 self.limit_group = self.limit_group[0]
 
-        # Limiting groups
+        # Limiting checks
         self.limit_check = None
         if self.params['limit_check']:
             self.limit_check = [check.strip() for check in self.params['limit_check'].split(",") if check.strip()]
@@ -217,6 +217,7 @@ class BasePlugin(threading.Thread):
                 except threadpool.NoResultsPending:
                     self.log.debug('there was no result to poll')
 
+                # Commit pending results
                 if self.resqueue:
                     self.log.debug('%d results to commit' % len(self.resqueue))
                     # Do not try to update status in one shot. Split it into packets of @limit_commit results.
@@ -230,6 +231,7 @@ class BasePlugin(threading.Thread):
                     self.resqueue = {}
                     self.rescommit.clear()
 
+                # Determine maximum number of checks to get
                 # Queue.qsize is unreliable, try to mitigate its weirdness
                 limit_fetch = self.params['max_checks_queue'] - self.job_pool._requests_queue.qsize()
                 limit_fetch = min(abs(limit_fetch), self.params['max_checks_queue'])
@@ -265,6 +267,7 @@ class BasePlugin(threading.Thread):
                 if len(checks['status']) > 0:
                     self.log.debug('got %s checks' % len(checks['status']))
 
+                # Queue checks
                 try:
                     for status in checks['status']:
 

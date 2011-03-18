@@ -1,4 +1,4 @@
-Version 0.8.6~dev
+Version 0.8.6 Released on 2011/03/18
 
 	* Always try to commit results, closes: #3759.
 

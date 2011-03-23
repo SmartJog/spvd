@@ -136,6 +136,9 @@ class BasePlugin(threading.Thread):
         # Finalize init
         self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))
 
+        for widx, worker in enumerate(self.job_pool.workers):
+            worker.name = '%s-#%d' % (self.name, widx)
+
         self.start()
         self.log.info(self)
 

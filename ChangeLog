@@ -1,4 +1,4 @@
-Version 0.8.7~dev
+Version 0.8.7 Released on 2011/03/23
 
 	* Add more debugging output.
 	* Rename threads of the ThreadPool per plugin for easier log reading.

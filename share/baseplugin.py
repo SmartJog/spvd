@@ -204,12 +204,15 @@ class BasePlugin(threading.Thread):
         """ Run method. """
 
         self.log.info("plugin started")
+        first = True
 
         while not self.dismiss.isSet():
 
             try:
+                if not first:
+                    self.rescommit.wait(self.params['check_poll'])
 
-                self.rescommit.wait(self.params['check_poll'])
+                first = False
 
                 self.log.debug('number of threads alive %d/%d' % (threading.activeCount(), int(self.params['max_parallel_checks'])))
                 self.log.debug('jobs waiting to be reported: %d' % len(self.resqueue))

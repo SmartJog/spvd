@@ -1,3 +1,7 @@
+Version 0.8.7~dev
+
+	* Add more debugging output.
+
 Version 0.8.6 Released on 2011/03/18
 
 	* Always try to commit results, closes: #3759.

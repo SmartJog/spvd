@@ -145,6 +145,7 @@ class BaseJob(object):
             self.log.debug('Saving new history checkpoint: ' + str(self.old_status) + " -> " +  str(self.infos['status']['check_status']))
             self.infos['status']['status_infos'].update({'history-%d-%s' % (int(time.time()),  self.infos['status']['check_status'].lower()): self.infos['status']['check_message']})
 
+        self.log.debug('Job finished: <%s, %s>' % (status, message))
         return self.infos
 
     def go(self):

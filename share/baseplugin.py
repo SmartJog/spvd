@@ -165,6 +165,7 @@ class BasePlugin(threading.Thread):
 
         job = self.create_new_job(check)
         job.log.debug('check started')
+        self.log.debug('%s check started')
         self.checks[check['status']['status_id']] = job
         return job.run()
 
@@ -172,6 +173,7 @@ class BasePlugin(threading.Thread):
         """ Stops a job. """
 
         self.checks[request.request_id].log.info('check result is %s : (%s)' % (result['status']['check_status'], result['status']['check_message']))
+        self.log.debug('%s check finished' % request.request_id)
 
         update = self.__prepare_status_update(result)
         self.resqueue.update({result['status']['status_id']: update})
@@ -206,11 +208,9 @@ class BasePlugin(threading.Thread):
 
                 self.rescommit.wait(self.params['check_poll'])
 
-                self.log.debug('number of threads alive %d' % threading.activeCount())
-                if self.job_pool._requests_queue.qsize() > 0:
-                    self.log.debug('approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
-                else:
-                    self.log.debug('approximate number of jobs in queue %d' % self.job_pool._requests_queue.qsize())
+                self.log.debug('number of threads alive %d/%d' % (threading.activeCount(), int(self.params['max_parallel_checks'])))
+                self.log.debug('jobs waiting to be reported: %d' % len(self.resqueue))
+                self.log.debug('jobs waiting to be executed: %d (approx)' % self.job_pool._requests_queue.qsize())
 
                 try:
                     self.job_pool.poll()
@@ -236,11 +236,15 @@ class BasePlugin(threading.Thread):
                 limit_fetch = self.params['max_checks_queue'] - self.job_pool._requests_queue.qsize()
                 limit_fetch = min(abs(limit_fetch), self.params['max_checks_queue'])
 
-                if self.job_pool._requests_queue.full() \
-                    or limit_fetch > self.params['max_checks_queue'] \
-                    or limit_fetch == 0:
-                    # Non sensical value or no check to fetch
+                # Determine if we need to fetch more work
+                if self.job_pool._requests_queue.full() or limit_fetch == 0:
                     self.log.info('queue estimated full')
+                    continue
+
+                # Non sensical value or no check to fetch
+                if limit_fetch > self.params['max_checks_queue'] \
+                    or limit_fetch < 0:
+                    self.log.info('*** Runtime inconsistency, trying to fetch %d checks ***' % limit_fetch)
                     continue
 
                 # Get checks for the current plugin

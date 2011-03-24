@@ -201,6 +201,9 @@ class Monitor:
         self.log.info("*** spvd version %s, started ***" % VERSION)
         self.pool = sjutils.threadpool.ThreadPool(len(self.plugins))
 
+	for widx, worker in enumerate(self.pool.workers):
+            worker.setName('spvd-#%d' % widx)
+
         for plugin in self.plugins:
             req = sjutils.threadpool.WorkRequest(
                 self.plugin_instance_start,
@@ -215,8 +218,7 @@ class Monitor:
 
         while not self.dismiss.isSet():
             for thread in threading.enumerate():
-                if hasattr(thread, 'daemon') and thread.daemon:
-                    self.log.info('no daemon thread [%s] is alive' % thread.getName())
+                self.log.info('thread [%s] is alive (daemon:%s)' % (thread.getName(), thread.isDaemon()))
             try:
                 self.pool.poll()
             except sjutils.threadpool.NoResultsPending:

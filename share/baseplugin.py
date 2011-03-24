@@ -137,7 +137,9 @@ class BasePlugin(threading.Thread):
         self.job_pool = threadpool.ThreadPool(int(self.params['max_parallel_checks']))
 
         for widx, worker in enumerate(self.job_pool.workers):
-            worker.name = '%s-#%d' % (self.name, widx)
+            worker.setName('%s-#%d' % (self.name, widx))
+
+        self.setName(self.name + '-base')
 
         self.start()
         self.log.info(self)
@@ -168,7 +170,7 @@ class BasePlugin(threading.Thread):
 
         job = self.create_new_job(check)
         job.log.debug('check started')
-        self.log.debug('%s check started')
+        self.log.debug('Work request #%s started.' % check['status']['status_id'])
         self.checks[check['status']['status_id']] = job
         return job.run()
 
@@ -176,7 +178,7 @@ class BasePlugin(threading.Thread):
         """ Stops a job. """
 
         self.checks[request.request_id].log.info('check result is %s : (%s)' % (result['status']['check_status'], result['status']['check_message']))
-        self.log.debug('%s check finished' % request.request_id)
+        self.log.debug('Work request #%s finished.' % request.request_id)
 
         update = self.__prepare_status_update(result)
         self.resqueue.update({result['status']['status_id']: update})
@@ -214,7 +216,7 @@ class BasePlugin(threading.Thread):
 
                 first = False
 
-                self.log.debug('number of threads alive %d/%d' % (threading.activeCount(), int(self.params['max_parallel_checks'])))
+                self.log.debug('number of threads alive %d/%d' % (len([thread for thread in self.job_pool.workers if thread.isAlive()]), int(self.params['max_parallel_checks'])))
                 self.log.debug('jobs waiting to be reported: %d' % len(self.resqueue))
                 self.log.debug('jobs waiting to be executed: %d (approx)' % self.job_pool._requests_queue.qsize())
 

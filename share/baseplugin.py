@@ -139,8 +139,6 @@ class BasePlugin(threading.Thread):
         for widx, worker in enumerate(self.job_pool.workers):
             worker.setName('%s-#%d' % (self.name, widx))
 
-        self.setName(self.name + '-base')
-
         self.start()
         self.log.info(self)
 

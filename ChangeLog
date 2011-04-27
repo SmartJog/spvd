@@ -1,3 +1,7 @@
+Version 0.8.9~dev
+
+	* Removed tools/gis2spv.py.
+
 Version 0.8.8 Released on 2011/04/12
 
 	* More debugging output.

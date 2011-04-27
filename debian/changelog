@@ -1,9 +1,9 @@
-spvd (0.8.9~dev-1) unstable; urgency=low
+spvd (0.8.9-1) unstable; urgency=low
 
   * New upstream release.
   * spvd is now released under the LGPL-2.1.
 
- -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Wed, 27 Apr 2011 15:51:52 +0200
+ -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Wed, 27 Apr 2011 15:57:44 +0200
 
 spvd (0.8.8-1) unstable; urgency=low
 

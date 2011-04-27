@@ -1,4 +1,4 @@
-Version 0.8.9~dev
+Version 0.8.9 Released on 2011/04/27
 
 	* Removed tools/gis2spv.py.
 	* spvd is now released under the LGPL-2.1.

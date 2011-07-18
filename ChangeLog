@@ -1,3 +1,7 @@
+Version 0.8.11~dev
+
+	* BaseJob: do not shadow a plugin's own TypeError.
+
 Version 0.8.10 Released on 2011/05/05
 
 	* Added a README.rst.

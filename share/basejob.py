@@ -113,15 +113,18 @@ class BaseJob(object):
 
         status, message = '', ''
         try:
-            status, message = self.go()
-
-        except TypeError, error:
-            # Transitional catch
-            #self.log.warning('This module is not returning its status like it should.'
-            #    ' This is a deprecated behavior.'
-            #    ' Please upgrade it or fill a bug report if an update does not exist.')
-            status = self.infos['status']['check_status']
-            message = self.infos['status']['check_message']
+            tmp_ret = self.go()
+            try:
+                # Done in a separate try..except to avoid shadowing
+                # TypeError exceptions from plugins
+                status, message = tmp_ret
+            except TypeError, error:
+                # Transitional catch
+                # self.log.warning('This module is not returning its status like it should.'
+                #    ' This is a deprecated behavior.'
+                #    ' Please upgrade it or fill a bug report if an update does not exist.')
+                status = self.infos['status']['check_status']
+                message = self.infos['status']['check_message']
 
         except (BaseJob.BaseError, BaseJobRuntimeError), error:
             # Expected exception, nothing to worry about

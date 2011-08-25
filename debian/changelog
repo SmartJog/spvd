@@ -1,8 +1,14 @@
 spvd (0.8.11~dev-1) unstable; urgency=low
 
+  [ Nicolas Noirbent ]
   * New upstream release.
 
- -- Nicolas Noirbent <nicolas.noirbent@smartjog.com>  Mon, 11 Jul 2011 15:49:44 +0200
+  [ Laurent Defert ]
+  * Add myself to Uploaders.
+  * Update debian/control Build-Depends, XS-Python-Version.
+  * Update debian/compat version.
+
+ -- Laurent Defert <laurent.defert@smartjog.com>  Thu, 25 Aug 2011 16:04:02 +0200
 
 spvd (0.8.10-1) unstable; urgency=low
 

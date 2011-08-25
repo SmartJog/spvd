@@ -1,4 +1,4 @@
-Version 0.8.11~dev
+Version 0.8.11 Released on 2011/08/25
 
 	* BaseJob: do not shadow a plugin's own TypeError.
 

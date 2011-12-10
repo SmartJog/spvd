@@ -7,7 +7,6 @@ import threading
 import traceback
 import os
 import Queue
-from importer import Importer, ImporterError
 from sjutils import threadpool
 
 class BasePluginError(Exception):
@@ -23,14 +22,10 @@ class BasePlugin(threading.Thread):
     name = ''
 
     require = {
-        'distant_url' : str,
     }
 
     optional = {
         'debug': bool,
-        'ssl_cert' : str,
-        'ssl_key' : str,
-        'importer_retry_timeout' : int,
         'max_parallel_checks' : int,
         'max_checks_queue' : int,
         'check_poll' : int,
@@ -41,22 +36,16 @@ class BasePlugin(threading.Thread):
         'limit_commit' : int,
     }
 
-    def __init__(self, options, event, url=None, params=None):
+    def __init__(self, options, event, params=None):
         """ Init method.
 
-        @url: url pass to Importer.
-
         @params is a dictionary of optional parameters among:
-        importer_retry_timeout: interval between successive importer calls if
-                                importer failed.
         max_parallel_checks:    maximum number of threads for this plugin.
         max_checks_queue:       maximum number of checks to get from
                                 the DB and queue for execution.
         check_poll:             interval between two get_checks call.
         check_timeout:          maximum wait time for get_checks calls.
         debug:                  enable debugging information.
-        ssl_cert:               client X.509 public key.
-        ssl_key:                client X.509 secret key.
         result_threshold:       number of results waiting for a commit that
                                 will trigger a main-loop wake up.
         """
@@ -68,34 +57,20 @@ class BasePlugin(threading.Thread):
         self.checks     = {}
         self.rescommit  = threading.Event()
 
-        self.params     = { 'importer_retry_timeout': 10,
-                            'max_parallel_checks': 3,
-                            'max_checks_queue': 9,
-                            'check_poll': 60,
-                            'check_timeout' : None,
-                            'debug': False,
-                            'ssl_cert': None,
-                            'ssl_key': None,
-                            'result_threshold': 5,
-                            'limit_group': None,
-                            'limit_check': None,
-                            'limit_commit': 40,
-                        }
+        self.params = {
+            'max_parallel_checks': 3,
+            'max_checks_queue': 9,
+            'check_poll': 60,
+            'check_timeout' : None,
+            'debug': False,
+            'result_threshold': 5,
+            'limit_group': None,
+            'limit_check': None,
+            'limit_commit': 40,
+        }
 
         if params:
             self.params.update(params)
-
-        # Set up the importer
-        self.importer   = Importer()
-        if url:
-            self.importer['distant_url'] = url
-
-        if self.params['ssl_cert'] and self.params['ssl_key']:
-            self.importer['ssl_cert'] = self.params['ssl_cert']
-            self.importer['ssl_key'] = self.params['ssl_key']
-
-        if self.params['check_timeout']:
-            self.importer['timeout'] = self.params['check_timeout']
 
         # Limiting groups
         self.limit_group = None
@@ -139,13 +114,12 @@ class BasePlugin(threading.Thread):
         for widx, worker in enumerate(self.job_pool.workers):
             worker.setName('%s-#%d' % (self.name, widx))
 
-        self.start()
-        self.log.info(self)
+        # Plugins or Subclasses must start Thread by themselves
+        #self.start()
+        #self.log.info(self)
 
     def __str__(self):
-        return "<BasePlugin name=%s ssl=%s url=%s>" % (self.name, \
-            (self.params['ssl_cert'] and self.params['ssl_key']) and \
-            "on" or "off", self.importer['distant_url'] or "localhost")
+        return "<BasePlugin>"
 
     @staticmethod
     def __prepare_status_update(check):
@@ -226,16 +200,7 @@ class BasePlugin(threading.Thread):
                 # Commit pending results
                 if self.resqueue:
                     self.log.debug('%d results to commit' % len(self.resqueue))
-                    # Do not try to update status in one shot. Split it into packets of @limit_commit results.
-                    values = self.resqueue.values()
-                    for i in range(0, len(values) / self.params['limit_commit'] + 1):
-                        # Try to commit current slice
-                        try:
-                            self.importer.call('spv.services', 'set_checks_status', values[i * self.params['limit_commit']:(i+1) * self.params['limit_commit']])
-                        except ImporterError, error:
-                            self.log.error('remote module error while commiting updates <' + str(error) + '>')
-                    self.resqueue = {}
-                    self.rescommit.clear()
+                    self.commit_checks()
 
                 # Determine maximum number of checks to get
                 # Queue.qsize is unreliable, try to mitigate its weirdness
@@ -254,25 +219,10 @@ class BasePlugin(threading.Thread):
                     continue
 
                 # Get checks for the current plugin
-                checks = {}
                 self.log.debug('*** fetching %s checks' % limit_fetch)
+                checks = self.fetch_checks(limit_fetch)
 
-                try:
-                    checks = self.importer.call('spv.services', 'get_checks', {
-                        'limit'             : limit_fetch,
-                        'plugin_name'       : self.name,
-                        'get_check_infos'   : True,
-                        'get_object_infos'  : True,
-                        'get_status_infos'  : True,
-                        'get_detailed_infos': False,
-                        'update_next_check' : True,
-                        'group_name'        : self.limit_group,
-                        'plugin_check'      : self.limit_check,
-                        'next_check_expired': True
-                    })
-                except ImporterError, error:
-                    self.log.error('remote module error while retrieving checks <' + str(error) + '>')
-                    self.dismiss.wait(self.params['importer_retry_timeout'])
+                if not checks:
                     continue
 
                 if checks.get('status', None) is None:
@@ -319,4 +269,14 @@ class BasePlugin(threading.Thread):
         """ Dummy method. To be overridden in plugins. """
 
         raise BasePluginError('Plugin %s does not implement <create_new_job>' % self.name)
+
+    def fetch_checks(self, limit_fetch):
+        """ Dummy method. To be overridden in plugins. """
+
+        raise BasePluginError('Plugin %s does not implement <fetch_checks>' % self.name)
+
+    def commit_checks(self):
+        """ Dummy method. To be overridden in plugins. """
+
+        raise BasePluginError('Plugin %s does not implement <commit_checks>' % self.name)
 

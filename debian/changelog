@@ -1,9 +1,9 @@
-spvd (0.8.12~dev-1) unstable; urgency=low
+spvd (1.0.0~dev-1) unstable; urgency=low
 
   * New upstream release, closes: #5612.
   * Switch to dpkg-source 3.0 (quilt) format.
 
- -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Wed, 14 Mar 2012 18:20:54 +0100
+ -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Thu, 21 Jun 2012 15:49:34 +0200
 
 spvd (0.8.11-1) unstable; urgency=low
 

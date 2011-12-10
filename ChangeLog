@@ -1,7 +1,9 @@
-Version 0.8.12~dev
+Version 1.0.0~dev
 
 	* Handle remote service returning empty/mal-formed dict, closes: #5612.
 	* Modernize autoconf a bit.
+	* Split BasePlugin into a query specific class and a mainloop
+	  handling class.
 
 Version 0.8.11 Released on 2011/08/25
 

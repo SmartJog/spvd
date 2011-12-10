@@ -92,6 +92,7 @@ class Monitor:
                 continue
 
             try:
+                self.log.debug('plugin_attrs.Plugin.__mro__:' + str(plugin_attrs.__mro__))
                 params_required = plugin_attrs.BasePlugin.require
                 params_required.update(plugin_attrs.Plugin.require)
             except AttributeError:
@@ -180,7 +181,6 @@ class Monitor:
             return False
 
         inst = plugin_classes.Plugin(self.options, self.dismiss, \
-            self.plugins_params[plugin].get('distant_url' or None), \
             params=self.plugins_params[plugin])
         self.pool.dismiss_workers(1)
 

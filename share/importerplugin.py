@@ -1,0 +1,111 @@
+# -*- coding: utf-8 -*-
+
+""" ImporterPlugin definitions.
+
+Performs central service queries through the importer module.
+"""
+
+from importer import Importer, ImporterError
+from baseplugin import BasePlugin
+
+
+class ImporterPlugin(BasePlugin):
+    """ Base class for job implementation in spvd. """
+
+    name = ''
+
+    require = {
+        'distant_url' : str,
+    }
+
+    optional = {
+        'ssl_cert' : str,
+        'ssl_key' : str,
+        'importer_retry_timeout' : int,
+    }
+
+    def __init__(self, options, event, params=None):
+        """ Init method.
+
+        @params is a dictionary of optional parameters among:
+        distant_url:            URL pass to Importer.
+        importer_retry_timeout: interval between successive importer calls if
+                                importer failed.
+        ssl_cert:               client X.509 public key.
+        ssl_key:                client X.509 secret key.
+        """
+
+        self.params = {
+            'check_poll':             60,
+            'check_timeout':          60,
+            'ssl_cert':               None,
+            'ssl_key':                None,
+            'importer_retry_timeout': 10,
+        }
+
+        if params:
+            self.params.update(params)
+
+        BasePlugin.__init__(self, options, event, self.params)
+
+        self.log.debug('List of parameters: %s', str(self.params))
+
+        # Set up the importer
+        self.importer   = Importer()
+        if url:
+            self.importer['distant_url'] = self.params['distant_url']
+
+        if self.params['ssl_cert'] and self.params['ssl_key']:
+            self.importer['ssl_cert'] = self.params['ssl_cert']
+            self.importer['ssl_key'] = self.params['ssl_key']
+
+        if self.params['check_timeout']:
+            self.importer['timeout'] = self.params['check_timeout']
+
+        # Finalize init
+        self.start()
+        self.log.info(self)
+
+    def __str__(self):
+        return "<ImporterPlugin name=%s ssl=%s url=%s>" % (self.name, \
+            (self.params['ssl_cert'] and self.params['ssl_key']) and \
+            "on" or "off", self.importer['distant_url'] or "localhost")
+
+    def fetch_checks(self, limit_fetch):
+        """ Fetches checks using importer. """
+        checks = {}
+        try:
+            checks = self.importer.call('spv.services', 'get_checks', {
+                'limit'             : limit_fetch,
+                'plugin_name'       : self.name,
+                'get_check_infos'   : True,
+                'get_object_infos'  : True,
+                'get_status_infos'  : True,
+                'get_detailed_infos': False,
+                'update_next_check' : True,
+                'group_name'        : self.limit_group,
+                'plugin_check'      : self.limit_check,
+                'next_check_expired': True,
+            })
+        except ImporterError, error:
+            self.log.error('remote module error while retrieving checks <' + str(error) + '>')
+            self.dismiss.wait(self.params['importer_retry_timeout'])
+
+        return checks
+
+    def commit_checks(self):
+        """ Commits checks results using importer. """
+        # Do not try to update status in one shot.
+        # Split it into packets of @limit_commit results.
+        values = self.resqueue.values()
+        for i in range(0, len(values) / self.params['limit_commit'] + 1):
+            # Try to commit current slice
+            try:
+                self.importer.call('spv.services',
+                    'set_checks_status',
+                    values[i * self.params['limit_commit']:(i+1) * self.params['limit_commit']])
+            except ImporterError, error:
+                self.log.error('remote module error while commiting updates <' + str(error) + '>')
+        self.resqueue = {}
+        self.rescommit.clear()
+

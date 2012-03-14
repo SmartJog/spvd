@@ -1,13 +1,13 @@
-AC_PREREQ(2.61)
+AC_PREREQ([2.67])
+AC_INIT([spvd],[0.8.12~dev],[contact@smartjog.com])
 
-AC_INIT([spvd],[0.8.12~dev])
+AM_INIT_AUTOMAKE([-Wall 1.11 foreign no-dist-gzip dist-xz])
+AM_SILENT_RULES([yes])
 
-AM_INIT_AUTOMAKE([foreign])
-
-AM_PATH_PYTHON
+AM_PATH_PYTHON([2.6])
 
 AC_PROG_SED
-AC_PROG_SJCONF
+SJ_PROG_SJCONF
 AC_PATH_PROG(TXT2TAGS, txt2tags)
 
 AC_SUBST([pluginspkgdatadir], [\$\(pkgdatadir\)/plugins])

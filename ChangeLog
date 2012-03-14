@@ -1,6 +1,7 @@
 Version 0.8.12~dev
 
 	* Handle remote service returning empty/mal-formed dict, closes: #5612.
+	* Modernize autoconf a bit.
 
 Version 0.8.11 Released on 2011/08/25
 

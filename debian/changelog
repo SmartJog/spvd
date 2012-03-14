@@ -1,4 +1,4 @@
-spvd (0.8.11-2~dev) unstable; urgency=low
+spvd (0.8.12~dev-1) unstable; urgency=low
 
   * New upstream release, closes: #5612.
   * Switch to dpkg-source 3.0 (quilt) format.

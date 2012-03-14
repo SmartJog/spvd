@@ -275,6 +275,10 @@ class BasePlugin(threading.Thread):
                     self.dismiss.wait(self.params['importer_retry_timeout'])
                     continue
 
+                if checks.get('status', None) is None:
+                    self.log.error('remote module did not return any work')
+                    continue
+
                 if len(checks['status']) > 0:
                     self.log.debug('got %s checks' % len(checks['status']))
 

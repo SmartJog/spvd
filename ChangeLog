@@ -1,3 +1,7 @@
+Version 0.8.12~dev
+
+	* Handle remote service returning empty/mal-formed dict, closes: #5612.
+
 Version 0.8.11 Released on 2011/08/25
 
 	* BaseJob: do not shadow a plugin's own TypeError.

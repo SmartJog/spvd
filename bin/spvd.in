@@ -91,17 +91,36 @@ class Monitor:
                 self.log.warning('Unkown plugin %s configuration found, skipping.' % plugin_name)
                 continue
 
+            pclass_list = plugin_attrs.Plugin.mro()
+            pclass_list.reverse()
+            params_required = {}
+            spvd_class = False
             try:
-                self.log.debug('plugin_attrs.Plugin.__mro__:' + str(plugin_attrs.__mro__))
-                params_required = plugin_attrs.BasePlugin.require
-                params_required.update(plugin_attrs.Plugin.require)
+                for pclass in pclass_list:
+                    if not spvd_class:
+                        if issubclass(pclass, threading.Thread):
+                            spvd_class = True
+                        continue
+
+                    params_required.update(pclass.require)
+                self.log.debug('plugin_attrs.Plugin.require: ' + str(params_required.keys()))
             except AttributeError:
                 self.log.error("Plugin %s doesn't provide its required configuration options" % plugin_name)
                 self.shutdown()
 
+            pclass_list = plugin_attrs.Plugin.mro()
+            pclass_list.reverse()
+            params_optional = {}
+            spvd_class = False
             try:
-                params_optional = plugin_attrs.BasePlugin.optional
-                params_optional.update(plugin_attrs.Plugin.optional)
+                for pclass in pclass_list:
+                    if not spvd_class:
+                        if issubclass(pclass, threading.Thread):
+                            spvd_class = True
+                        continue
+
+                    params_optional.update(pclass.optional)
+                self.log.debug('plugin_attrs.Plugin.optional: ' + str(params_optional.keys()))
             except AttributeError:
                 self.log.error("Plugin %s doesn't provide its optional configuration options" % plugin_name)
                 self.shutdown()

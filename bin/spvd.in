@@ -220,7 +220,7 @@ class Monitor:
         self.log.info("*** spvd version %s, started ***" % VERSION)
         self.pool = sjutils.threadpool.ThreadPool(len(self.plugins))
 
-	for widx, worker in enumerate(self.pool.workers):
+        for widx, worker in enumerate(self.pool.workers):
             worker.setName('spvd-#%d' % widx)
 
         for plugin in self.plugins:

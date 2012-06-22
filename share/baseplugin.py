@@ -270,7 +270,7 @@ class BasePlugin(threading.Thread):
 
         raise BasePluginError('Plugin %s does not implement <create_new_job>' % self.name)
 
-    def fetch_checks(self, limit_fetch):
+    def fetch_checks(self, _limit_fetch):
         """ Dummy method. To be overridden in plugins. """
 
         raise BasePluginError('Plugin %s does not implement <fetch_checks>' % self.name)

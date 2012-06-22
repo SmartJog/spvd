@@ -5,6 +5,7 @@ Version 1.0.0~dev
 	* Split BasePlugin into a query specific class and a mainloop
 	  handling class.
 	* Fix required/optional plugin parameter loading.
+	* Update sample plugins API usage.
 
 Version 0.8.11 Released on 2011/08/25
 

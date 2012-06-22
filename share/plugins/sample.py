@@ -2,9 +2,10 @@
 
 """ Sample module """
 
-from baseplugin import BasePlugin
+from importerplugin import ImporterPlugin
 from basejob import BaseJob
 import time
+
 
 class Job(BaseJob):
     """ Sample job. """
@@ -26,15 +27,16 @@ class Job(BaseJob):
         """ The nothing check. """
         self.log.info('This check is doing nothing.')
         self._do_nothing()
-        self.set_check_status('FINISHED', 'I really did nothing')
+        return 'FINISHED', 'I really did nothing'
 
     # This method is called by a check.
     def pierrot(self):
         """ The song check. """
         self.log.info('Au clair de la lune.')
-        self.set_check_status('FINISHED', 'Nothing to say')
+        return 'FINISHED', 'Nothing to say'
 
-class Plugin(BasePlugin):
+
+class Plugin(ImporterPlugin):
     """ Sample plugin. """
 
     # Name of the plugin. Mandatory
@@ -48,9 +50,9 @@ class Plugin(BasePlugin):
     # Its form is : optional = {'option1_name' : option1_type, ... }
     optional = { }
 
-    def __init__(self, options, event, url=None, params=None):
+    def __init__(self, options, event, params=None):
         """ Init method of sample plugin. """
-        BasePlugin.__init__(self, options, event, url, params)
+        ImporterPlugin.__init__(self, options, event, params)
 
     def create_new_job(self, job):
         """ Create a new sample job. """

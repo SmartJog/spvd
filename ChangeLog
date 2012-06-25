@@ -6,6 +6,7 @@ Version 1.0.0~dev
 	  handling class.
 	* Fix required/optional plugin parameter loading.
 	* Update sample plugins API usage.
+	* Allow importer based plugins to modify User-Agent.
 
 Version 0.8.11 Released on 2011/08/25
 

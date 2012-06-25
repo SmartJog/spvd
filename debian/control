@@ -9,7 +9,7 @@ Standards-Version: 3.9.1
 
 Package: spvd
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, importer (>=0.2.5), python-sjutils (>=1.18.0)
+Depends: ${misc:Depends}, ${python:Depends}, importer (>=0.5), python-sjutils (>=1.18.0)
 Suggests: python-psycopg2
 Breaks: spvd-collect (<< 0.3.0), spvd-delivery (<< 0.6.0), spvd-events (<< 0.5.0), spvd-smartdamstreaming (<< 0.2.0), spvd-streams (<< 0.5.0)
 XB-Python-Version: ${python:Versions}

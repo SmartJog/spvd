@@ -12,7 +12,8 @@ from baseplugin import BasePlugin
 class ImporterPlugin(BasePlugin):
     """ Base class for job implementation in spvd. """
 
-    name = ''
+    name = 'ImporterPlugin'
+    version = '@PACKAGE_VERSION@'
 
     require = {
         'distant_url' : str,
@@ -22,6 +23,7 @@ class ImporterPlugin(BasePlugin):
         'ssl_cert' : str,
         'ssl_key' : str,
         'importer_retry_timeout' : int,
+        'user_agent': str,
     }
 
     def __init__(self, options, event, params=None):
@@ -33,6 +35,7 @@ class ImporterPlugin(BasePlugin):
                                 importer failed.
         ssl_cert:               client X.509 public key.
         ssl_key:                client X.509 secret key.
+        user_agent:             ImporterPlugin/X.Y.Z
         """
 
         self.params = {
@@ -41,6 +44,7 @@ class ImporterPlugin(BasePlugin):
             'ssl_cert':               None,
             'ssl_key':                None,
             'importer_retry_timeout': 10,
+            'user_agent':             self.name + '/' + self.version,
         }
 
         if params:
@@ -51,9 +55,9 @@ class ImporterPlugin(BasePlugin):
         self.log.debug('List of parameters: %s', str(self.params))
 
         # Set up the importer
-        self.importer   = Importer()
-        if url:
-            self.importer['distant_url'] = self.params['distant_url']
+        self.importer = Importer()
+        self.importer['distant_url'] = self.params['distant_url']
+        self.importer['user_agent'] = self.params['user_agent']
 
         if self.params['ssl_cert'] and self.params['ssl_key']:
             self.importer['ssl_cert'] = self.params['ssl_cert']

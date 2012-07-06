@@ -11,7 +11,10 @@ Package: spvd
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, importer (>=0.5), python-sjutils (>=1.18.0)
 Suggests: python-psycopg2
-Breaks: spvd-collect (<< 0.3.0), spvd-delivery (<< 0.6.0), spvd-events (<< 0.5.0), spvd-smartdamstreaming (<< 0.2.0), spvd-streams (<< 0.5.0)
+Breaks: spvd-cdn (<< 0.2~), spvd-collect (<< 0.4~), spvd-delivery (<< 0.9~),
+  spvd-events (<< 0.6~), spvd-filelisting (<< 0.2~), spvd-serverless (<< 0.3~),
+  spvd-sjtools (<< 0.2~), spvd-smartdamstreaming (<< 0.5~), spvd-streams (<< 0.8~),
+  spvd-virtmonitor (<< 0.3~)
 XB-Python-Version: ${python:Versions}
 Description: SmartJog core supervision
  Provides the daemon for SmartJog's core supervision.

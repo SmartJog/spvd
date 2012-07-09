@@ -7,6 +7,7 @@ Version 1.0.0~dev
 	* Fix required/optional plugin parameter loading.
 	* Update sample plugins API usage.
 	* Allow importer based plugins to modify User-Agent.
+	* Do not join worker threads since python lies about the daemon feature.
 
 Version 0.8.11 Released on 2011/08/25
 

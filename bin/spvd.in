@@ -180,8 +180,10 @@ class Monitor:
         self.log.info('threads alive: %d' % threading.activeCount())
         self.pool.dismiss_workers(len(self.plugins))
         self.log.info('workers dismissed')
-        self.pool.join_all_dismissed_workers()
-        self.log.info('workers joined')
+        # XXX: Python is not respecting its own documentation about daemon
+        # Threads. Re-enabled this when this is the case.
+        #self.pool.join_all_dismissed_workers()
+        #self.log.info('workers joined')
 
         self.log.info("*** spvd version %s, terminated ***" % VERSION)
         if not self.options.nodaemon:

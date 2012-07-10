@@ -8,6 +8,7 @@ Version 1.0.0~dev
 	* Update sample plugins API usage.
 	* Allow importer based plugins to modify User-Agent.
 	* Do not join worker threads since python lies about the daemon feature.
+	* Add spvd/X.Y.Z to default User-Agent.
 
 Version 0.8.11 Released on 2011/08/25
 

@@ -44,7 +44,7 @@ class ImporterPlugin(BasePlugin):
             'ssl_cert':               None,
             'ssl_key':                None,
             'importer_retry_timeout': 10,
-            'user_agent':             self.name + '/' + self.version,
+            'user_agent':             '@PACKAGE_NAME@/@PACKAGE_VERSION@ (%s/%s)' % (self.name, self.version),
         }
 
         if params:

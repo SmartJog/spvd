@@ -8,7 +8,8 @@ nodist_pkgdata_PYTHON = \
 	importerplugin.py
 
 edit = $(SED) \
-	-e 's|@PACKAGE_VERSION[@]|$(PACKAGE_VERSION)|g'
+	-e 's|@PACKAGE_VERSION[@]|$(PACKAGE_VERSION)|g' \
+	-e 's|@PACKAGE_NAME[@]|$(PACKAGE_NAME)|g'
 
 importerplugin.py: importerplugin.py.in Makefile
 	$(edit) $< > $@

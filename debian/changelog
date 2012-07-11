@@ -1,11 +1,11 @@
-spvd (1.0.0~dev-1) unstable; urgency=low
+spvd (1.0.0-1) unstable; urgency=low
 
   * New upstream release, closes: #5612.
   * Switch to dpkg-source 3.0 (quilt) format.
   * Update dependency on importer (>=0.5).
   * Update Breaks list since package broke plugin API.
 
- -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Fri, 06 Jul 2012 14:26:20 +0200
+ -- Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>  Wed, 11 Jul 2012 15:46:45 +0200
 
 spvd (0.8.11-1) unstable; urgency=low
 

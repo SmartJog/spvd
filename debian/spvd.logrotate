@@ -1,6 +1,8 @@
 /var/log/spvd/*/*.log
 /var/log/spvd/*.log {
 	daily
+	dateext
+	dateformat .%Y-%m-%d
 	missingok
 	rotate 30
 	copytruncate

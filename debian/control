@@ -1,11 +1,11 @@
 Source: spvd
 Section: misc
 Priority: optional
-Maintainer: Philippe Bridant <philippe.bridant@smartjog.com>
-Uploaders: Nicolas Noirbent <nicolas.noirbent@smartjog.com>, Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>, Rémi Cardona <remi.cardona@smartjog.com>, Clément Bœsch <clement.boesch@smartjog.com>, Laurent Defert <laurent.defert@smartjog.com>
+Maintainer: Nicolas Delvaux <nicolas.delvaux@smartjog.com>
+Uploaders: Aurélien Dunand <aurelien.dunand@smartjog.com>
 Build-Depends: debhelper (>= 8), cdbs, python-central (>= 0.6), txt2tags
 XS-Python-Version: >= 2.6
-Standards-Version: 3.9.1
+Standards-Version: 3.9.4
 
 Package: spvd
 Architecture: all

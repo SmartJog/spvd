@@ -1,3 +1,10 @@
+spvd (1.0.0-2) unstable; urgency=low
+
+  * Update logrotate file to enable date suffixed rotated logs, refs: RXTX-17
+  * Clean debian/control
+
+ -- Aurélien Dunand <aurelien.dunand@smartjog.com>  Thu, 29 Aug 2013 18:05:04 +0200
+
 spvd (1.0.0-1) unstable; urgency=low
 
   * New upstream release, closes: #5612.

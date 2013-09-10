@@ -1,3 +1,9 @@
+spvd (1.0.0-3) unstable; urgency=low
+
+  * Add boot dependency in initscript.
+
+ -- Aurélien Dunand <aurelien.dunand@smartjog.com>  Tue, 10 Sep 2013 10:26:22 +0200
+
 spvd (1.0.0-2) unstable; urgency=low
 
   * Update logrotate file to enable date suffixed rotated logs, refs: RXTX-17

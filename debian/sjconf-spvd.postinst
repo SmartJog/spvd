@@ -9,10 +9,10 @@ PLUGINS="spvd"
 
 for plugin in $PLUGINS
 do
-	if ! sjconf --list-plugins | grep -q "^Plugin $plugin$"
+	if ! sjconf --list-plugins | grep -q "^Plugin $plugin:$"
 	then
-		sjconf --install-conf --link /etc/sjconf-spvd/confs/$plugin.conf
-		sjconf --install-plugin --link /usr/share/sjconf-spvd/plugins/$plugin.py
+		sjconf --install-conf-with-symlink /etc/sjconf-spvd/confs/$plugin.conf
+		sjconf --install-plugin-with-symlink /usr/share/sjconf-spvd/plugins/$plugin.py
 		sjconf --enable-plugin $plugin
 	fi
 done

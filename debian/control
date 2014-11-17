@@ -21,6 +21,9 @@ Description: SmartJog core supervision
 
 Package: sjconf-spvd
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, sjconf1 (>= 1.3), spvd (>= ${source:Version})
+Pre-Depends: sjconf1 (>= 1.13.0)
+Depends: ${misc:Depends},
+         ${python:Depends},
+         spvd (>= ${source:Version})
 Description: SJConf plugin for spvd
  This package provides a SJConf plugin to handle spvd configuration.

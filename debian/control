@@ -1,20 +1,32 @@
 Source: spvd
 Section: misc
 Priority: optional
-Maintainer: Nicolas Delvaux <nicolas.delvaux@smartjog.com>
-Uploaders: Aurélien Dunand <aurelien.dunand@smartjog.com>
-Build-Depends: debhelper (>= 8), cdbs, python-central (>= 0.6), txt2tags
+Maintainer: Nicolas Delvaux <nicolas.delvaux@arkena.com>
+Uploaders: Aurélien Dunand <aurelien.dunand@arkena.com>
+Build-Depends: debhelper (>= 8),
+               cdbs,
+               python-central (>= 0.6),
+               txt2tags
 XS-Python-Version: >= 2.6
 Standards-Version: 3.9.4
 
 Package: spvd
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, importer (>=0.5), python-sjutils (>=1.18.0)
+Depends: ${misc:Depends},
+         ${python:Depends},
+         importer (>=0.5),
+         python-sjutils (>=1.18.0)
 Suggests: python-psycopg2
-Breaks: spvd-cdn (<< 0.2~), spvd-collect (<< 0.4~), spvd-delivery (<< 0.9~),
-  spvd-events (<< 0.6~), spvd-filelisting (<< 0.2~), spvd-serverless (<< 0.3~),
-  spvd-sjtools (<< 0.2~), spvd-smartdamstreaming (<< 0.5~), spvd-streams (<< 0.8~),
-  spvd-virtmonitor (<< 0.3~)
+Breaks: spvd-cdn (<< 0.2~),
+        spvd-collect (<< 0.4~),
+        spvd-delivery (<< 0.9~),
+        spvd-events (<< 0.6~),
+        spvd-filelisting (<< 0.2~),
+        spvd-serverless (<< 0.3~),
+        spvd-sjtools (<< 0.2~),
+        spvd-smartdamstreaming (<< 0.5~),
+        spvd-streams (<< 0.8~),
+        spvd-virtmonitor (<< 0.3~)
 XB-Python-Version: ${python:Versions}
 Description: SmartJog core supervision
  Provides the daemon for SmartJog's core supervision.

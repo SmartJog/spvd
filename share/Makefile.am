@@ -1,10 +1,10 @@
 SUBDIRS = plugins
 
-dist_pkgdata_PYTHON = \
+dist_pkgdata_DATA = \
 	baseplugin.py \
 	basejob.py
 
-nodist_pkgdata_PYTHON = \
+nodist_pkgdata_DATA = \
 	importerplugin.py
 
 edit = $(SED) \

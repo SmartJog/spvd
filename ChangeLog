@@ -1,3 +1,7 @@
+Version 1.0.1~dev
+
+	* TODO
+
 Version 1.0.0 Released on 2012/07/11
 
 	* Handle remote service returning empty/mal-formed dict, closes: #5612.

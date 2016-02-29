@@ -1,9 +1,9 @@
-spvd (1.0.1~dev-1) UNRELEASED; urgency=medium
+spvd (1.0.1-1) unstable; urgency=medium
 
   * New upstream version
   * Simplify and modernize the packaging
 
- -- Julien Mori <julien.mori@arkena.com>  Mon, 29 Feb 2016 15:46:46 +0100
+ -- Julien Mori <julien.mori@arkena.com>  Mon, 29 Feb 2016 15:52:48 +0100
 
 spvd (1.0.0-4) unstable; urgency=medium
 

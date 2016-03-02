@@ -26,7 +26,7 @@ The spvd plugin outputs any option it finds in the "spvd" category to the /etc/s
 Here is a sample configuration:
 
   **[spvd]**
-  **distant_url** = 'https://localhost/exporter/'
+  **distant_url** = https://localhost/exporter
   **plugins** = //spvd-sjtools//
 
 = AUTHOR =

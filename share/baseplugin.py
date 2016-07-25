@@ -241,7 +241,7 @@ class BasePlugin(threading.Thread):
                             [{
                                 'check' : checks['checks'][status['chk_id']],
                                 'group' : checks['groups'][status['grp_id']],
-                                'object' : checks['objects'][status['obj_id']],
+                                'object' : checks['objects'][str(status['obj_id'])],
                                 'status' : status}],
                             None,
                             request_id=status['status_id'],

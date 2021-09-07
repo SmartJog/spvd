@@ -1,5 +1,5 @@
 AC_PREREQ([2.67])
-AC_INIT([spvd],[1.0.2],[contact@smartjog.com])
+AC_INIT([spvd],[1.0.3~dev],[contact@smartjog.com])
 
 AM_INIT_AUTOMAKE([-Wall 1.11 foreign no-dist-gzip dist-xz])
 AM_SILENT_RULES([yes])

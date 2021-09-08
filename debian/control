@@ -31,7 +31,7 @@ Description: SmartJog core supervision
 
 Package: sjconf-spvd
 Architecture: all
-Pre-Depends: sjconf1 (>= 1.13.0)
+Pre-Depends: sjconf1 (>= 2.0.0~)
 Depends: ${misc:Depends},
          ${python:Depends},
          spvd (>= ${source:Version})

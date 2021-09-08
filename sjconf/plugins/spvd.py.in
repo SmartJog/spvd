@@ -1,23 +1,23 @@
-import sjconf, ConfigParser, StringIO
+import sjconf, configparser, io
+
 
 class Plugin(sjconf.Plugin):
-    VERSION = '@VERSION@'
+    VERSION = "@VERSION@"
 
     def conf_files_path(self):
-        return (self.sjconf.etc_dir + '/spvd.conf',)
+        return (self.sjconf.etc_dir + "/spvd.conf",)
 
     def services_to_restart(self):
-          return ('spvd',)
+        return ("spvd",)
 
     def file_content(self, file_path):
-        tmp_conf = ConfigParser.RawConfigParser()
+        tmp_conf = configparser.RawConfigParser()
 
-        for section in self.conf.keys():
+        for section in list(self.conf.keys()):
             tmp_conf.add_section(section)
-            for option, value in self.conf[section].iteritems():
+            for option, value in self.conf[section].items():
                 tmp_conf.set(section, option, value)
 
-        res_content = StringIO.StringIO()
+        res_content = io.StringIO()
         tmp_conf.write(res_content)
         return res_content.getvalue()
-

@@ -1,6 +1,7 @@
 spvd (1.0.3~dev-1) UNRELEASED; urgency=medium
 
   * New upstream version
+  * Modernize the packaging a bit
 
  -- Nicolas Delvaux <nicolas.delvaux@cji.paris>  Tue, 07 Sep 2021 19:28:30 +0200
 

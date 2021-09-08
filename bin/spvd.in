@@ -33,15 +33,15 @@ DFLT_PIDFILE = "@localstatedir@/run/spvd/spvd.pid"
 DFLT_LOGDIR = "@localstatedir@/log/spvd/"
 DFLT_CONFFILE = "@sysconfdir@/spvd.conf"
 
-sys.path.insert(1, '@pkgdatadir@/plugins/')
-sys.path.insert(1, '@pkgdatadir@/')
+sys.path.insert(1, "@pkgdatadir@/plugins/")
+sys.path.insert(1, "@pkgdatadir@/")
 
 
 class Monitor:
-    """ Dummy class holding basic functions of the daemon. """
+    """Dummy class holding basic functions of the daemon."""
 
     def __init__(self, monitor_options):
-        """ Init method. """
+        """Init method."""
 
         self.pool = None
         self.plugins = {}
@@ -49,14 +49,14 @@ class Monitor:
         self.dismiss = threading.Event()
         self.options = monitor_options
 
-        self.log_name = 'spvd'
+        self.log_name = "spvd"
         self.log = logging.getLogger(self.log_name)
         self.log.setLevel(logging.INFO)
         if not self.options.nodaemon:
             log_handler = logging.FileHandler(self.options.logdir + "/spvd.log")
         else:
             log_handler = logging.StreamHandler(sys.stdout)
-        self.log_format = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        self.log_format = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
         log_handler.setFormatter(self.log_format)
         self.log.addHandler(log_handler)
         self.log.propagate = 0
@@ -64,31 +64,39 @@ class Monitor:
         self.parse_config(self.options.conffile)
 
         signal.signal(signal.SIGTERM, self.handle_signal)
-        signal.signal(signal.SIGINT,  self.handle_signal)
+        signal.signal(signal.SIGINT, self.handle_signal)
 
     def parse_config(self, configfile):
-        """ Parse spvd configuration file. """
+        """Parse spvd configuration file."""
 
         config = ConfigParser.RawConfigParser()
         config.read(configfile)
 
         # Main configuration
-        self.plugins = dict((plugin, plugin) for plugin in config.get('spvd', 'plugins').split(', ') if plugin)
-        if config.has_option('spvd', 'debug'):
-            self.log.setLevel(config.getboolean('spvd', 'debug') and logging.DEBUG or logging.INFO)
+        self.plugins = dict(
+            (plugin, plugin)
+            for plugin in config.get("spvd", "plugins").split(", ")
+            if plugin
+        )
+        if config.has_option("spvd", "debug"):
+            self.log.setLevel(
+                config.getboolean("spvd", "debug") and logging.DEBUG or logging.INFO
+            )
         else:
             self.log.setLevel(logging.INFO)
 
         # Load plugins configuration
         for plugin_name in self.plugins:
-            section = 'spvd:' + plugin_name
+            section = "spvd:" + plugin_name
             params_required = {}
             params_optional = {}
 
             try:
                 plugin_attrs = __import__(plugin_name)
             except ImportError:
-                self.log.warning('Unkown plugin %s configuration found, skipping.' % plugin_name)
+                self.log.warning(
+                    "Unkown plugin %s configuration found, skipping." % plugin_name
+                )
                 continue
 
             pclass_list = plugin_attrs.Plugin.mro()
@@ -103,9 +111,14 @@ class Monitor:
                         continue
 
                     params_required.update(pclass.require)
-                self.log.debug('plugin_attrs.Plugin.require: ' + str(list(params_required.keys())))
+                self.log.debug(
+                    "plugin_attrs.Plugin.require: " + str(list(params_required.keys()))
+                )
             except AttributeError:
-                self.log.error("Plugin %s doesn't provide its required configuration options" % plugin_name)
+                self.log.error(
+                    "Plugin %s doesn't provide its required configuration options"
+                    % plugin_name
+                )
                 self.shutdown()
 
             pclass_list = plugin_attrs.Plugin.mro()
@@ -120,9 +133,14 @@ class Monitor:
                         continue
 
                     params_optional.update(pclass.optional)
-                self.log.debug('plugin_attrs.Plugin.optional: ' + str(list(params_optional.keys())))
+                self.log.debug(
+                    "plugin_attrs.Plugin.optional: " + str(list(params_optional.keys()))
+                )
             except AttributeError:
-                self.log.error("Plugin %s doesn't provide its optional configuration options" % plugin_name)
+                self.log.error(
+                    "Plugin %s doesn't provide its optional configuration options"
+                    % plugin_name
+                )
                 self.shutdown()
 
             plugin_conf = {}
@@ -131,32 +149,44 @@ class Monitor:
                 try:
                     if config.has_option(section, key):
                         plugin_conf[key] = convert(config.get(section, key))
-                    elif config.has_option('spvd', key):
-                        plugin_conf[key] = convert(config.get('spvd', key))
+                    elif config.has_option("spvd", key):
+                        plugin_conf[key] = convert(config.get("spvd", key))
                     else:
-                        self.log.critical("[%s] missing mandatory option %s." % (section, key))
+                        self.log.critical(
+                            "[%s] missing mandatory option %s." % (section, key)
+                        )
                         self.shutdown()
 
                 except ValueError:
-                    self.log.critical("[%s] option %s: expected type %s." % (section, key, str(convert)))
+                    self.log.critical(
+                        "[%s] option %s: expected type %s."
+                        % (section, key, str(convert))
+                    )
                     self.shutdown()
 
             # Load optional parameters
             for key, convert in params_optional.items():
-                if key == 'debug':
-                    convert = lambda debug: debug in ('True', 'true', 'on', 'yes') and True or False
+                if key == "debug":
+                    convert = (
+                        lambda debug: debug in ("True", "true", "on", "yes")
+                        and True
+                        or False
+                    )
 
                 try:
                     if config.has_option(section, key):
                         plugin_conf[key] = convert(config.get(section, key))
-                    elif config.has_option('spvd', key):
-                        plugin_conf[key] = convert(config.get('spvd', key))
+                    elif config.has_option("spvd", key):
+                        plugin_conf[key] = convert(config.get("spvd", key))
 
                 except ValueError:
-                    self.log.critical("[%s] option %s: expected type %s." % (section, key, str(convert)))
+                    self.log.critical(
+                        "[%s] option %s: expected type %s."
+                        % (section, key, str(convert))
+                    )
                     self.shutdown()
 
-            self.log.debug('[%s] configuration is %s' % (section, pformat(plugin_conf)))
+            self.log.debug("[%s] configuration is %s" % (section, pformat(plugin_conf)))
             self.plugins_params[plugin_name] = plugin_conf
 
         if not len(self.plugins):
@@ -164,26 +194,26 @@ class Monitor:
             self.log.critical("*** spvd will do nothing ***")
 
     def handle_signal(self, signum=0, frame=None):
-        """ Handle signals telling all threads to exit. """
+        """Handle signals telling all threads to exit."""
 
-        self.log.info('*** received Signal %d ***' % signum)
+        self.log.info("*** received Signal %d ***" % signum)
 
         if frame:
             del frame
 
         self.dismiss.set()
-        self.log.info('dismiss event sent')
+        self.log.info("dismiss event sent")
 
     def shutdown(self):
-        """ Shutdown spvd cleanly. """
+        """Shutdown spvd cleanly."""
 
-        self.log.info('threads alive: %d' % threading.activeCount())
+        self.log.info("threads alive: %d" % threading.activeCount())
         self.pool.dismiss_workers(len(self.plugins))
-        self.log.info('workers dismissed')
+        self.log.info("workers dismissed")
         # XXX: Python is not respecting its own documentation about daemon
         # Threads. Re-enabled this when this is the case.
-        #self.pool.join_all_dismissed_workers()
-        #self.log.info('workers joined')
+        # self.pool.join_all_dismissed_workers()
+        # self.log.info('workers joined')
 
         self.log.info("*** spvd version %s, terminated ***" % VERSION)
         if not self.options.nodaemon:
@@ -191,39 +221,43 @@ class Monitor:
         sys.exit(os.EX_OK)
 
     def plugin_instance_start(self, plugin):
-        """ Starts a supervision plugin. """
+        """Starts a supervision plugin."""
 
         try:
             plugin_classes = __import__(plugin)
         except ImportError:
             import traceback
-            self.log.error('failed to load %s plugin: %s' % (plugin, traceback.format_exc()))
+
+            self.log.error(
+                "failed to load %s plugin: %s" % (plugin, traceback.format_exc())
+            )
             self.pool.dismiss_workers(1)
             return False
 
-        inst = plugin_classes.Plugin(self.options, self.dismiss, \
-            params=self.plugins_params[plugin])
+        inst = plugin_classes.Plugin(
+            self.options, self.dismiss, params=self.plugins_params[plugin]
+        )
         self.pool.dismiss_workers(1)
 
         # Wait for plugin thread to join
         inst.join()
 
-        self.log.info('plugin %s joined' % plugin)
+        self.log.info("plugin %s joined" % plugin)
         return True
 
     def plugin_instance_stop(self, request, _result):
-        """ Stops a supervision plugin. """
+        """Stops a supervision plugin."""
 
         self.log.info("request %s finished" % request.request_id)
 
     def run(self):
-        """ Main function. """
+        """Main function."""
 
         self.log.info("*** spvd version %s, started ***" % VERSION)
         self.pool = sjutils.threadpool.ThreadPool(len(self.plugins))
 
         for widx, worker in enumerate(self.pool.workers):
-            worker.setName('spvd-#%d' % widx)
+            worker.setName("spvd-#%d" % widx)
 
         for plugin in self.plugins:
             req = sjutils.threadpool.WorkRequest(
@@ -231,7 +265,7 @@ class Monitor:
                 [plugin],
                 None,
                 request_id=plugin,
-                callback=self.plugin_instance_stop
+                callback=self.plugin_instance_stop,
             )
 
             self.pool.queue_request(req)
@@ -239,7 +273,10 @@ class Monitor:
 
         while not self.dismiss.isSet():
             for thread in threading.enumerate():
-                self.log.info('thread [%s] is alive (daemon:%s)' % (thread.getName(), thread.isDaemon()))
+                self.log.info(
+                    "thread [%s] is alive (daemon:%s)"
+                    % (thread.getName(), thread.isDaemon())
+                )
             try:
                 self.pool.poll()
             except sjutils.threadpool.NoResultsPending:
@@ -248,8 +285,9 @@ class Monitor:
 
         self.shutdown()
 
+
 def daemonize(options):
-    """ Detach process from the controlling terminal and run it as a daemon. """
+    """Detach process from the controlling terminal and run it as a daemon."""
 
     if os.path.isfile(options.pidfile):
         fd = open(options.pidfile)
@@ -277,40 +315,71 @@ def daemonize(options):
     except OSError as error:
         raise Exception("Second fork failed: %s [%d]" % (error.strerror, error.errno))
 
-    f = open(options.pidfile, 'w')
+    f = open(options.pidfile, "w")
     f.write("%d" % os.getpid())
     f.close()
 
     # Resource usage information.
     maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
-    if (maxfd == resource.RLIM_INFINITY):
+    if maxfd == resource.RLIM_INFINITY:
         maxfd = MAXFD
 
     # Iterate through and close all file descriptors.
     for fd in range(0, maxfd):
         try:
             os.close(fd)
-        except OSError:	# ERROR, fd wasn't open to begin with (ignored)
+        except OSError:  # ERROR, fd wasn't open to begin with (ignored)
             pass
 
-    os.open(os.devnull, os.O_RDWR)	# standard input (0)
+    os.open(os.devnull, os.O_RDWR)  # standard input (0)
 
     # Duplicate standard input to standard output and standard error.
-    os.dup2(0, 1)			# standard output (1)
-    os.dup2(0, 2)			# standard error (2)
+    os.dup2(0, 1)  # standard output (1)
+    os.dup2(0, 2)  # standard error (2)
 
     Monitor(options).run()
     return os.EX_OK
 
+
 if __name__ == "__main__":
 
     parser = optparse.OptionParser(
-        version="%prog " + VERSION, option_list=[
-        optparse.Option("-f", "--conf",       dest="conffile", help="Define spvd conf file", metavar="FILE", default=DFLT_CONFFILE),
-        optparse.Option("-l", "--log",        dest="logdir",  help="Define spvd log file",  metavar="FILE", default=DFLT_LOGDIR),
-        optparse.Option("-p", "--pid",        dest="pidfile",  help="Define spvd pid file",  metavar="FILE", default=DFLT_PIDFILE),
-        optparse.Option("-n", "--no-daemon",  dest="nodaemon", help="Run in foreground",  action="store_true",  default=False)]
-        )
+        version="%prog " + VERSION,
+        option_list=[
+            optparse.Option(
+                "-f",
+                "--conf",
+                dest="conffile",
+                help="Define spvd conf file",
+                metavar="FILE",
+                default=DFLT_CONFFILE,
+            ),
+            optparse.Option(
+                "-l",
+                "--log",
+                dest="logdir",
+                help="Define spvd log file",
+                metavar="FILE",
+                default=DFLT_LOGDIR,
+            ),
+            optparse.Option(
+                "-p",
+                "--pid",
+                dest="pidfile",
+                help="Define spvd pid file",
+                metavar="FILE",
+                default=DFLT_PIDFILE,
+            ),
+            optparse.Option(
+                "-n",
+                "--no-daemon",
+                dest="nodaemon",
+                help="Run in foreground",
+                action="store_true",
+                default=False,
+            ),
+        ],
+    )
 
     (parsed_options, args) = parser.parse_args()
 
@@ -320,4 +389,3 @@ if __name__ == "__main__":
         Monitor(parsed_options).run()
 
     sys.exit(retCode)
-

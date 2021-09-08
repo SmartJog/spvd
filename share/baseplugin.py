@@ -254,7 +254,7 @@ class BasePlugin(threading.Thread):
                     self.log.error("queue is full")
                     continue
 
-            except Exception, error:
+            except Exception as error:
                 self.log.error('caught unknown exception:')
                 self.log.exception(error)
                 continue

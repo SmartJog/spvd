@@ -27,10 +27,10 @@ def main():
 
             plugin = module[:-3]
             try:
-                print "Trying to import [%s]" % plugin
+                print("Trying to import [%s]" % plugin)
                 plugin_classes = __import__(plugin)
             except ImportError:
-                print "Failed to import %s plugin" % plugin
+                print("Failed to import %s plugin" % plugin)
                 continue
 
             methods = [method for method in dir(plugin_classes.Job)
@@ -57,7 +57,7 @@ def main():
                     and not method in basejob_methods]
 
             for method in methods:
-                print plugin + '.Job.' + method
+                print(plugin + '.Job.' + method)
 
                 try:
                     doc = plugin_classes.Job.getattr(method).__doc__
@@ -69,7 +69,7 @@ def main():
                     % (plugin, method, doc))
 
     tmp.close()
-    print 'Please review SQL statements in:', fname
+    print('Please review SQL statements in:', fname)
 
 if __name__ == '__main__':
     main()

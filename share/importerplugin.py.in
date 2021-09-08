@@ -91,7 +91,7 @@ class ImporterPlugin(BasePlugin):
                 'plugin_check'      : self.limit_check,
                 'next_check_expired': True,
             })
-        except ImporterError, error:
+        except ImporterError as error:
             self.log.error('remote module error while retrieving checks <' + str(error) + '>')
             self.dismiss.wait(self.params['importer_retry_timeout'])
 
@@ -101,14 +101,14 @@ class ImporterPlugin(BasePlugin):
         """ Commits checks results using importer. """
         # Do not try to update status in one shot.
         # Split it into packets of @limit_commit results.
-        values = self.resqueue.values()
+        values = list(self.resqueue.values())
         for i in range(0, len(values) / self.params['limit_commit'] + 1):
             # Try to commit current slice
             try:
                 self.importer.call('spv.services',
                     'set_checks_status',
                     values[i * self.params['limit_commit']:(i+1) * self.params['limit_commit']])
-            except ImporterError, error:
+            except ImporterError as error:
                 self.log.error('remote module error while commiting updates <' + str(error) + '>')
         self.resqueue = {}
         self.rescommit.clear()

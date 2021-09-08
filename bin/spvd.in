@@ -21,7 +21,7 @@ VERSION = "@PACKAGE_VERSION@"
 
 # Default daemon parameters.
 # File mode creation mask of the daemon.
-UMASK = 0022
+UMASK = 0o022
 
 # Default working directory for the daemon.
 WORKDIR = "/"
@@ -103,7 +103,7 @@ class Monitor:
                         continue
 
                     params_required.update(pclass.require)
-                self.log.debug('plugin_attrs.Plugin.require: ' + str(params_required.keys()))
+                self.log.debug('plugin_attrs.Plugin.require: ' + str(list(params_required.keys())))
             except AttributeError:
                 self.log.error("Plugin %s doesn't provide its required configuration options" % plugin_name)
                 self.shutdown()
@@ -120,14 +120,14 @@ class Monitor:
                         continue
 
                     params_optional.update(pclass.optional)
-                self.log.debug('plugin_attrs.Plugin.optional: ' + str(params_optional.keys()))
+                self.log.debug('plugin_attrs.Plugin.optional: ' + str(list(params_optional.keys())))
             except AttributeError:
                 self.log.error("Plugin %s doesn't provide its optional configuration options" % plugin_name)
                 self.shutdown()
 
             plugin_conf = {}
             # Load required parameters
-            for key, convert in params_required.iteritems():
+            for key, convert in params_required.items():
                 try:
                     if config.has_option(section, key):
                         plugin_conf[key] = convert(config.get(section, key))
@@ -142,7 +142,7 @@ class Monitor:
                     self.shutdown()
 
             # Load optional parameters
-            for key, convert in params_optional.iteritems():
+            for key, convert in params_optional.items():
                 if key == 'debug':
                     convert = lambda debug: debug in ('True', 'true', 'on', 'yes') and True or False
 
@@ -256,15 +256,15 @@ def daemonize(options):
         old_pid = int(fd.read())
         fd.close()
         if os.path.isfile("/proc/%d/cmdline" % old_pid):
-            print "There is already a running instance"
+            print("There is already a running instance")
             os._exit(os.EX_OK)
 
     try:
         pid = os.fork()
         if pid > 0:
             sys.exit(os.EX_OK)
-    except OSError, error:
-        raise Exception, "First fork failed: %s [%d]" % (error.strerror, error.errno)
+    except OSError as error:
+        raise Exception("First fork failed: %s [%d]" % (error.strerror, error.errno))
 
     os.chdir(WORKDIR)
     os.setsid()
@@ -274,8 +274,8 @@ def daemonize(options):
         pid = os.fork()
         if pid > 0:
             sys.exit(os.EX_OK)
-    except OSError, error:
-        raise Exception, "Second fork failed: %s [%d]" % (error.strerror, error.errno)
+    except OSError as error:
+        raise Exception("Second fork failed: %s [%d]" % (error.strerror, error.errno))
 
     f = open(options.pidfile, 'w')
     f.write("%d" % os.getpid())

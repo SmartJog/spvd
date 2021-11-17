@@ -1,7 +1,6 @@
 Version 1.0.3~dev
 
-	* Port the sjconf plugin to Python3
-	* Prepare most of the code for Python3 compatibility
+	* Port to Python3
 
 Version 1.0.2 Released on 2016/07/25
 

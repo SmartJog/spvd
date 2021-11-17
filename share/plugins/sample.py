@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ Sample module """
 
 from importerplugin import ImporterPlugin

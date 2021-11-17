@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """ BasePlugin definitions. """
 
 import logging
 import threading
 import traceback
 import os
-import Queue
+import queue
 from sjutils import threadpool
 
 
@@ -287,7 +285,7 @@ class BasePlugin(threading.Thread):
                         )
                         self.job_pool.queue_request(req, self.params["check_poll"])
                         self.log.debug("Work request #%s added." % req.request_id)
-                except Queue.Full:
+                except queue.Full:
                     self.log.error("queue is full")
                     continue
 

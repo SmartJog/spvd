@@ -1,6 +1,6 @@
-debian/tmp/usr/bin
-debian/tmp/usr/share/spvd
-debian/tmp/usr/share/man/man8/spvd.8
-debian/tmp/usr/share/man/man5/spvd.conf.5
-debian/tmp/usr/share/man/man5/spvd-plugins.5
-debian/tmp/etc/spvd.conf
+usr/bin
+usr/share/spvd
+usr/share/man/man8/spvd.8
+usr/share/man/man5/spvd.conf.5
+usr/share/man/man5/spvd-plugins.5
+etc/spvd.conf

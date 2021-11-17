@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
 
 """ Body of the supervision daemon code. """
 
@@ -9,7 +8,7 @@ import optparse
 import resource
 
 import signal
-import ConfigParser
+import configparser
 
 import sjutils
 import threading
@@ -69,7 +68,7 @@ class Monitor:
     def parse_config(self, configfile):
         """Parse spvd configuration file."""
 
-        config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
         config.read(configfile)
 
         # Main configuration

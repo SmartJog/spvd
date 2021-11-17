@@ -3,27 +3,18 @@ Section: misc
 Priority: optional
 Maintainer: Nicolas Delvaux <nicolas.delvaux@cji.paris>
 Build-Depends: debhelper (>= 9),
-               python-all,
+               python3-all,
+               dh-python,
                txt2tags
 Standards-Version: 3.9.6
 
 Package: spvd
 Architecture: all
 Depends: ${misc:Depends},
-         ${python:Depends},
-         importer (>=0.5),
-         python-sjutils (>=1.18.0)
-Suggests: python-psycopg2
-Breaks: spvd-cdn (<< 0.2~),
-        spvd-collect (<< 0.4~),
-        spvd-delivery (<< 0.9~),
-        spvd-events (<< 0.6~),
-        spvd-filelisting (<< 0.2~),
-        spvd-serverless (<< 0.3~),
-        spvd-sjtools (<< 0.2~),
-        spvd-smartdamstreaming (<< 0.5~),
-        spvd-streams (<< 0.8~),
-        spvd-virtmonitor (<< 0.3~)
+         ${python3:Depends},
+         python3-importer,
+         python3-sjutils (>=1.18.0)
+Suggests: python3-psycopg2
 Description: SmartJog core supervision
  Provides the daemon for SmartJog's core supervision.
 
@@ -31,7 +22,7 @@ Package: sjconf-spvd
 Architecture: all
 Pre-Depends: sjconf1 (>= 2.0.0~)
 Depends: ${misc:Depends},
-         ${python:Depends},
+         ${python3:Depends},
          spvd (>= ${source:Version})
 Description: SJConf plugin for spvd
  This package provides a SJConf plugin to handle spvd configuration.

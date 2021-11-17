@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ ImporterPlugin definitions.
 
 Performs central service queries through the importer module.
@@ -111,7 +109,7 @@ class ImporterPlugin(BasePlugin):
         # Do not try to update status in one shot.
         # Split it into packets of @limit_commit results.
         values = list(self.resqueue.values())
-        for i in range(0, len(values) / self.params["limit_commit"] + 1):
+        for i in range(0, len(values) // self.params["limit_commit"] + 1):
             # Try to commit current slice
             try:
                 self.importer.call(

@@ -63,15 +63,15 @@ spvd was started at SmartJog by Gilles Dartiguelongue in 2009. Various
 employees and interns from SmartJog fixed bugs and added features
 since then.
 
-* Alexandre Bossard <alexandre.bossard@smartjog.com>
-* Clément Bœsch <clement.boesch@smartjog.com>
-* Dupuy Mathieu <mathieu.dupuy@smartjog.com>
-* Gilles Dartiguelongue <gilles.dartiguelongue@smartjog.com>
-* Guillaume Camera <guillaume.camera@smartjog.com>
-* Mathieu Dupuy <mathieu.dupuy@smartjog.com>
-* Maxime Mouial <maxime.mouial@smartjog.com>
-* Nicolas Noirbent <nicolas.noirbent@smartjog.com>
-* Philippe Bridant <philippe.bridant@smartjog.com>
-* Rémi Cardona <remi.cardona@smartjog.com>
-* Thomas Souvignet <thomas.souvignet@smartjog.com>
-* Victor Goya <victor.goya@smartjog.com>
+* Alexandre Bossard
+* Clément Bœsch
+* Dupuy Mathieu
+* Gilles Dartiguelongue
+* Guillaume Camera
+* Mathieu Dupuy
+* Maxime Mouial
+* Nicolas Noirbent
+* Philippe Bridant
+* Rémi Cardona
+* Thomas Souvignet
+* Victor Goya

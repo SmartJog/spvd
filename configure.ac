@@ -1,5 +1,5 @@
 AC_PREREQ([2.67])
-AC_INIT([spvd],[1.0.3~dev],[opensource@cji.paris])
+AC_INIT([spvd],[1.1.0],[opensource@cji.paris])
 
 AM_INIT_AUTOMAKE([-Wall 1.11 foreign no-dist-gzip dist-xz])
 AM_SILENT_RULES([yes])

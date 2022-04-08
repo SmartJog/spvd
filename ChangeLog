@@ -1,3 +1,7 @@
+Version 1.1.1 Released on 2022/04/08
+
+	* Fix Python3 compatibility
+
 Version 1.1.0 Released on 2021/12/01
 
 	* Port to Python3

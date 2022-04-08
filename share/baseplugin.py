@@ -207,7 +207,7 @@ class BasePlugin(threading.Thread):
                             [
                                 thread
                                 for thread in self.job_pool.workers
-                                if thread.isAlive()
+                                if thread.is_alive()
                             ]
                         ),
                         int(self.params["max_parallel_checks"]),
